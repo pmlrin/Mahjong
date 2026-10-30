@@ -1,0 +1,7 @@
+[Unit]
+Description=Daily Mahjong backup
+[Timer]
+OnCalendar=*-*-* 04:00:00 Asia/Tokyo
+Persistent=true
+[Install]
+WantedBy=timers.target

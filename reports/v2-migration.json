@@ -1,0 +1,13 @@
+{
+ "at":"2026-10-29T07:00:35Z",
+ "version":"0.2.0",
+ "backup":"/opt/mahjong/backups/mahjong-20261029T070035Z.dump",
+ "isolatedDatabase":"mahjong_v2_migration_20261029",
+ "runs":2,"indexed":4,"issues":0,"uniqueSummaries":4,
+ "rawMatchesBeforeSha256":"66e5b838220e8bbc924fd340df538bed2a06679a633f84ae85dc0a891a052bb1",
+ "rawMatchesAfterSha256":"66e5b838220e8bbc924fd340df538bed2a06679a633f84ae85dc0a891a052bb1",
+ "rawUnchanged":true,
+ "rollback":{"version":"0.1.1","healthOK":true,"activeTables":0,"scope":"Backup copy with additive indexes only, no V2 match writes", "temporaryServiceStopped":true},
+ "productionDatabaseUnchanged":true,
+ "productionCutoverPerformed":false
+}

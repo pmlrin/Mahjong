@@ -1,0 +1,176 @@
+{
+  "capacity4": {
+    "at": "2026-10-29T07:04:02.495Z",
+    "version": "0.2.0",
+    "protocol": "2.0",
+    "tables": 10,
+    "humanCount": 4,
+    "botCount": 0,
+    "queryRate": {
+      "history": 5,
+      "stats": 1,
+      "replay": 1
+    },
+    "syntheticSummaries": 10000,
+    "durationMs": 36779,
+    "measurementWindowMs": 35000,
+    "clientRunsOnServer": true,
+    "environment": {
+      "platform": "linux",
+      "release": "5.10.134-19.8.al8.x86_64",
+      "node": "v24.22.1",
+      "cpus": 2,
+      "totalMemoryMiB": 1871
+    },
+    "serverCpuPercentP95": 23.98804232072384,
+    "serverRssMiBMax": 178.40625,
+    "metrics": {
+      "rtt": {
+        "count": 69,
+        "p95Ms": 16.325415999999677,
+        "maxMs": 22.267138999999588
+      },
+      "receipt": {
+        "count": 532,
+        "p95Ms": 34.37447599999905,
+        "maxMs": 191.68569299999945
+      },
+      "restore": {
+        "count": 40,
+        "p95Ms": 7.693494000000101,
+        "maxMs": 15.990706000000046
+      },
+      "history": {
+        "count": 174,
+        "p95Ms": 19.76685499999985,
+        "maxMs": 32.78540400000202
+      },
+      "stats": {
+        "count": 34,
+        "p95Ms": 33.808179000000564,
+        "maxMs": 439.53010700000004
+      },
+      "replay": {
+        "count": 34,
+        "p95Ms": 64.95896800000037,
+        "maxMs": 103.73850700000185
+      }
+    },
+    "failures": [],
+    "passed": true,
+    "serverMetricsDuringWindow": {
+      "actionCommitMs": {
+        "event": "PERF",
+        "metric": "actionCommitMs",
+        "count": 355,
+        "p95Ms": 21.70736400000169,
+        "maxMs": 63.070905000000494
+      },
+      "resolutionCommitMs": {
+        "event": "PERF",
+        "metric": "resolutionCommitMs",
+        "count": 289,
+        "p95Ms": 22.21167300000525,
+        "maxMs": 63.075120000001334
+      }
+    },
+    "database": "PostgreSQL 17, same host, isolated database"
+  },
+  "capacity1": {
+    "at": "2026-10-29T07:07:18.054Z",
+    "version": "0.2.0",
+    "protocol": "2.0",
+    "tables": 10,
+    "humanCount": 1,
+    "botCount": 3,
+    "queryRate": {
+      "history": 5,
+      "stats": 1,
+      "replay": 1
+    },
+    "syntheticSummaries": 10000,
+    "durationMs": 36095,
+    "measurementWindowMs": 35000,
+    "clientRunsOnServer": true,
+    "environment": {
+      "platform": "linux",
+      "release": "5.10.134-19.8.al8.x86_64",
+      "node": "v24.22.1",
+      "cpus": 2,
+      "totalMemoryMiB": 1871
+    },
+    "serverCpuPercentP95": 17.997634858812674,
+    "serverRssMiBMax": 169.45703125,
+    "metrics": {
+      "rtt": {
+        "count": 69,
+        "p95Ms": 10.956899999997404,
+        "maxMs": 14.361839000001055
+      },
+      "receipt": {
+        "count": 55,
+        "p95Ms": 54.34587399999873,
+        "maxMs": 62.83545200000117
+      },
+      "restore": {
+        "count": 10,
+        "p95Ms": 12.708003000000076,
+        "maxMs": 12.708003000000076
+      },
+      "history": {
+        "count": 174,
+        "p95Ms": 15.671204000002035,
+        "maxMs": 59.561037999999826
+      },
+      "stats": {
+        "count": 34,
+        "p95Ms": 56.168015999999625,
+        "maxMs": 147.09413700000005
+      },
+      "replay": {
+        "count": 34,
+        "p95Ms": 45.035101000001305,
+        "maxMs": 53.38903299999993
+      }
+    },
+    "failures": [],
+    "passed": true,
+    "serverMetricsDuringWindow": {
+      "botBasicMs": {
+        "event": "PERF",
+        "metric": "botBasicMs",
+        "count": 54,
+        "p95Ms": 13.913636000004772,
+        "maxMs": 18.8621639999983
+      },
+      "botStandardMs": {
+        "event": "PERF",
+        "metric": "botStandardMs",
+        "count": 24,
+        "p95Ms": 5.903119000002334,
+        "maxMs": 6.710614999996324
+      },
+      "actionCommitMs": {
+        "event": "PERF",
+        "metric": "actionCommitMs",
+        "count": 97,
+        "p95Ms": 23.03817600000184,
+        "maxMs": 59.58153499999753
+      },
+      "resolutionCommitMs": {
+        "event": "PERF",
+        "metric": "resolutionCommitMs",
+        "count": 80,
+        "p95Ms": 23.04347599999892,
+        "maxMs": 59.584483999999065
+      }
+    },
+    "database": "PostgreSQL 17, same host, isolated database"
+  },
+  "productionHealth": {
+    "ok": true,
+    "version": "0.1.1",
+    "activeTables": 0
+  },
+  "databaseInfo": "PostgreSQL 17.11 (Debian 17.11-1.pgdg12+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit\nmahjong_v2_capacity4_20261029|52623027\nmahjong_v2_capacity1_20261029|71481011\nmahjong_v2_migration_20261029|8738483\n"
+}

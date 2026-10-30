@@ -1,0 +1,7 @@
+[Unit]
+Description=Daily backup of isolated Mahjong V2 preview database
+[Timer]
+OnCalendar=*-*-* 04:10:00 Asia/Tokyo
+Persistent=true
+[Install]
+WantedBy=timers.target

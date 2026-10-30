@@ -1,0 +1,1207 @@
+{
+  "at": "2026-10-29T03:50:03.374Z",
+  "matches": 100,
+  "elapsedMs": 10920,
+  "report": [
+    {
+      "seed": 1,
+      "hands": 6,
+      "actions": 353,
+      "points": [
+        48900,
+        19200,
+        24500,
+        7400
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 2,
+      "hands": 4,
+      "actions": 242,
+      "points": [
+        27000,
+        14900,
+        19200,
+        38900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 3,
+      "hands": 4,
+      "actions": 294,
+      "points": [
+        12900,
+        21700,
+        21200,
+        44200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 4,
+      "hands": 3,
+      "actions": 167,
+      "points": [
+        48300,
+        22600,
+        31500,
+        -2400
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 5,
+      "hands": 5,
+      "actions": 301,
+      "points": [
+        22200,
+        43800,
+        21600,
+        12400
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 6,
+      "hands": 8,
+      "actions": 445,
+      "points": [
+        49200,
+        38600,
+        -100,
+        12300
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 7,
+      "hands": 4,
+      "actions": 240,
+      "points": [
+        13000,
+        42000,
+        22000,
+        23000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 8,
+      "hands": 6,
+      "actions": 366,
+      "points": [
+        15600,
+        26700,
+        25000,
+        32700
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 9,
+      "hands": 6,
+      "actions": 305,
+      "points": [
+        30500,
+        22300,
+        10500,
+        36700
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 10,
+      "hands": 6,
+      "actions": 261,
+      "points": [
+        33300,
+        25400,
+        12400,
+        28900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 11,
+      "hands": 7,
+      "actions": 355,
+      "points": [
+        35100,
+        15200,
+        18100,
+        31600
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 12,
+      "hands": 7,
+      "actions": 433,
+      "points": [
+        3600,
+        24500,
+        35000,
+        36900
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 13,
+      "hands": 4,
+      "actions": 218,
+      "points": [
+        16300,
+        29700,
+        30000,
+        24000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 14,
+      "hands": 4,
+      "actions": 253,
+      "points": [
+        21800,
+        35400,
+        18900,
+        23900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 15,
+      "hands": 7,
+      "actions": 471,
+      "points": [
+        20000,
+        19200,
+        34300,
+        26500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 16,
+      "hands": 5,
+      "actions": 290,
+      "points": [
+        23400,
+        28400,
+        33200,
+        15000
+      ],
+      "reason": "EXTENSION_TARGET_REACHED"
+    },
+    {
+      "seed": 17,
+      "hands": 3,
+      "actions": 142,
+      "points": [
+        24000,
+        -3200,
+        39000,
+        40200
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 18,
+      "hands": 6,
+      "actions": 486,
+      "points": [
+        26800,
+        9800,
+        37900,
+        25500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 19,
+      "hands": 6,
+      "actions": 356,
+      "points": [
+        50000,
+        19300,
+        -9700,
+        40400
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 20,
+      "hands": 5,
+      "actions": 289,
+      "points": [
+        14000,
+        27200,
+        26700,
+        32100
+      ],
+      "reason": "EXTENSION_TARGET_REACHED"
+    },
+    {
+      "seed": 21,
+      "hands": 5,
+      "actions": 302,
+      "points": [
+        22000,
+        30800,
+        15100,
+        32100
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 22,
+      "hands": 5,
+      "actions": 269,
+      "points": [
+        26000,
+        20000,
+        43000,
+        11000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 23,
+      "hands": 4,
+      "actions": 205,
+      "points": [
+        35500,
+        31200,
+        11800,
+        21500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 24,
+      "hands": 5,
+      "actions": 397,
+      "points": [
+        16700,
+        24500,
+        24900,
+        33900
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 25,
+      "hands": 6,
+      "actions": 343,
+      "points": [
+        9800,
+        17100,
+        23900,
+        49200
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 26,
+      "hands": 6,
+      "actions": 373,
+      "points": [
+        41200,
+        25600,
+        21600,
+        11600
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 27,
+      "hands": 4,
+      "actions": 178,
+      "points": [
+        23200,
+        23500,
+        15000,
+        38300
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 28,
+      "hands": 6,
+      "actions": 270,
+      "points": [
+        26400,
+        32700,
+        3600,
+        37300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 29,
+      "hands": 5,
+      "actions": 283,
+      "points": [
+        39500,
+        10700,
+        35300,
+        14500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 30,
+      "hands": 4,
+      "actions": 292,
+      "points": [
+        20100,
+        31100,
+        15600,
+        33200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 31,
+      "hands": 6,
+      "actions": 365,
+      "points": [
+        42900,
+        21200,
+        20800,
+        15100
+      ],
+      "reason": "EXTENSION_TARGET_REACHED"
+    },
+    {
+      "seed": 32,
+      "hands": 5,
+      "actions": 342,
+      "points": [
+        32200,
+        21400,
+        19100,
+        27300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 33,
+      "hands": 4,
+      "actions": 261,
+      "points": [
+        22000,
+        39900,
+        7200,
+        30900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 34,
+      "hands": 7,
+      "actions": 456,
+      "points": [
+        22000,
+        39500,
+        23200,
+        15300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 35,
+      "hands": 10,
+      "actions": 650,
+      "points": [
+        58500,
+        13700,
+        12000,
+        15800
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 36,
+      "hands": 4,
+      "actions": 220,
+      "points": [
+        16500,
+        27200,
+        20700,
+        35600
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 37,
+      "hands": 4,
+      "actions": 160,
+      "points": [
+        32200,
+        22000,
+        27600,
+        18200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 38,
+      "hands": 6,
+      "actions": 445,
+      "points": [
+        35800,
+        31800,
+        5800,
+        26600
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 39,
+      "hands": 5,
+      "actions": 318,
+      "points": [
+        11900,
+        31100,
+        16600,
+        40400
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 40,
+      "hands": 5,
+      "actions": 270,
+      "points": [
+        17900,
+        35500,
+        29200,
+        17400
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 41,
+      "hands": 4,
+      "actions": 222,
+      "points": [
+        20700,
+        25900,
+        32100,
+        21300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 42,
+      "hands": 4,
+      "actions": 185,
+      "points": [
+        31000,
+        24000,
+        11000,
+        34000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 43,
+      "hands": 10,
+      "actions": 672,
+      "points": [
+        5000,
+        62500,
+        31000,
+        1500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 44,
+      "hands": 4,
+      "actions": 228,
+      "points": [
+        17800,
+        33800,
+        24700,
+        23700
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 45,
+      "hands": 5,
+      "actions": 266,
+      "points": [
+        23400,
+        37700,
+        21400,
+        17500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 46,
+      "hands": 5,
+      "actions": 307,
+      "points": [
+        30300,
+        9700,
+        5100,
+        54900
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 47,
+      "hands": 5,
+      "actions": 278,
+      "points": [
+        33800,
+        16700,
+        18500,
+        31000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 48,
+      "hands": 4,
+      "actions": 222,
+      "points": [
+        8900,
+        27200,
+        41000,
+        22900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 49,
+      "hands": 10,
+      "actions": 635,
+      "points": [
+        27100,
+        26300,
+        16400,
+        30200
+      ],
+      "reason": "EXTENSION_HARD_LIMIT"
+    },
+    {
+      "seed": 50,
+      "hands": 7,
+      "actions": 435,
+      "points": [
+        38700,
+        12200,
+        1600,
+        47500
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 51,
+      "hands": 5,
+      "actions": 248,
+      "points": [
+        28300,
+        52300,
+        19500,
+        -100
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 52,
+      "hands": 5,
+      "actions": 302,
+      "points": [
+        12800,
+        18900,
+        50400,
+        17900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 53,
+      "hands": 5,
+      "actions": 245,
+      "points": [
+        16000,
+        25600,
+        34600,
+        23800
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 54,
+      "hands": 8,
+      "actions": 438,
+      "points": [
+        37000,
+        29700,
+        14500,
+        18800
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 55,
+      "hands": 6,
+      "actions": 371,
+      "points": [
+        27300,
+        17300,
+        19700,
+        35700
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 56,
+      "hands": 6,
+      "actions": 412,
+      "points": [
+        3100,
+        17200,
+        33700,
+        46000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 57,
+      "hands": 6,
+      "actions": 377,
+      "points": [
+        37800,
+        31100,
+        13900,
+        17200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 58,
+      "hands": 5,
+      "actions": 275,
+      "points": [
+        28100,
+        16900,
+        33200,
+        21800
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 59,
+      "hands": 4,
+      "actions": 222,
+      "points": [
+        19700,
+        19000,
+        27300,
+        34000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 60,
+      "hands": 4,
+      "actions": 255,
+      "points": [
+        9700,
+        37100,
+        10800,
+        42400
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 61,
+      "hands": 8,
+      "actions": 612,
+      "points": [
+        25300,
+        34600,
+        1400,
+        38700
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 62,
+      "hands": 7,
+      "actions": 477,
+      "points": [
+        24400,
+        30700,
+        19700,
+        25200
+      ],
+      "reason": "EXTENSION_TARGET_REACHED"
+    },
+    {
+      "seed": 63,
+      "hands": 5,
+      "actions": 268,
+      "points": [
+        29000,
+        37300,
+        15000,
+        18700
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 64,
+      "hands": 6,
+      "actions": 299,
+      "points": [
+        17000,
+        22200,
+        16600,
+        44200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 65,
+      "hands": 5,
+      "actions": 276,
+      "points": [
+        36100,
+        37200,
+        8000,
+        18700
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 66,
+      "hands": 4,
+      "actions": 259,
+      "points": [
+        24700,
+        19400,
+        22200,
+        33700
+      ],
+      "reason": "DEALER_TENPAI_YAME"
+    },
+    {
+      "seed": 67,
+      "hands": 6,
+      "actions": 392,
+      "points": [
+        28400,
+        7300,
+        35300,
+        29000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 68,
+      "hands": 4,
+      "actions": 165,
+      "points": [
+        17300,
+        47700,
+        10700,
+        24300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 69,
+      "hands": 5,
+      "actions": 335,
+      "points": [
+        24500,
+        12300,
+        14800,
+        48400
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 70,
+      "hands": 5,
+      "actions": 338,
+      "points": [
+        27600,
+        21000,
+        38600,
+        12800
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 71,
+      "hands": 4,
+      "actions": 205,
+      "points": [
+        13900,
+        44700,
+        20400,
+        21000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 72,
+      "hands": 4,
+      "actions": 236,
+      "points": [
+        33900,
+        26100,
+        13800,
+        26200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 73,
+      "hands": 4,
+      "actions": 219,
+      "points": [
+        15100,
+        20000,
+        32000,
+        32900
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 74,
+      "hands": 4,
+      "actions": 205,
+      "points": [
+        42700,
+        33500,
+        -900,
+        24700
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 75,
+      "hands": 4,
+      "actions": 245,
+      "points": [
+        17100,
+        17100,
+        30800,
+        35000
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 76,
+      "hands": 5,
+      "actions": 278,
+      "points": [
+        26300,
+        30300,
+        20700,
+        22700
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 77,
+      "hands": 7,
+      "actions": 434,
+      "points": [
+        22500,
+        24000,
+        18300,
+        35200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 78,
+      "hands": 5,
+      "actions": 272,
+      "points": [
+        25900,
+        11200,
+        25000,
+        37900
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 79,
+      "hands": 5,
+      "actions": 340,
+      "points": [
+        26700,
+        32900,
+        27200,
+        13200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 80,
+      "hands": 4,
+      "actions": 271,
+      "points": [
+        37100,
+        23600,
+        15400,
+        23900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 81,
+      "hands": 4,
+      "actions": 206,
+      "points": [
+        39000,
+        13000,
+        31100,
+        16900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 82,
+      "hands": 5,
+      "actions": 307,
+      "points": [
+        31500,
+        57500,
+        -4900,
+        15900
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 83,
+      "hands": 4,
+      "actions": 282,
+      "points": [
+        22400,
+        18400,
+        34500,
+        24700
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 84,
+      "hands": 6,
+      "actions": 322,
+      "points": [
+        21900,
+        16600,
+        41100,
+        20400
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 85,
+      "hands": 4,
+      "actions": 261,
+      "points": [
+        22400,
+        36600,
+        25600,
+        15400
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 86,
+      "hands": 8,
+      "actions": 444,
+      "points": [
+        9900,
+        53000,
+        9100,
+        28000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 87,
+      "hands": 4,
+      "actions": 251,
+      "points": [
+        -400,
+        19300,
+        50700,
+        30400
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 88,
+      "hands": 3,
+      "actions": 173,
+      "points": [
+        -3900,
+        53900,
+        27600,
+        22400
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 89,
+      "hands": 6,
+      "actions": 360,
+      "points": [
+        22300,
+        35200,
+        18200,
+        24300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 90,
+      "hands": 4,
+      "actions": 218,
+      "points": [
+        39900,
+        16000,
+        36900,
+        7200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 91,
+      "hands": 4,
+      "actions": 295,
+      "points": [
+        27000,
+        16000,
+        23000,
+        34000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 92,
+      "hands": 4,
+      "actions": 198,
+      "points": [
+        12500,
+        26500,
+        40500,
+        20500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 93,
+      "hands": 4,
+      "actions": 263,
+      "points": [
+        21500,
+        20800,
+        23500,
+        34200
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 94,
+      "hands": 4,
+      "actions": 256,
+      "points": [
+        9700,
+        24600,
+        28500,
+        37200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 95,
+      "hands": 5,
+      "actions": 309,
+      "points": [
+        24200,
+        8900,
+        26800,
+        40100
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 96,
+      "hands": 4,
+      "actions": 250,
+      "points": [
+        17500,
+        24400,
+        16500,
+        41600
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 97,
+      "hands": 7,
+      "actions": 445,
+      "points": [
+        18100,
+        16000,
+        52800,
+        13100
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 98,
+      "hands": 5,
+      "actions": 325,
+      "points": [
+        28000,
+        18200,
+        12400,
+        41400
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 99,
+      "hands": 4,
+      "actions": 242,
+      "points": [
+        13800,
+        36000,
+        30700,
+        19500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 100,
+      "hands": 6,
+      "actions": 229,
+      "points": [
+        35600,
+        12300,
+        30800,
+        21300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    }
+  ]
+}

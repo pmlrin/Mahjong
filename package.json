@@ -1,0 +1,42 @@
+{
+  "name": "mahjong-friends",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "node --import tsx backend/src/server.ts",
+    "dev:ui": "vite --config frontend/vite.config.ts",
+    "build": "tsc --noEmit && vite build --config frontend/vite.config.ts",
+    "start": "node --import tsx backend/src/server.ts",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "simulate": "node --import tsx scripts/simulate.ts",
+    "backup": "node --import tsx scripts/backup.ts",
+    "package": "node --import tsx scripts/package.ts",
+    "smoke": "node --import tsx scripts/smoke.ts"
+  },
+  "dependencies": {
+    "@kobalab/majiang-core": "^1.4.1",
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "tsx": "^4.20.6",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.15.5",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.12"
+  }
+}

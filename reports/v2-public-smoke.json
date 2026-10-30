@@ -1,0 +1,28 @@
+{
+  "at": "2026-10-29T07:44:40.284Z",
+  "url": "https://mahjong.yangjm.cn/preview/",
+  "version": "0.2.0",
+  "buildId": "6757f98f0a4c28eb3cf6582794df1760505ab421a2ebf2adc63994e0cbd58b84",
+  "protocol": "2.0",
+  "format": "HANCHAN",
+  "humanSessions": 2,
+  "botLevels": [
+    "BASIC",
+    "STANDARD"
+  ],
+  "cookieIsolation": true,
+  "websocket": true,
+  "latestDiscardVisible": true,
+  "aiDiscardGapsMs": [
+    2658,
+    1962
+  ],
+  "diagnosticId": "74f4a2b2-2347-46d3-8664-656fa4d49837",
+  "productionHealth": {
+    "ok": true,
+    "version": "0.1.1",
+    "activeTables": 0
+  },
+  "fullMatchVerified": false,
+  "passed": true
+}

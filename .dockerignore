@@ -1,0 +1,7 @@
+.git
+node_modules
+data
+reports
+.env*
+deploy/.env
+*.tar.gz

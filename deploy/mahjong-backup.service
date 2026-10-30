@@ -1,0 +1,5 @@
+[Unit]
+Description=Back up Mahjong database
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /opt/mahjong/current/deploy/backup.sh

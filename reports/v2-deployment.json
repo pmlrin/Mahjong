@@ -1,0 +1,28 @@
+{
+  "at": "2026-10-29T07:47:43Z",
+  "url": "https://mahjong.yangjm.cn/preview/",
+  "version": "0.2.0",
+  "protocol": "2.0",
+  "release": "20261029-v2-rc3",
+  "sourceSha256": "6757f98f0a4c28eb3cf6582794df1760505ab421a2ebf2adc63994e0cbd58b84",
+  "archiveSha256": "e6739b3eec9d3d13056d45e0548216e315338577a735473af9a0a96efb6caca3",
+  "service": "mahjong-v2-preview.service",
+  "database": "mahjong_v2_preview_20261029",
+  "cookieName": "mj_preview_session",
+  "cookiePath": "/preview",
+  "productionVersion": "0.1.1",
+  "productionCutoverPerformed": false,
+  "nginxBackup": "/opt/mahjong/nginx-pre-preview-20261029.conf",
+  "backupTimer": "mahjong-v2-preview-backup.timer",
+  "backup": "/opt/mahjong/v2-preview-backups/preview-20261029T074743Z.dump",
+  "backupRestore": {
+    "database": "mahjong_v2_preview_restore_20261029",
+    "matches": 1,
+    "receipts": 102,
+    "rawSha256": "9c424e4733045df116788be8fc236f2643f495739d23dacfb067e6bae2ff9364",
+    "rawUnchangedAfterRebuild": true,
+    "issues": 0
+  },
+  "temporaryCapacityServicesStopped": true,
+  "formalV2Acceptance": false
+}

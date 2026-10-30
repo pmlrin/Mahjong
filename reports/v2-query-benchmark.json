@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-29T07:30:54.605Z",
+  "version": "0.2.0",
+  "database": "SQLite local",
+  "summaries": 10051,
+  "queries": 100,
+  "historyP95Ms": 0.10762500000009823,
+  "statsP95Ms": 2.058334000000059,
+  "scope": "Indexed query benchmark, not production 10-table acceptance"
+}

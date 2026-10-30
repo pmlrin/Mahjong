@@ -1,0 +1,6 @@
+[Unit]
+Description=Backup isolated Mahjong V2 preview database
+After=docker.service
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /opt/mahjong/preview-backup.sh

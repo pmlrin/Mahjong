@@ -1,0 +1,33 @@
+{
+  "at": "2026-10-29",
+  "version": "0.2.0",
+  "environment": "Codex in-app desktop browser, local isolated test database",
+  "verified": [
+    "HANCHAN creation, per-seat BASIC and STANDARD controls and ready/start",
+    "AI-autoplay full HANCHAN match; history details include East and South hands",
+    "Replay event 51 restores riichi points to 24000; default all-information off",
+    "Page reload retains replay route and restores saved event 51",
+    "Statistics defaults to FRIENDS, N=0 shows no data; AI_PRACTICE switches to own sample",
+    "640x360 compact table shows source discard, response buttons, timer and complete hand",
+    "360x780 history content width equals viewport 360; header and main no longer overlap",
+    "Settings compact and reduced-motion persist after page reload",
+    "Viewing history during an active match is not interrupted by normal game frames",
+    "Public browser on /preview/: guest session, connected room, HANCHAN, BASIC and STANDARD, four seats ready and start enabled"
+  ],
+  "screenshots": [
+    "v2-ui/table-compact-640x360.png",
+    "v2-ui/replay-restored-640x360.png",
+    "v2-ui/history-360x780.png",
+    "v2-ui/stats-640x360.png",
+    "v2-ui/preview-online.png"
+  ],
+  "notVerified": [
+    "Physical iPhone Safari touch and rotation",
+    "Physical Android Chrome touch and rotation",
+    "Windows browser full match",
+    "Multiple actual humans in four browser combinations"
+  ],
+  "formalMobileAcceptance": false,
+  "previewURL": "https://mahjong.yangjm.cn/preview/",
+  "buildId": "6757f98f0a4c28eb3cf6582794df1760505ab421a2ebf2adc63994e0cbd58b84"
+}

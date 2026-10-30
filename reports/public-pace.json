@@ -1,0 +1,12 @@
+{
+  "origin": "https://mahjong.yangjm.cn",
+  "at": "2026-10-29T04:51:10.408Z",
+  "matchId": "5668814d-85f9-4e50-85fc-7473db5aa19a",
+  "aiDiscardGapsMs": [
+    3725,
+    5099
+  ],
+  "latestDiscardReceived": true,
+  "pacingPassed": true,
+  "fullMatchVerified": false
+}

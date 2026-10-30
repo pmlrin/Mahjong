@@ -87,3 +87,9 @@ playwright/.auth/
 
 # .gitignore 只影响未跟踪文件，不能清除已经提交的敏感信息。
 # 提交前仍需检查 git diff --cached，勿将真实凭据写入源码或文档。
+
+# Compiled server and local application data
+dist-server/
+data/
+backups/
+release-package/

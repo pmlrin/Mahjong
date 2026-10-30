@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-29",
+  "timezone": "Asia/Tokyo",
+  "database": "PostgreSQL 17, mahjong-db",
+  "backup": "/opt/mahjong/backups/mahjong-20261029T035617Z.dump",
+  "isolatedRestoreDatabase": "mahjong_restore_20261029_v2",
+  "sourceRowCount": 21,
+  "restoredRowCount": 21,
+  "sourceDigest": "2b5e14a0f780b8449c61635b4def9bcd",
+  "restoredDigest": "2b5e14a0f780b8449c61635b4def9bcd",
+  "productionDataReplaced": false,
+  "passed": true
+}
