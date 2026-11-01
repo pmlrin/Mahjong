@@ -1,0 +1,29 @@
+{
+  "clientDate": "2026-11-01",
+  "environment": "preview",
+  "userConfirmedRegistration": true,
+  "userConfirmedCrossBrowserLogin": true,
+  "userConfirmedPasswordReset": true,
+  "serverRegisteredEvents": 1,
+  "serverLoginEvents": 2,
+  "serverPasswordResetEvents": 1,
+  "publicResetRequests": {
+    "code": 200,
+    "verify": 200,
+    "complete": 200
+  },
+  "accountAuthVersion": 2,
+  "unrevokedOldAuthVersionSessions": 0,
+  "revokedAccountSessions": 3,
+  "currentVersionSessions": 1,
+  "oldMatchesCompared": 1,
+  "oldMatchesUnchanged": true,
+  "userReportedBrowsers": [
+    "Safari",
+    "Chrome"
+  ],
+  "observedAuthBrowsers": [
+    "macOS Safari"
+  ],
+  "realMobileVerified": false
+}

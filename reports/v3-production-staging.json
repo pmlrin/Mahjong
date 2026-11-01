@@ -1,0 +1,23 @@
+{
+  "release": "/opt/mahjong/releases/20261101-v3-production",
+  "manifest": {
+    "version": "0.3.0",
+    "protocolVersion": "2.0",
+    "sourceSha256": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+    "builtAt": "2026-11-01T08:17:34.519Z"
+  },
+  "archiveSha256": "7b321986c9e2c3508feafbc71e1252e1fd86968280163cd9f4c73594daa432cb",
+  "archiveBytes": 325255,
+  "frontendAsset": "index-7IxdzzqY.js",
+  "basePath": "/",
+  "smtp": {
+    "smtpTLS": true,
+    "authenticated": true,
+    "emailSent": false,
+    "environment": "production",
+    "note": "Authentication only; actual receipt and registration/reset still require end-to-end verification"
+  },
+  "productionEnvironment": "production",
+  "dependenciesReusedFromVerifiedPreview": true,
+  "staged": true
+}

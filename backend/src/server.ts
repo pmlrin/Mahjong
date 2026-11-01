@@ -16,7 +16,19 @@ import { botReadyAt } from "./bot-timing.ts";
 import { recoverable, technicalAbort } from "./recovery.ts";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { existsSync, readFileSync } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  mkdirSync,
+  writeFileSync,
+  chmodSync,
+} from "node:fs";
+import { AuthService } from "./auth/service.ts";
+import { AuthError, type Identity } from "./auth/types.ts";
+import { authConfig } from "./auth/config.ts";
+import { MailQueue } from "./auth/mail.ts";
+import { digest } from "./auth/crypto.ts";
+import { mountAuthRoutes } from "./auth/http.ts";
 import { Server, type Socket } from "socket.io";
 import { z } from "zod";
 import { Store, type Write } from "./store.ts";
@@ -66,11 +78,7 @@ await store.open();
 console.log(
   JSON.stringify({ event: "HISTORY_BACKFILL", ...(await backfill(store)) }),
 );
-interface Session {
-  userId: string;
-  displayName: string;
-  expires: number;
-}
+type Session = Identity;
 interface SavedReceipt {
   hash: string;
   userId: string;
@@ -90,12 +98,12 @@ const games = new Map(
     normalizeGame(x.data),
   ]),
 );
-const sessions = new Map(
-  (await store.list<Session>("session")).map((x) => [x.id, x.data]),
-);
 const receipts = new Map<string, SavedReceipt>();
 const httpReceipts = new Map<string, HttpReceipt>();
-const bindings = new Map<string, { socketId: string; bindingId: string }>();
+const bindings = new Map<
+  string,
+  { socketId: string; bindingId: string; sessionHash: string }
+>();
 const subscriptions = new Map<string, string>();
 const clocks = new Map<string, number>();
 const bots = new BotPool();
@@ -161,6 +169,13 @@ function errorData(e: unknown) {
       message: "请求格式不正确",
       retryable: false,
       shouldSync: false,
+    };
+  if (e instanceof AuthError)
+    return {
+      code: e.code,
+      message: e.message,
+      retryable: false,
+      shouldSync: e.status === 401,
     };
   if (e instanceof BusinessError)
     return {
@@ -263,13 +278,12 @@ function sessionFrom(cookie: string | undefined): Session | null {
     .find((x) => x.startsWith(cookieName + "="))
     ?.slice(cookieName.length + 1);
   if (!token) return null;
-  const s = sessions.get(sha(token));
-  return s && s.expires > Date.now() ? s : null;
+  return auth.resolveToken(token);
 }
 function user(req: Request): Session {
   return (
     sessionFrom(req.headers.cookie) ??
-    fail("UNAUTHENTICATED", "游客会话已失效，请重新进入", 401)
+    fail("UNAUTHENTICATED", "登录状态已失效，请重新登录或选择游客试玩", 401)
   );
 }
 function current(userId: string) {
@@ -385,7 +399,12 @@ async function save(g: GameState | null, r: Room | null, extra: Write[] = []) {
   const effect = () => {
     if (r) {
       rooms.set(r.roomId, r);
-      ns.to(`room:${r.roomId}`).emit("room:view", r);
+      for (const connection of ns.sockets.values())
+        if (
+          connection.rooms.has(`room:${r.roomId}`) &&
+          auth.resolveHash(connection.data.sessionHash)
+        )
+          connection.emit("room:view", r);
     }
     if (g) {
       games.set(g.matchId, g);
@@ -399,7 +418,11 @@ async function save(g: GameState | null, r: Room | null, extra: Write[] = []) {
         const p = g.players[f.state.viewerSeat];
         if (!p.userId) continue;
         const b = bindings.get(p.userId);
-        if (b && subscriptions.get(b.socketId) === g.matchId)
+        if (
+          b &&
+          auth.resolveHash(b.sessionHash) &&
+          subscriptions.get(b.socketId) === g.matchId
+        )
           ns.sockets.get(b.socketId)?.emit("game:view", f);
       }
     }
@@ -412,6 +435,140 @@ async function save(g: GameState | null, r: Room | null, extra: Write[] = []) {
   await store.commit(writes);
   effect();
 }
+const authSettings = authConfig();
+if (!authSettings.requestSecret) {
+  if (process.env.NODE_ENV === "production")
+    throw Error("Production requires SESSION_SECRET");
+  const secretFile = resolve(
+    dirname(process.env.SQLITE_PATH ?? resolve(root, "data/mahjong.sqlite")),
+    "auth-local-secret",
+  );
+  mkdirSync(dirname(secretFile), { recursive: true, mode: 0o700 });
+  if (!existsSync(secretFile))
+    writeFileSync(secretFile, randomBytes(32).toString("base64url"), {
+      mode: 0o600,
+      flag: "wx",
+    });
+  chmodSync(secretFile, 0o600);
+  authSettings.requestSecret = readFileSync(secretFile, "utf8");
+}
+const auth = new AuthService(store, authSettings, {
+  serialize: enqueue,
+  assertReleased(session) {
+    const b = bindings.get(session.userId);
+    if (b?.sessionHash === session.tokenHash && current(session.userId))
+      throw new AuthError(
+        "CONTROL_RELEASE_REQUIRED",
+        "请先明确托管并退出牌桌控制，或离开准备厅",
+        409,
+      );
+  },
+  invalidate: async (hashes) => {
+    for (const hash of hashes) await releaseAuthContext(hash, true);
+  },
+});
+console.log(
+  JSON.stringify({ event: "AUTH_MIGRATION", ...(await auth.initialize()) }),
+);
+const mailQueue = new MailQueue(auth);
+mailQueue.start();
+function rawSessionHash(req: Request) {
+  const raw = req.headers.cookie
+    ?.split(";")
+    .map((x) => x.trim())
+    .find((x) => x.startsWith(cookieName + "="))
+    ?.slice(cookieName.length + 1);
+  return raw ? digest(raw) : null;
+}
+function cookieOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict" as const,
+    path: process.env.SESSION_COOKIE_PATH ?? "/",
+    maxAge: 30 * 86400000,
+  };
+}
+async function releaseAuthContext(hash: string, forced: boolean) {
+  const identity = auth.sessions.get(hash);
+  if (!identity) return;
+  const b = bindings.get(identity.userId);
+  const owns = b?.sessionHash === hash;
+  if (owns) {
+    // Revoked sessions are already rejected by every action. Keep the binding
+    // until the AI/presence update commits so expiry recovery can retry on failure.
+    const forgetBinding = () => {
+      if (bindings.get(identity.userId)?.bindingId === b.bindingId)
+        bindings.delete(identity.userId);
+      subscriptions.delete(b.socketId);
+    };
+    const r = current(identity.userId);
+    if (r) {
+      const changed = structuredClone(r),
+        m = changed.slots.find((m) => m?.userId === identity.userId);
+      if (m) m.connected = false;
+      changed.presenceVersion++;
+      changed.roomViewSeq++;
+      if (r.matchId) {
+        const { g, s } = await gameFor(r.matchId, identity.userId);
+        if (g.status === "RUNNING") {
+          g.players[s].desiredControl = "AI";
+          g.players[s].connected = false;
+          const d = g.decisions[s];
+          if (d?.owner === "HUMAN" && !d.choice) d.blocked = true;
+          log(g, "CONTROL_CHANGED", {
+            seat: s,
+            mode: "AI",
+            reason: forced ? "SESSION_REVOKED" : "IDENTITY_RELEASE",
+          });
+          await save(g, changed);
+        }
+      } else if (!forced) {
+        removeMember(changed, identity.userId);
+        roomChanged(changed);
+        await save(null, changed);
+      } else {
+        if (changed.isRematchLobby)
+          changed.offlineSince[identity.userId] = Date.now();
+        await save(null, changed);
+      }
+    }
+    if (staged && !forced) staged.effects.push(forgetBinding);
+    else forgetBinding();
+  }
+  const notify = () => {
+    for (const connection of ns.sockets.values())
+      if (connection.data.sessionHash === hash) {
+        subscriptions.delete(connection.id);
+        connection.emit("server:notice", {
+          code: forced ? "SESSION_REVOKED" : "AUTH_CONTEXT_RELEASED",
+          message: forced
+            ? "登录状态已失效，请重新登录"
+            : "已退出牌桌控制，可继续身份操作",
+        });
+        if (forced) connection.disconnect(true);
+        else
+          for (const room of [...connection.rooms])
+            if (room !== connection.id) void connection.leave(room);
+      }
+  };
+  if (staged && !forced) staged.effects.push(notify);
+  else notify();
+}
+mountAuthRoutes({
+  app,
+  auth,
+  user,
+  rawSessionHash,
+  cookieName,
+  cookieOptions,
+  release: async (req, res) =>
+    mutation(req, res, async (session) => {
+      await releaseAuthContext(session.tokenHash, false);
+      return { released: true };
+    }),
+  errorData,
+});
 for (const r of rooms.values()) {
   for (const m of r.slots)
     if (m?.participantKind === "HUMAN") {
@@ -492,13 +649,17 @@ function route(
 ) {
   app[method]("/api/v2" + path, (req, res) => {
     Promise.resolve(fn(req, res)).catch((e) => {
-      if (!(e instanceof BusinessError) && !(e instanceof z.ZodError))
+      if (
+        !(e instanceof BusinessError) &&
+        !(e instanceof AuthError) &&
+        !(e instanceof z.ZodError)
+      )
         console.error(
           JSON.stringify({ event: "HTTP_ERROR", message: e.message }),
         );
       res
         .status(
-          e instanceof BusinessError
+          e instanceof BusinessError || e instanceof AuthError
             ? e.status
             : e instanceof z.ZodError
               ? 400
@@ -526,6 +687,7 @@ async function mutation(
       }),
     );
   return enqueue(async () => {
+    user(req);
     const prior =
       httpReceipts.get(dedup) ?? (await store.get<HttpReceipt>("http", dedup));
     if (prior) {
@@ -551,42 +713,38 @@ async function mutation(
     }
   });
 }
-// Guest creation uses the UUID itself as an opaque retry token; only its hash is stored.
 route("post", "/sessions/guest", async (req, res) => {
   const existing = sessionFrom(req.headers.cookie);
   if (existing) {
-    res.json({ data: existing });
+    res.json({
+      data: {
+        userId: existing.userId,
+        displayName: existing.displayName,
+        identityKind: existing.kind,
+        maskedEmail: existing.maskedEmail,
+      },
+    });
     return;
   }
   const { displayName } = parse(
     z.object({ displayName: z.string().trim().min(1).max(16) }).strict(),
     req.body,
   );
-  const key = parse(uuid, req.headers["idempotency-key"]);
   limited(`guest:${req.ip}`, 60);
-  const token = sha(`${process.env.SESSION_SECRET ?? localSecret()}:${key}`),
-    hash = sha(token);
-  await enqueue(async () => {
-    let s = sessions.get(hash);
-    if (!s) {
-      s = { userId: uid(), displayName, expires: Date.now() + 30 * 86400000 };
-      await store.commit([{ kind: "session", id: hash, data: s }]);
-      sessions.set(hash, s);
-    }
-    res.cookie(cookieName, token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 30 * 86400000,
-      path: process.env.SESSION_COOKIE_PATH ?? "/",
-    });
-    res.json({ data: { userId: s.userId, displayName: s.displayName } });
+  const result = await auth.createGuest(
+    displayName,
+    parse(uuid, req.headers["idempotency-key"]),
+  );
+  res.cookie(cookieName, result.token, cookieOptions());
+  res.json({
+    data: {
+      userId: result.identity.userId,
+      displayName: result.identity.displayName,
+      identityKind: result.identity.kind,
+      maskedEmail: null,
+    },
   });
 });
-let ephemeralSecret: string | undefined;
-function localSecret() {
-  return (ephemeralSecret ??= randomBytes(32).toString("hex"));
-}
 route("get", "/me", async (req, res) => {
   const u = user(req),
     r = current(u.userId);
@@ -594,6 +752,8 @@ route("get", "/me", async (req, res) => {
     data: {
       userId: u.userId,
       displayName: u.displayName,
+      identityKind: u.kind,
+      maskedEmail: u.maskedEmail,
       roomId: r?.roomId ?? null,
       matchId: r?.matchId ?? null,
     },
@@ -910,6 +1070,7 @@ route("get", "/capabilities", async (_req, res) => {
       timePresetId: "standard-v1",
       maintenance: maintenance(),
       retentionDays: 30,
+      auth: auth.capabilities(),
     },
   });
 });
@@ -1127,7 +1288,10 @@ app.get("/healthz", async (_req, res) => {
   }
 });
 function socketUser(socket: Socket): Session {
-  return socket.data.user as Session;
+  return (
+    auth.resolveHash(socket.data.sessionHash) ??
+    fail("UNAUTHENTICATED", "登录状态已失效，请重新登录", 401)
+  );
 }
 function ensureBinding(socket: Socket, bindingId?: string) {
   const b = bindings.get(socketUser(socket).userId);
@@ -1144,8 +1308,14 @@ ns.use((socket, next) => {
     if (socket.handshake.auth.protocolVersion !== PROTOCOL)
       fail("PROTOCOL_UNSUPPORTED", "请刷新页面更新客户端");
     const u = sessionFrom(socket.handshake.headers.cookie);
-    if (!u) fail("UNAUTHENTICATED", "游客会话已失效", 401);
+    if (!u)
+      return next(
+        Object.assign(new Error("登录状态已失效，请重新登录"), {
+          data: { code: "UNAUTHENTICATED" },
+        }),
+      );
     socket.data.user = u;
+    socket.data.sessionHash = u.tokenHash;
     next();
   } catch (e) {
     const er = new Error(errorData(e).message);
@@ -1182,7 +1352,13 @@ function on<T>(
       });
   });
 }
+const scheduleGame = enqueue;
 ns.on("connection", (socket) => {
+  const enqueue = <T>(fn: () => Promise<T>) =>
+    scheduleGame(async () => {
+      socketUser(socket);
+      return fn();
+    });
   const u = socketUser(socket);
   socket.emit("server:hello", {
     protocolVersion: PROTOCOL,
@@ -1200,7 +1376,11 @@ ns.on("connection", (socket) => {
         const old = bindings.get(u.userId);
         if (old?.socketId === socket.id) return { bindingId: old.bindingId };
         if (old && !p.takeover) fail("CONTROL_IN_USE", errors.CONTROL_IN_USE);
-        const binding = { socketId: socket.id, bindingId: uid() };
+        const binding = {
+          socketId: socket.id,
+          bindingId: uid(),
+          sessionHash: u.tokenHash,
+        };
         const r = current(u.userId);
         if (r) {
           const updated = structuredClone(r);
@@ -1328,7 +1508,7 @@ ns.on("connection", (socket) => {
     }),
   );
   socket.on("disconnect", () => {
-    enqueue(async () => {
+    scheduleGame(async () => {
       const b = bindings.get(u.userId);
       if (b?.socketId !== socket.id) return;
       bindings.delete(u.userId);
@@ -1580,8 +1760,18 @@ const interval = setInterval(
   },
   process.env.NODE_ENV === "test" && process.env.FAST_TEST === "1" ? 10 : 200,
 );
+const authExpiry = setInterval(() => {
+  const expired = new Set(
+    [...ns.sockets.values()]
+      .filter((socket) => !auth.resolveHash(socket.data.sessionHash))
+      .map((socket) => socket.data.sessionHash as string),
+  );
+  for (const hash of expired)
+    void enqueue(() => releaseAuthContext(hash, true)).catch(() => {});
+}, 1000);
 const cleanup = setInterval(() => {
   flushMetrics();
+  void auth.purgeExpiredLimits().catch(() => {});
   for (const cache of [receipts, httpReceipts])
     while (cache.size > 5000) cache.delete(cache.keys().next().value!);
   const activeWindows = new Set(
@@ -1590,8 +1780,6 @@ const cleanup = setInterval(() => {
   for (const key of clocks.keys())
     if (!activeWindows.has(key)) clocks.delete(key);
   for (const [key, v] of rate) if (Date.now() - v.at > 120000) rate.delete(key);
-  for (const [key, s] of sessions)
-    if (s.expires < Date.now()) sessions.delete(key);
 }, 60000);
 if (
   process.env.NODE_ENV === "production" &&
@@ -1629,8 +1817,10 @@ async function shutdown() {
   closing = true;
   clearInterval(interval);
   clearInterval(cleanup);
+  clearInterval(authExpiry);
   await tail;
   flushMetrics();
+  await mailQueue.close();
   await bots.close();
   await new Promise<void>((done) => io.close(() => done()));
   await store.close();

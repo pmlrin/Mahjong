@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-31T13:35:45.193Z",
+  "passed": true,
+  "secretFileIgnored": true,
+  "mode": "0600",
+  "independentGeneratedKeys": true,
+  "smtpPasswordBlank": true,
+  "sendsMail": false
+}

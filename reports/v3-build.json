@@ -1,0 +1,19 @@
+{
+  "version": "0.3.0",
+  "protocolVersion": "2.0",
+  "sourceSha256": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+  "builtAt": "2026-11-01T04:18:45.026Z",
+  "typecheck": true,
+  "frontendBuild": true,
+  "serverPackage": true,
+  "compiledAuthConfigure": true,
+  "compiledMailMissingConfigurationFailsBeforeConnection": true,
+  "compiledServerBoot": true,
+  "realSMTP": true,
+  "compiledRestoreVerification": true,
+  "finalPreviewBoot": true,
+  "finalFrontendAssets": [
+    "index-Dgr07wT4.js",
+    "index-B2gccJf9.css"
+  ]
+}

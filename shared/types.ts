@@ -2,7 +2,7 @@ export type MatchFormat = "EAST_ONLY" | "HANCHAN";
 export type BotLevel = "BASIC" | "STANDARD";
 export type MatchMode = "AI_PRACTICE" | "FRIENDS";
 export const BOT_POLICY_VERSION = "v2.0.0" as const;
-export const APP_VERSION = "0.2.0" as const;
+export const APP_VERSION = "0.3.0" as const;
 export type Seat = 0 | 1 | 2 | 3;
 export type Quad<T> = [T, T, T, T];
 export const SEATS: Seat[] = [0, 1, 2, 3];
@@ -357,4 +357,22 @@ export interface Diagnostic {
   viewSeq: number | null;
   serverEpoch: number | null;
   serverTime: number;
+}
+
+export interface AuthCapabilities {
+  enabled: boolean;
+  passwordLogin: boolean;
+  registration: boolean;
+  passwordReset: boolean;
+  mailAvailable: boolean;
+  previewRestricted: boolean;
+  environment: "preview" | "production";
+}
+export interface CurrentUser {
+  userId: string;
+  displayName: string;
+  roomId: string | null;
+  matchId: string | null;
+  identityKind: "GUEST" | "ACCOUNT";
+  maskedEmail: string | null;
 }

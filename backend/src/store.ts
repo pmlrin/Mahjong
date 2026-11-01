@@ -9,6 +9,7 @@ import type {
   MatchStats,
 } from "../../shared/types.ts";
 import { encodeCursor } from "./history.ts";
+import { Sql } from "./sql.ts";
 export interface Write {
   kind: string;
   id: string;
@@ -20,6 +21,36 @@ function summaryRow(row: any, postgres: boolean): HistorySummary | null {
   return { ...s, replayAvailable: s.replayAvailable && !!row.has_replay };
 }
 export class Store {
+  private writeTail: Promise<unknown> = Promise.resolve();
+  private exclusive<T>(fn: () => Promise<T>): Promise<T> {
+    const result = this.writeTail.then(fn);
+    this.writeTail = result.catch(() => {});
+    return result;
+  }
+  transaction<T>(fn: (tx: Sql) => Promise<T>): Promise<T> {
+    return this.exclusive(async () => {
+      const client = this.pool ? await this.pool.connect() : null;
+      try {
+        if (client) await client.query("BEGIN");
+        else this.sqlite!.exec("BEGIN IMMEDIATE");
+        const result = await fn(new Sql(client, this.sqlite));
+        if (client) await client.query("COMMIT");
+        else this.sqlite!.exec("COMMIT");
+        return result;
+      } catch (e) {
+        try {
+          if (client) await client.query("ROLLBACK");
+          else this.sqlite!.exec("ROLLBACK");
+        } catch {
+          // COMMIT may have succeeded before the connection failed. Preserve
+          // the original failure so auth can reload authoritative state.
+        }
+        throw e;
+      } finally {
+        client?.release();
+      }
+    });
+  }
   sqlite: DatabaseSync | null = null;
   pool: pg.Pool | null = null;
   lock: pg.PoolClient | null = null;
@@ -46,7 +77,7 @@ export class Store {
       this.sqlite = new DatabaseSync(path);
       chmodSync(path, 0o600);
       this.sqlite.exec(
-        "PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; CREATE TABLE IF NOT EXISTS documents (kind TEXT NOT NULL,id TEXT NOT NULL,payload TEXT NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(kind,id));",
+        "PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; CREATE TABLE IF NOT EXISTS documents (kind TEXT NOT NULL,id TEXT NOT NULL,payload TEXT NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(kind,id));",
       );
     }
   }
@@ -257,7 +288,10 @@ export class Store {
       ) as { id: string; payload: string }[]
     ).map((r) => ({ id: r.id, data: JSON.parse(r.payload) }));
   }
-  async commit(writes: Write[]) {
+  commit(writes: Write[]) {
+    return this.exclusive(() => this.commitUnlocked(writes));
+  }
+  private async commitUnlocked(writes: Write[]) {
     if (this.pool) {
       const c = await this.pool.connect();
       try {

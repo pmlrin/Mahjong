@@ -1,0 +1,31 @@
+{
+  "at": "2026-11-01T10:05:51.589113Z",
+  "type": "frontend-only",
+  "version": "0.3.0",
+  "releaseDirectory": "/opt/mahjong/releases/20261101-v3-production",
+  "backendBuildIdUnchanged": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+  "backendRestarted": false,
+  "databaseModified": false,
+  "previousAssetsRetained": true,
+  "indexBackup": "/opt/mahjong/backups/frontend-layout-20261101/index.html",
+  "oldJavaScript": "index-7IxdzzqY.js",
+  "newJavaScript": "index-BplNhS1i.js",
+  "newStylesheet": "index-BK0nF5WF.css",
+  "manifest": {
+    "archiveSha256": "9f7517cee26e229597c3817294e48a1877c366c8757d0d0f41328bc851392a71",
+    "archiveBytes": 115480,
+    "files": {
+      "index.html": "99a944994fd7d7264dc7afc9f82d708dba31d28030d380205b74c7bda0b69398",
+      "assets/index-BplNhS1i.js": "ea6015eaf78d569cd9919ce3acc5c655e547b96d4d938b62ba01708dbface531",
+      "assets/index-BK0nF5WF.css": "1a31ffe325ac99091a8bbd4be6108c9b1226e468a5f7753837433963c506448c"
+    }
+  },
+  "health": {
+    "ok": true,
+    "version": "0.3.0",
+    "buildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+    "activeTables": 0
+  },
+  "allExistingServicesHealthy": true,
+  "passed": true
+}

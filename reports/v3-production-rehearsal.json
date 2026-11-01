@@ -1,0 +1,105 @@
+{
+  "at": "2026-11-01",
+  "productionHealthBefore": {
+    "ok": true,
+    "version": "0.1.1",
+    "activeTables": 0
+  },
+  "backup": "/opt/mahjong/backups/mahjong-v3-preproduction-20261101.dump",
+  "backupBytes": 318519,
+  "restoredCopy": "mahjong_v3_formal_migration_20261101",
+  "before": {
+    "rows": 377,
+    "sha256": "e96f40bcaaaa03c2b68d1f02d9975ac1965e6bb02793a5d354d7d9cc7e245b75"
+  },
+  "restored": {
+    "rows": 377,
+    "sha256": "e96f40bcaaaa03c2b68d1f02d9975ac1965e6bb02793a5d354d7d9cc7e245b75"
+  },
+  "after": {
+    "rows": 377,
+    "sha256": "e96f40bcaaaa03c2b68d1f02d9975ac1965e6bb02793a5d354d7d9cc7e245b75"
+  },
+  "protectedLegacyDocumentsUnchanged": true,
+  "migrationRuns": [
+    {
+      "migration": "v2",
+      "indexed": 6,
+      "issues": 0,
+      "rawUnchanged": true,
+      "before": {
+        "count": 6,
+        "sha256": "dcf59baae398450f8f8bae4bf9e89c4d649143512847e52126de8fc646fc0e68"
+      },
+      "after": {
+        "count": 6,
+        "sha256": "dcf59baae398450f8f8bae4bf9e89c4d649143512847e52126de8fc646fc0e68"
+      }
+    },
+    {
+      "migration": "v2",
+      "indexed": 0,
+      "issues": 0,
+      "alreadyApplied": true,
+      "rawUnchanged": true,
+      "before": {
+        "count": 6,
+        "sha256": "dcf59baae398450f8f8bae4bf9e89c4d649143512847e52126de8fc646fc0e68"
+      },
+      "after": {
+        "count": 6,
+        "sha256": "dcf59baae398450f8f8bae4bf9e89c4d649143512847e52126de8fc646fc0e68"
+      }
+    },
+    {
+      "migration": "auth-v3",
+      "environment": "production",
+      "users": 16,
+      "sessions": 16,
+      "conflicts": 0,
+      "legacyUnchanged": true,
+      "before": {
+        "documents": 31,
+        "sha256": "917428973e30de5326b8fbb8655031489f06043bb748b641f811f72263eb9746"
+      },
+      "after": {
+        "documents": 31,
+        "sha256": "917428973e30de5326b8fbb8655031489f06043bb748b641f811f72263eb9746"
+      }
+    },
+    {
+      "migration": "auth-v3",
+      "environment": "production",
+      "alreadyApplied": true,
+      "users": 0,
+      "sessions": 0,
+      "conflicts": 0,
+      "legacyUnchanged": true,
+      "before": {
+        "documents": 31,
+        "sha256": "917428973e30de5326b8fbb8655031489f06043bb748b641f811f72263eb9746"
+      },
+      "after": {
+        "documents": 31,
+        "sha256": "917428973e30de5326b8fbb8655031489f06043bb748b641f811f72263eb9746"
+      }
+    },
+    {
+      "environment": "production",
+      "accounts": 0,
+      "profiles": 16,
+      "validAccountSessions": 0,
+      "validGuestSessions": 16,
+      "oldVersionSessions": 0,
+      "oldVersionSessionsDenied": 0,
+      "registrationClosed": true,
+      "accountDowngrade": false,
+      "passed": true
+    }
+  ],
+  "authConfigMode": "0600",
+  "separateOTPAndEncryptionKeys": true,
+  "originalSessionSecretPreserved": true,
+  "previewDataImported": false,
+  "passed": true
+}

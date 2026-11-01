@@ -1,0 +1,18 @@
+{
+  "clientDate": "2026-11-01",
+  "invitePreservedDuringRegistration": true,
+  "inviteResumedAfterReturn": true,
+  "inviteRemovedOnlyAfterJoin": true,
+  "releaseRemainsOnAccountPage": true,
+  "mobileWidth": 390,
+  "unicodePasswordPasteAction": true,
+  "uniformLoginError": true,
+  "realSMTP": false,
+  "mailJobs": 0,
+  "realPhone": false,
+  "screenshots": [
+    "invite-register-preserved.png",
+    "invite-return-room.png",
+    "final-mobile-login.png"
+  ]
+}

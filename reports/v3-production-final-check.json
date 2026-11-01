@@ -1,0 +1,53 @@
+{
+  "at": "2026-11-01T08:27:43.522469Z",
+  "services": {
+    "mahjong.service": "active",
+    "mahjong-v2-preview.service": "active",
+    "astrbot.service": "active",
+    "napcat.service": "active"
+  },
+  "health": {
+    "ok": true,
+    "version": "0.3.0",
+    "buildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+    "activeTables": 0
+  },
+  "previewHealth": {
+    "ok": true,
+    "version": "0.3.0",
+    "buildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+    "activeTables": 0
+  },
+  "maintenance": false,
+  "temporaryMaintenanceBlockRemoved": true,
+  "temporaryCapacityBlockRemoved": true,
+  "postDeploymentBackup": "/opt/mahjong/backups/mahjong-20261101T082701Z.dump",
+  "backupBytes": 457191,
+  "backupMode": "0o600",
+  "backupTables": 17,
+  "allAuthTablesIncluded": true,
+  "configurationBackup": "/opt/mahjong/backups/v3-production-config-20261101",
+  "configurationBackupMode": "0700 directory / 0600 files",
+  "globalOOMEventsSinceCutover": 0,
+  "documentKindCountsThenAccountCountAndEnvironment": [
+    "http|81",
+    "match|7",
+    "migration|1",
+    "outbox|28",
+    "receipt|659",
+    "room|10",
+    "session|16",
+    "0",
+    "production"
+  ],
+  "serviceResources": {
+    "NRestarts": "0",
+    "ExecMainStatus": "0",
+    "MemoryCurrent": "88375296",
+    "MemoryHigh": "268435456",
+    "MemoryMax": "335544320"
+  },
+  "backupTimerEnabled": "enabled",
+  "backupTimerActive": "active",
+  "passed": true
+}

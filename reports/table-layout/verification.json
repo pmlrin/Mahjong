@@ -1,0 +1,18 @@
+{
+  "typecheck": true,
+  "frontendBuild": true,
+  "feedbackTestsPassed": 8,
+  "geometryScenarios": 12,
+  "geometryPassed": true,
+  "fixtureOnly": true,
+  "files": [
+    "frontend/src/TableSurface.tsx",
+    "frontend/src/Melds.tsx",
+    "frontend/src/main.tsx",
+    "frontend/src/style.css"
+  ],
+  "notes": "Player/meld zones and all four rivers use separate flow areas. Synthetic late-hand and extreme geometry fixtures; not a real match or real phone test.",
+  "productionDeployed": true,
+  "productionDatabaseModified": false,
+  "backendRestarted": false
+}

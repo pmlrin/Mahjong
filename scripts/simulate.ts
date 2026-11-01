@@ -13,6 +13,7 @@ import {
 import { chooseBot } from "../backend/src/bot.ts";
 import {
   BOT_POLICY_VERSION,
+  APP_VERSION,
   type MatchFormat,
   type Seat,
 } from "../shared/types.ts";
@@ -72,7 +73,7 @@ for (let seed = 1; seed <= count; seed++) {
 mkdirSync("reports", { recursive: true });
 const result = {
   at: new Date().toISOString(),
-  version: "0.2.0",
+  version: APP_VERSION,
   format,
   botPolicies: ["BASIC", "STANDARD"],
   matches: count,
@@ -80,7 +81,7 @@ const result = {
   report,
 };
 writeFileSync(
-  `reports/v2-simulation-${format}.json`,
+  `reports/v3-simulation-${format}.json`,
   JSON.stringify(result, null, 2),
 );
 console.log(

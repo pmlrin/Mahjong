@@ -14,18 +14,47 @@ import {
 } from "../backend/src/engine.ts";
 import { chooseBot } from "../backend/src/bot.ts";
 import { summarize } from "../backend/src/history.ts";
-import type { Frame, Room } from "../shared/types.ts";
+import { APP_VERSION, type Frame, type Room } from "../shared/types.ts";
+import { migrateAuth } from "../backend/src/auth/migration.ts";
+import { authConfig } from "../backend/src/auth/config.ts";
+import { Passwords } from "../backend/src/auth/crypto.ts";
+const authScenario = process.env.LOAD_AUTH_LOAD === "1";
+if (process.argv.includes("--seed") || process.argv.includes("--reset")) {
+  const database = process.env.DATABASE_URL;
+  if (
+    process.env.ALLOW_ISOLATED_SEED !== "YES" ||
+    !database ||
+    !/^\/mahjong_v[23]_capacity[a-z0-9_]*$/.test(new URL(database).pathname)
+  )
+    throw Error(
+      "Seeding and reset require an explicitly acknowledged isolated capacity database",
+    );
+}
 const fixture =
   process.env.LOAD_FIXTURE ?? "/private/tmp/mahjong-v2-load-fixture.json";
 const origin = process.env.LOAD_ORIGIN ?? "http://127.0.0.1:18029";
+const siteOrigin = new URL(origin).origin;
+const socketPath = new URL(origin).pathname.replace(/\/$/, "") + "/socket.io";
+function loadHeaders(cookie: string, ip = "192.0.2.1") {
+  return {
+    Origin: siteOrigin,
+    Cookie: cookie,
+    "X-Forwarded-For": ip,
+    "X-Capacity-Client-IP": ip,
+    ...(process.env.LOAD_ACCESS_TOKEN
+      ? { "X-Capacity-Token": process.env.LOAD_ACCESS_TOKEN }
+      : {}),
+  };
+}
+
 const reportPath =
   process.env.LOAD_REPORT ?? "/private/tmp/mahjong-v2-load-report.json";
 if (process.argv.includes("--reset")) {
   if (
     process.env.ALLOW_ISOLATED_SEED !== "YES" ||
     !process.env.DATABASE_URL ||
-    !new URL(process.env.DATABASE_URL).pathname.startsWith(
-      "/mahjong_v2_capacity",
+    !/^\/mahjong_v[23]_capacity[a-z0-9_]*$/.test(
+      new URL(process.env.DATABASE_URL).pathname,
     )
   )
     throw Error(
@@ -75,6 +104,8 @@ if (process.argv.includes("--seed")) {
     userId: "capacity-user-" + i,
     displayName: "容量验证" + i,
     cookie: "mj_session=" + randomBytes(32).toString("hex"),
+    email: `capacity-${i}@example.invalid`,
+    password: "capacity-only-password-" + i,
   }));
   await store.commit(
     profiles.map((p) => ({
@@ -128,9 +159,38 @@ if (process.argv.includes("--seed")) {
       }),
     );
   }
+  if (authScenario) {
+    // Preverified synthetic fixtures exist only in the guarded disposable DB.
+    // No SMTP credentials, challenge bypass or test endpoint is added to the app.
+    await migrateAuth(store, authConfig({ MAIL_ENVIRONMENT: "preview" }));
+    const passwords = new Passwords(2);
+    for (const p of profiles) {
+      const hash = await passwords.hash(p.password);
+      await store.transaction(async (tx) => {
+        await tx.query(
+          "INSERT INTO auth_accounts(user_id,email_key,email_address,email_verified_at,password_hash,auth_version,updated_at) VALUES(?,?,?,?,?,1,?)",
+          [p.userId, p.email, p.email, Date.now(), hash, Date.now()],
+        );
+        await tx.query("UPDATE auth_users SET kind='ACCOUNT' WHERE user_id=?", [
+          p.userId,
+        ]);
+        await tx.query(
+          "UPDATE auth_sessions SET auth_version=1 WHERE user_id=?",
+          [p.userId],
+        );
+      });
+    }
+    await store.commit(
+      profiles.map((p) => ({
+        kind: "session",
+        id: createHash("sha256").update(p.cookie.slice(11)).digest("hex"),
+        data: { userId: p.userId, displayName: p.displayName, expires: 0 },
+      })),
+    );
+  }
   writeFileSync(
     fixture,
-    JSON.stringify({ profiles, replayMatchId: g.matchId }),
+    JSON.stringify({ profiles, replayMatchId: g.matchId, authScenario }),
     { mode: 0o600 },
   );
   await store.close();
@@ -138,6 +198,11 @@ if (process.argv.includes("--seed")) {
   process.exit(0);
 }
 const fixtureData = JSON.parse(readFileSync(fixture, "utf8"));
+fixtureData.profiles.forEach((p: { ip?: string }, index: number) => {
+  p.ip = `192.0.2.${index + 1}`;
+});
+if (authScenario && !fixtureData.authScenario)
+  throw Error("Authentication load requires account fixtures");
 const samples: Record<string, number[]> = {
     rtt: [],
     receipt: [],
@@ -145,6 +210,8 @@ const samples: Record<string, number[]> = {
     history: [],
     stats: [],
     replay: [],
+    authLogin: [],
+    invalidGrant: [],
   },
   failures: string[] = [];
 const capture = async <T>(metric: string, fn: () => Promise<T>) => {
@@ -157,12 +224,13 @@ let stopping = false;
 const clients: {
   socket: Socket;
   cookie: string;
+  ip: string;
   binding: string;
   frame: Frame | null;
   done: Set<string>;
 }[] = [];
 async function api(
-  c: { cookie: string },
+  c: { cookie: string; ip?: string },
   method: string,
   path: string,
   body?: unknown,
@@ -170,8 +238,7 @@ async function api(
   const r = await fetch(origin + "/api/v2" + path, {
     method,
     headers: {
-      Origin: origin,
-      Cookie: c.cookie,
+      ...loadHeaders(c.cookie, c.ip),
       "Content-Type": "application/json",
       "Idempotency-Key": randomUUID(),
     },
@@ -200,13 +267,15 @@ function emit(c: (typeof clients)[number], event: string, payload: unknown) {
 async function connect(index: number) {
   const profile = fixtureData.profiles[index];
   const c = {
-    socket: io(origin + "/game", {
+    socket: io(siteOrigin + "/game", {
+      path: socketPath,
       transports: ["websocket"],
       auth: { protocolVersion: "2.0" },
-      extraHeaders: { Origin: origin, Cookie: profile.cookie },
+      extraHeaders: loadHeaders(profile.cookie, profile.ip),
       reconnection: false,
     }),
     cookie: profile.cookie,
+    ip: profile.ip,
     binding: "",
     frame: null as Frame | null,
     done: new Set<string>(),
@@ -277,6 +346,79 @@ const sample = setInterval(() => {
 }, 1000);
 const started = performance.now();
 let queries: ReturnType<typeof setInterval>[] = [];
+const authRequests = new Set<Promise<void>>();
+let authSuccesses = 0,
+  invalidGrantRejections = 0,
+  authSequence = 0,
+  maxAuthInFlight = 0;
+async function authRequest(
+  path: string,
+  body: unknown,
+  cookie = "",
+  ip = "192.0.2.1",
+) {
+  const response = await fetch(origin + "/api/v2/auth/" + path, {
+    method: "POST",
+    signal: AbortSignal.timeout(10000),
+    headers: {
+      ...loadHeaders(cookie, ip),
+      "Content-Type": "application/json",
+      "Idempotency-Key": randomUUID(),
+    },
+    body: JSON.stringify(body),
+  });
+  return {
+    status: response.status,
+    body: await response.json(),
+    cookie: response.headers.get("set-cookie")?.split(";")[0] ?? "",
+  };
+}
+async function exerciseAuth() {
+  const p = fixtureData.profiles[authSequence++ % fixtureData.profiles.length];
+  const login = await capture("authLogin", () =>
+    authRequest(
+      "login",
+      {
+        email: p.email,
+        password: p.password,
+        flowId: randomUUID(),
+        confirmSwitchGuest: false,
+      },
+      "",
+      p.ip,
+    ),
+  );
+  if (
+    login.status !== 200 ||
+    login.body.data.userId !== p.userId ||
+    !login.cookie
+  )
+    throw Error("AUTH_LOGIN_FAILED");
+  const logout = await authRequest(
+    "logout",
+    { flowId: randomUUID() },
+    login.cookie,
+    p.ip,
+  );
+  if (logout.status !== 200) throw Error("AUTH_LOGOUT_FAILED");
+  authSuccesses++;
+  const invalid = await capture("invalidGrant", () =>
+    authRequest(
+      "password-reset/complete",
+      {
+        grant: randomBytes(32).toString("base64url"),
+        password: p.password,
+        confirmation: p.password,
+        flowId: randomUUID(),
+      },
+      "",
+      p.ip,
+    ),
+  );
+  if (invalid.status !== 400 || invalid.body.error?.code !== "GRANT_INVALID")
+    throw Error("INVALID_GRANT_NOT_REJECTED");
+  invalidGrantRejections++;
+}
 try {
   for (let table = 0; table < 10; table++) {
     const cs = [];
@@ -334,10 +476,26 @@ try {
       500,
     ),
   ];
+  if (authScenario)
+    queries.push(
+      setInterval(() => {
+        if (authRequests.size >= 4) return;
+        const request = exerciseAuth()
+          .catch((error) => {
+            failures.push(error.message);
+          })
+          .finally(() => {
+            authRequests.delete(request);
+          });
+        authRequests.add(request);
+        maxAuthInFlight = Math.max(maxAuthInFlight, authRequests.size);
+      }, 250),
+    );
   await new Promise((r) => setTimeout(r, duration));
 } finally {
   stopping = true;
   queries.forEach(clearInterval);
+  await Promise.allSettled([...authRequests]);
   clearInterval(sample);
   clients.forEach((c) => c.socket.disconnect());
 }
@@ -356,12 +514,14 @@ const metrics = Object.fromEntries(
 );
 const report = {
   at: new Date().toISOString(),
-  version: "0.2.0",
+  version: APP_VERSION,
   protocol: "2.0",
   tables: 10,
   humanCount,
   botCount: 4 - humanCount,
   queryRate: { history: 5, stats: 1, replay: 1 },
+  clientAddressModel:
+    "Distinct TEST-NET addresses, trusted loopback test proxy only",
   syntheticSummaries: 10000,
   durationMs: Math.round(performance.now() - started),
   measurementWindowMs: duration,
@@ -378,7 +538,21 @@ const report = {
   serverRssMiBMax: rss.length ? Math.max(...rss) : null,
   metrics,
   failures,
+  authentication: {
+    enabled: authScenario,
+    successfulLoginLogout: authSuccesses,
+    invalidGrantRejections,
+    maxInFlight: maxAuthInFlight,
+    requestedPerSecond: authScenario ? 4 : 0,
+    realSMTP: false,
+  },
   passed:
+    (!authScenario ||
+      (authSuccesses >= Math.floor(duration / 250) * 0.75 &&
+        invalidGrantRejections === authSuccesses &&
+        maxAuthInFlight <= 4 &&
+        metrics.authLogin.p95Ms !== null &&
+        metrics.authLogin.p95Ms <= 2000)) &&
     failures.length === 0 &&
     metrics.rtt.p95Ms !== null &&
     metrics.rtt.p95Ms <= 100 &&

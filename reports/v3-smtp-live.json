@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-10-31T16:29:21.258Z",
+  "localTLS": true,
+  "localSMTPAuthentication": true,
+  "emailSent": true,
+  "realQQDelivery": true,
+  "configurationIgnored": true,
+  "configurationMode": "0600",
+  "sensitiveTransferExplicitlyAuthorized": true,
+  "sessionSecretTransfer": false,
+  "databaseCredentialsTransfer": false,
+  "serverTLS": true,
+  "serverSMTPAuthentication": true,
+  "mailStatus": "ACCEPTED",
+  "purpose": "REGISTER",
+  "attempts": 1,
+  "bodyPurged": true,
+  "receiptConfirmation": {
+    "clientDate": "2026-11-01",
+    "source": "user_confirmation_and_server_audit",
+    "registrationStatus": "completed",
+    "passwordResetStatus": "completed"
+  },
+  "realRegistrationCompleted": true,
+  "realPasswordResetCompleted": true,
+  "auditEvidence": "v3-live-auth-acceptance.json"
+}

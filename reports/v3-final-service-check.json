@@ -1,0 +1,36 @@
+{
+  "services": {
+    "mahjong.service": "active",
+    "mahjong-v2-preview.service": "active",
+    "astrbot.service": "active",
+    "napcat.service": "active"
+  },
+  "previewResources": {
+    "ExecMainStatus": "0",
+    "MemoryCurrent": "74518528",
+    "CPUQuotaPerSecUSec": "1.500000s",
+    "MemoryHigh": "268435456",
+    "MemoryMax": "335544320",
+    "WorkingDirectory": "/opt/mahjong/releases/20261101-v3-preview-rc5"
+  },
+  "temporaryProxyRemoved": true,
+  "testPortClosed": true,
+  "temporaryServerAccessCredentialRemoved": true,
+  "authAudit": [
+    "LOGGED_IN|2",
+    "PASSWORD_RESET|1",
+    "REGISTERED|1"
+  ],
+  "authConfigMode": "0o600",
+  "previewHealth": {
+    "ok": true,
+    "version": "0.3.0",
+    "buildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+    "activeTables": 0
+  },
+  "productionHealth": {
+    "ok": true,
+    "version": "0.1.1",
+    "activeTables": 0
+  }
+}

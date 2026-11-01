@@ -1,0 +1,87 @@
+{
+  "at": "2026-11-01T04:35:55.315508+00:00",
+  "url": "https://mahjong.yangjm.cn/preview/",
+  "service": "mahjong-v2-preview.service",
+  "release": "20261101-v3-preview-rc5",
+  "version": "0.3.0",
+  "sourceSha256": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+  "database": "mahjong_v2_preview_20261029",
+  "cookieName": "mj_preview_session",
+  "cookiePath": "/preview",
+  "backup": "/opt/mahjong/v3-preview-rc5-stopped-20261101.dump",
+  "backupBytes": 156245,
+  "migration": {
+    "migration": "auth-v3",
+    "environment": "preview",
+    "users": 3,
+    "sessions": 3,
+    "conflicts": 0,
+    "legacyUnchanged": true,
+    "before": {
+      "documents": 6,
+      "sha256": "a239745d047b022e15d804cafcc474a56fe9bb63b9cbaf6265d7ccda7239fa85"
+    },
+    "after": {
+      "documents": 6,
+      "sha256": "a239745d047b022e15d804cafcc474a56fe9bb63b9cbaf6265d7ccda7239fa85"
+    }
+  },
+  "authCapabilities": {
+    "enabled": true,
+    "passwordLogin": true,
+    "registration": true,
+    "passwordReset": true,
+    "mailAvailable": true,
+    "previewRestricted": true,
+    "environment": "preview"
+  },
+  "productionVersion": "0.1.1",
+  "productionCutoverPerformed": false,
+  "smtpAuthenticated": true,
+  "realQQDelivery": true,
+  "frontendAsset": "index-Dgr07wT4.js",
+  "runtimeEnvironmentPrecedenceFixed": true,
+  "accountReleaseNavigationFixed": true,
+  "rc2Backup": "/opt/mahjong/v3-preview-rc1-before-rc2-20261101.dump",
+  "archiveSha256": "f09504608bc4d3385b472d370c78911b153caa80b6efa844f5ac940460c6a639",
+  "configurationMode": "0600",
+  "secretStagingCopyRemoved": true,
+  "compiledServerUnchangedRC1ToRC2": true,
+  "mailTask": {
+    "status": "ACCEPTED",
+    "purpose": "REGISTER",
+    "attempts": 1,
+    "ciphertextPurged": true,
+    "receiptConfirmed": true
+  },
+  "receiptConfirmation": {
+    "clientDate": "2026-11-01",
+    "source": "user_confirmation_and_server_audit",
+    "registrationStatus": "completed",
+    "passwordResetStatus": "completed"
+  },
+  "finalMigration": {
+    "migration": "auth-v3",
+    "environment": "preview",
+    "alreadyApplied": true,
+    "users": 0,
+    "sessions": 0,
+    "conflicts": 0,
+    "legacyUnchanged": true,
+    "before": {
+      "documents": 7,
+      "sha256": "48a79d5b3674451ad425e36cb3a391b2d1c37b0b322c1bf7838650fb18065d16"
+    },
+    "after": {
+      "documents": 7,
+      "sha256": "48a79d5b3674451ad425e36cb3a391b2d1c37b0b322c1bf7838650fb18065d16"
+    }
+  },
+  "finalRestoreReport": "v3-release-restore.json",
+  "resourceLimits": {
+    "heapLimitMiB": 112,
+    "memoryHighMiB": 256,
+    "memoryMaxMiB": 320,
+    "cpuQuotaPercent": 150
+  }
+}

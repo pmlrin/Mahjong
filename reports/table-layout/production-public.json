@@ -1,0 +1,28 @@
+{
+  "at": "2026-11-01T10:06:36.766400+00:00",
+  "url": "https://mahjong.yangjm.cn/",
+  "files": [
+    {
+      "file": "index.html",
+      "sha256": "99a944994fd7d7264dc7afc9f82d708dba31d28030d380205b74c7bda0b69398",
+      "verified": true
+    },
+    {
+      "file": "assets/index-BplNhS1i.js",
+      "sha256": "ea6015eaf78d569cd9919ce3acc5c655e547b96d4d938b62ba01708dbface531",
+      "verified": true
+    },
+    {
+      "file": "assets/index-BK0nF5WF.css",
+      "sha256": "1a31ffe325ac99091a8bbd4be6108c9b1226e468a5f7753837433963c506448c",
+      "verified": true
+    }
+  ],
+  "health": {
+    "ok": true,
+    "version": "0.3.0",
+    "buildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+    "activeTables": 0
+  },
+  "passed": true
+}

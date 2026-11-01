@@ -1147,7 +1147,10 @@ footer i {
   margin-left: auto;
 }
 .melds {
+  --meld-width: 20px;
+  --meld-height: 29px;
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
 }
@@ -1162,8 +1165,15 @@ footer i {
   height: 29px;
 }
 .called-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--meld-height);
+  height: var(--meld-height);
+  flex: 0 0 var(--meld-height);
+}
+.called-tile > .tile {
   transform: rotate(90deg);
-  margin: 0 4px;
 }
 .hand-panel {
   padding: 15px 10px 0;
@@ -2833,5 +2843,375 @@ select {
     font-size: 10px;
     align-items: center;
     padding: 2px 0;
+  }
+}
+
+.account-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  min-height: 70vh;
+}
+.account-page h1 {
+  margin: 20px 0;
+  font-size: 34px;
+}
+.account-card {
+  display: grid;
+  gap: 16px;
+  padding: 26px;
+  margin: 24px 0;
+  background: #fffdf7;
+  border: 1px solid #d5ddcf;
+  border-radius: 14px;
+}
+.account-card label {
+  display: grid;
+  gap: 8px;
+  line-height: 1.6;
+}
+.account-card input:not([type="checkbox"]) {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #b5c5b6;
+  border-radius: 8px;
+  font: inherit;
+  color: #193f32;
+  background: #fff;
+}
+.account-card label:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.account-card input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.account-notice,
+.account-release {
+  padding: 16px 20px;
+  background: #edf1e2;
+  color: #345143;
+  border-radius: 10px;
+  line-height: 1.8;
+}
+.account-release h2 {
+  font-size: 20px;
+}
+.account-release button {
+  margin: 8px 8px 0 0;
+}
+.account-error {
+  color: #843d2b;
+  padding: 16px;
+  background: #fff0e6;
+  border-radius: 8px;
+}
+.account-footnote {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #647365;
+}
+.account-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  padding: 4px;
+  color: inherit;
+}
+.identity-kind {
+  font-size: 10px;
+  border: 1px solid #becdbb;
+  padding: 3px 5px;
+  border-radius: 6px;
+}
+.account-shortcuts {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.account-shortcuts button {
+  font-size: 12px;
+}
+.guest-hint {
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 10px 0;
+}
+.account-card button {
+  min-height: 42px;
+}
+.account-card small {
+  color: #667565;
+  line-height: 1.8;
+}
+@media (max-width: 760px) {
+  .account-entry .identity-name {
+    display: none;
+  }
+  .account-entry {
+    font-size: 10px;
+  }
+  .account-page {
+    padding: 24px 16px;
+  }
+  .account-card {
+    padding: 20px;
+  }
+  .account-page h1 {
+    font-size: 28px;
+  }
+}
+@media (max-width: 500px) {
+  .account-entry {
+    min-height: 30px;
+  }
+  .account-card label {
+    font-size: 14px;
+  }
+  .account-release button {
+    width: 100%;
+  }
+}
+
+/* Keep player racks and rivers in separate flow areas, including late hands. */
+.game-table.table-layout {
+  --river-max: 23px;
+  --river-gap: 2px;
+  --field-gap: 12px;
+  --center-width: 185px;
+  --center-height: 170px;
+  display: grid;
+  grid-template-areas: "top top top" "left field right" "self self self";
+  grid-template-columns: minmax(0, 170px) minmax(0, 1fr) minmax(0, 170px);
+  gap: 14px;
+  height: auto;
+  min-height: 0;
+  padding: 16px;
+}
+.table-layout .table-top {
+  grid-area: top;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+}
+.table-layout .opponent {
+  position: static;
+  transform: none;
+  width: auto;
+  min-width: 0;
+  align-self: center;
+}
+.table-layout .position-1 {
+  grid-area: right;
+}
+.table-layout .position-3 {
+  grid-area: left;
+}
+.table-layout .position-2 {
+  max-width: min(440px, 60%);
+}
+.table-layout .opponent-info {
+  flex-wrap: wrap;
+  white-space: normal;
+}
+.table-layout .opponent-info > span:not(.wind-badge) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.table-layout .opponent-info strong {
+  margin: 0 0 0 auto;
+}
+.table-layout .riichi-label {
+  position: static;
+  margin-left: auto;
+}
+.table-layout .opponent-backs {
+  max-width: 100%;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+.table-layout .opponent .melds {
+  margin-top: 8px;
+}
+.table-layout .table-top .latest-discard-display {
+  position: static;
+  transform: none;
+  flex: 0 1 auto;
+  max-width: 250px;
+  min-width: 0;
+}
+.table-layout .table-field {
+  grid-area: field;
+  min-width: 0;
+  container-type: inline-size;
+  align-self: center;
+}
+.table-layout .table-grid {
+  /* Rotated side rivers consume their actual height as horizontal space. */
+  --river-size: clamp(
+    8px,
+    calc(
+      (
+          100cqw - var(--center-width) - 2 * var(--field-gap) -
+            var(--side-gaps) * var(--river-gap)
+        ) /
+        var(--side-units)
+    ),
+    var(--river-max)
+  );
+  --river-height: calc(var(--river-size) * 1.4);
+  --river-width: calc(6 * var(--river-size) + 5 * var(--river-gap));
+  --left-depth: calc(
+    var(--rows-3) * (var(--river-height) + var(--river-gap)) - var(--river-gap)
+  );
+  --right-depth: calc(
+    var(--rows-1) * (var(--river-height) + var(--river-gap)) - var(--river-gap)
+  );
+  display: grid;
+  grid-template-areas: ". upper ." "left center right" ". lower .";
+  grid-template-columns: var(--left-depth) var(--center-width) var(
+      --right-depth
+    );
+  grid-template-rows: auto minmax(
+      max(var(--center-height), var(--river-width)),
+      auto
+    ) auto;
+  gap: var(--field-gap);
+  width: max-content;
+  margin: auto;
+  align-items: center;
+  justify-items: center;
+}
+.table-layout .table-center {
+  grid-area: center;
+  position: static;
+  transform: none;
+  width: var(--center-width);
+  min-height: var(--center-height);
+}
+.table-layout .river-area {
+  --depth: calc(
+    var(--rows) * (var(--river-height) + var(--river-gap)) - var(--river-gap)
+  );
+  position: relative;
+  width: var(--river-width);
+  height: var(--depth);
+}
+.table-layout .river-area-0 {
+  grid-area: lower;
+}
+.table-layout .river-area-2 {
+  grid-area: upper;
+}
+.table-layout .river-area-1 {
+  grid-area: right;
+}
+.table-layout .river-area-3 {
+  grid-area: left;
+}
+.table-layout .river-area-1,
+.table-layout .river-area-3 {
+  width: var(--depth);
+  height: var(--river-width);
+}
+.table-layout .river {
+  position: absolute;
+  inset: auto;
+  left: 50%;
+  top: 50%;
+  width: var(--river-width);
+  height: var(--depth);
+  grid-template-columns: repeat(6, var(--river-size));
+  grid-template-rows: repeat(var(--rows), var(--river-height));
+  gap: var(--river-gap);
+  transform: translate(-50%, -50%);
+}
+.table-layout .river-2 {
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+.table-layout .river-1 {
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+.table-layout .river-3 {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+.table-layout .river .tile {
+  width: var(--river-size);
+  min-width: var(--river-size);
+  height: var(--river-height);
+}
+.table-layout .self-info {
+  grid-area: self;
+  position: static;
+  min-width: 0;
+  flex-wrap: wrap;
+  margin-top: 0;
+}
+.table-layout .melds {
+  max-width: 100%;
+}
+.table-layout .melds .tile {
+  width: var(--meld-width);
+  min-width: var(--meld-width);
+  height: var(--meld-height);
+}
+@media (max-width: 1000px) {
+  .game-table.table-layout {
+    --river-max: 20px;
+    --center-width: 155px;
+    --center-height: 155px;
+    --field-gap: 8px;
+    grid-template-columns: minmax(0, 120px) minmax(0, 1fr) minmax(0, 120px);
+    gap: 10px;
+    padding: 12px;
+  }
+}
+@media (max-width: 720px) and (orientation: portrait) {
+  .game-table.table-layout {
+    --river-max: 17px;
+    --river-gap: 1px;
+    --center-width: 122px;
+    --center-height: 145px;
+    grid-template-areas: "top top" "left right" "field field" "self self";
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px 12px;
+    padding: 10px;
+  }
+  .table-layout .table-top {
+    gap: 8px;
+  }
+  .table-layout .position-2 {
+    max-width: 50%;
+  }
+  .table-layout .table-top .latest-discard-display {
+    max-width: 50%;
+  }
+  .table-layout .melds {
+    --meld-width: 16px;
+    --meld-height: 23px;
+  }
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  .game-table.table-layout {
+    --river-max: 14px;
+    --river-gap: 1px;
+    --center-width: 114px;
+    --center-height: 111px;
+    --field-gap: 6px;
+    grid-template-columns: minmax(0, 110px) minmax(0, 1fr) minmax(0, 110px);
+    gap: 8px;
+    padding: 8px;
+  }
+  .table-layout .melds {
+    --meld-width: 14px;
+    --meld-height: 20px;
   }
 }

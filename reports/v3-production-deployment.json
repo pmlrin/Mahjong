@@ -1,0 +1,112 @@
+{
+  "at": "2026-11-01T08:21:38.257305Z",
+  "service": "mahjong.service",
+  "database": "mahjong",
+  "oldRelease": "/opt/mahjong/releases/20261029-v4",
+  "release": "/opt/mahjong/releases/20261101-v3-production",
+  "sourceSha256": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+  "backup": "/opt/mahjong/backups/mahjong-v3-stopped-20261101.dump",
+  "backupBytes": 318523,
+  "protectedLegacyBefore": {
+    "rows": 377,
+    "sha256": "04f73094da4614161b6e73225a36460c1aadce92ba30c3b1c4efb29044952e55"
+  },
+  "protectedLegacyAfter": {
+    "rows": 377,
+    "sha256": "04f73094da4614161b6e73225a36460c1aadce92ba30c3b1c4efb29044952e55"
+  },
+  "legacyUnchanged": true,
+  "migrations": [
+    {
+      "migration": "v2",
+      "indexed": 6,
+      "issues": 0,
+      "rawUnchanged": true,
+      "before": {
+        "count": 6,
+        "sha256": "dcf59baae398450f8f8bae4bf9e89c4d649143512847e52126de8fc646fc0e68"
+      },
+      "after": {
+        "count": 6,
+        "sha256": "dcf59baae398450f8f8bae4bf9e89c4d649143512847e52126de8fc646fc0e68"
+      }
+    },
+    {
+      "migration": "auth-v3",
+      "environment": "production",
+      "users": 16,
+      "sessions": 16,
+      "conflicts": 0,
+      "legacyUnchanged": true,
+      "before": {
+        "documents": 31,
+        "sha256": "05c58e9c1be2a566f9de8ea40f7e6c06a6b4c3016469f798ffa91b148d71b77b"
+      },
+      "after": {
+        "documents": 31,
+        "sha256": "05c58e9c1be2a566f9de8ea40f7e6c06a6b4c3016469f798ffa91b148d71b77b"
+      }
+    },
+    {
+      "migration": "auth-v3",
+      "environment": "production",
+      "alreadyApplied": true,
+      "users": 0,
+      "sessions": 0,
+      "conflicts": 0,
+      "legacyUnchanged": true,
+      "before": {
+        "documents": 31,
+        "sha256": "05c58e9c1be2a566f9de8ea40f7e6c06a6b4c3016469f798ffa91b148d71b77b"
+      },
+      "after": {
+        "documents": 31,
+        "sha256": "05c58e9c1be2a566f9de8ea40f7e6c06a6b4c3016469f798ffa91b148d71b77b"
+      }
+    }
+  ],
+  "health": {
+    "ok": true,
+    "version": "0.3.0",
+    "buildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+    "activeTables": 0
+  },
+  "capabilities": {
+    "appVersion": "0.3.0",
+    "buildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+    "protocolVersion": "2.0",
+    "formats": [
+      "EAST_ONLY",
+      "HANCHAN"
+    ],
+    "botLevels": [
+      "BASIC",
+      "STANDARD"
+    ],
+    "timePresetId": "standard-v1",
+    "maintenance": false,
+    "retentionDays": 30,
+    "auth": {
+      "enabled": true,
+      "passwordLogin": true,
+      "registration": true,
+      "passwordReset": true,
+      "mailAvailable": true,
+      "previewRestricted": false,
+      "environment": "production"
+    }
+  },
+  "mailTLSAuthenticated": true,
+  "productionCutoverPerformed": true,
+  "maintenanceActive": false,
+  "previewAccountsImported": false,
+  "previewServiceUnchanged": true,
+  "resourceLimits": {
+    "heapMiB": 112,
+    "MemoryHighMiB": 256,
+    "MemoryMaxMiB": 320,
+    "CPUQuotaPercent": 150
+  },
+  "maintenanceProxyRemoved": true,
+  "releasedAt": "2026-11-01T08:22:34.233385Z"
+}

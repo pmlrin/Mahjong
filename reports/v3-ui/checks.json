@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-31",
+  "application": "0.3.0",
+  "browser": "ChatGPT in-app browser",
+  "localURL": "http://127.0.0.1:3190/",
+  "viewports": [
+    {
+      "width": 1280,
+      "height": 900
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "guestEntry": true,
+  "mailUnavailableEntryDisabled": true,
+  "uniformLoginError": true,
+  "guestSwitchConfirmation": true,
+  "cancelPreservesGuest": true,
+  "passwordPasteAction": true,
+  "browserLogoutExecuted": false,
+  "browserLogoutBlock": "Automatic approval rejected possible loss of unregistered guest identity",
+  "realSMTP": false,
+  "realPhone": false,
+  "screenshots": [
+    "profile-desktop.png",
+    "profile-mobile.png",
+    "login-mobile.png"
+  ]
+}

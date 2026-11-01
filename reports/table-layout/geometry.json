@@ -1,0 +1,151 @@
+{
+  "scenarios": [
+    {
+      "fixture": "late-hand",
+      "boardHeight": 597.6875,
+      "centerRiverOverlaps": 0,
+      "height": 900,
+      "horizontalOverflow": false,
+      "meldRiverOverlaps": 0,
+      "meldTiles": 24,
+      "riverTiles": 72,
+      "tilesOutsideBoard": 0,
+      "width": 1440
+    },
+    {
+      "fixture": "stress",
+      "boardHeight": 734.5,
+      "centerRiverOverlaps": 0,
+      "height": 900,
+      "horizontalOverflow": false,
+      "meldRiverOverlaps": 0,
+      "meldTiles": 56,
+      "riverTiles": 120,
+      "tilesOutsideBoard": 0,
+      "width": 1440
+    },
+    {
+      "fixture": "late-hand-compact",
+      "boardHeight": 597.6875,
+      "centerRiverOverlaps": 0,
+      "height": 900,
+      "horizontalOverflow": false,
+      "meldRiverOverlaps": 0,
+      "meldTiles": 24,
+      "riverTiles": 72,
+      "tilesOutsideBoard": 0,
+      "width": 1440
+    },
+    {
+      "fixture": "stress-compact",
+      "boardHeight": 657.5,
+      "centerRiverOverlaps": 0,
+      "height": 900,
+      "horizontalOverflow": false,
+      "meldRiverOverlaps": 0,
+      "meldTiles": 56,
+      "riverTiles": 120,
+      "tilesOutsideBoard": 0,
+      "width": 1440
+    },
+    {
+      "fixture": "late-hand",
+      "boardHeight": 592.296875,
+      "centerRiverOverlaps": 0,
+      "height": 844,
+      "horizontalOverflow": false,
+      "meldRiverOverlaps": 0,
+      "meldTiles": 24,
+      "riverTiles": 72,
+      "tilesOutsideBoard": 0,
+      "width": 390
+    },
+    {
+      "fixture": "stress",
+      "boardHeight": 738.109375,
+      "centerRiverOverlaps": 0,
+      "height": 844,
+      "horizontalOverflow": false,
+      "meldRiverOverlaps": 0,
+      "meldTiles": 56,
+      "riverTiles": 120,
+      "tilesOutsideBoard": 0,
+      "width": 390
+    },
+    {
+      "fixture": "late-hand-compact",
+      "boardHeight": 592.296875,
+      "centerRiverOverlaps": 0,
+      "height": 844,
+      "horizontalOverflow": false,
+      "meldRiverOverlaps": 0,
+      "meldTiles": 24,
+      "riverTiles": 72,
+      "tilesOutsideBoard": 0,
+      "width": 390
+    },
+    {
+      "fixture": "stress-compact",
+      "boardHeight": 738.109375,
+      "centerRiverOverlaps": 0,
+      "height": 844,
+      "horizontalOverflow": false,
+      "meldRiverOverlaps": 0,
+      "meldTiles": 56,
+      "riverTiles": 120,
+      "tilesOutsideBoard": 0,
+      "width": 390
+    },
+    {
+      "fixture": "late-hand",
+      "boardHeight": 370.8828125,
+      "centerRiverOverlaps": 0,
+      "height": 390,
+      "horizontalOverflow": false,
+      "meldRiverOverlaps": 0,
+      "meldTiles": 24,
+      "riverTiles": 72,
+      "tilesOutsideBoard": 0,
+      "width": 844
+    },
+    {
+      "fixture": "stress",
+      "boardHeight": 453.2890625,
+      "centerRiverOverlaps": 0,
+      "height": 390,
+      "horizontalOverflow": false,
+      "meldRiverOverlaps": 0,
+      "meldTiles": 56,
+      "riverTiles": 120,
+      "tilesOutsideBoard": 0,
+      "width": 844
+    },
+    {
+      "fixture": "late-hand-compact",
+      "boardHeight": 370.8828125,
+      "centerRiverOverlaps": 0,
+      "height": 390,
+      "horizontalOverflow": false,
+      "meldRiverOverlaps": 0,
+      "meldTiles": 24,
+      "riverTiles": 72,
+      "tilesOutsideBoard": 0,
+      "width": 844
+    },
+    {
+      "fixture": "stress-compact",
+      "boardHeight": 453.2890625,
+      "centerRiverOverlaps": 0,
+      "height": 390,
+      "horizontalOverflow": false,
+      "meldRiverOverlaps": 0,
+      "meldTiles": 56,
+      "riverTiles": 120,
+      "tilesOutsideBoard": 0,
+      "width": 844
+    }
+  ],
+  "syntheticGeometryFixtures": true,
+  "realPhone": false,
+  "passed": true
+}

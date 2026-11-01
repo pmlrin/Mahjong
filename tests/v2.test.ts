@@ -32,6 +32,7 @@ import { technicalAbort, recoverable } from "../backend/src/recovery.ts";
 import { Store } from "../backend/src/store.ts";
 import {
   BOT_POLICY_VERSION,
+  APP_VERSION,
   type Room,
   type MatchFormat,
   type HistorySummary,
@@ -438,11 +439,11 @@ test("V03/V04/V09: indexed pagination, ties, filters, frozen membership, stats, 
     }
     const p95 = (x: number[]) => x.sort((a, b) => a - b)[94];
     writeFileSync(
-      "reports/v2-query-benchmark.json",
+      "reports/v3-query-benchmark.json",
       JSON.stringify(
         {
           at: new Date().toISOString(),
-          version: "0.2.0",
+          version: APP_VERSION,
           database: "SQLite local",
           summaries: 10051,
           queries: 100,

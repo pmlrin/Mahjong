@@ -1,0 +1,30 @@
+✔ V3 T06/T31: server deadlines stay ten minutes despite an incorrect browser clock (0.268458ms)
+✔ V3 T06/T31: resynchronization uses the current server response and ignores invalid timestamps (0.051417ms)
+✔ V3 T01/T02/T27/T29: old guests migrate without changing ID or history; register preserves replay position (25.541333ms)
+✔ V3 T03/T06/T07: purpose, flow, session, expiry and single-use credentials; verification retry replaces grant without extending authorization (7.389084ms)
+✔ V3 T04: database failure rolls back binding and grant; concurrent completion creates exactly one account (29.108125ms)
+✔ V3 T05/T09/T10/T11: registered email proof offers login; other guest history is never merged; bad passwords have uniform errors (60.892708ms)
+✔ V3 T07/T08/T23/T24: persistent guessing and resend limits survive reload, repeated key does not charge twice, latest code only (8.815542ms)
+✔ V3 T12/T13/T14/T15/T17/T18/T30: logout one device; reset revokes every old session; change keeps only new current session; disabled entry never downgrades accounts (112.49325ms)
+✔ V3 T15/T25/T26: absent reset accounts and non-allowlisted recipients create no SMTP attempts or account oracle (3.097458ms)
+✔ V3 T21/T22/T23: asynchronous SMTP retries reuse the code, budget includes retries, ciphertext is purged and error logs redact secrets (5.149584ms)
+✔ V3 crypto: Unicode password lengths, no trimming, ASCII email rules, Argon2id parameters and bounded asynchronous work (71.564958ms)
+✔ V3 T04/T18: uncertain commit reloads authoritative revocation and safe replay returns committed account, not a second binding (30.019333ms)
+✔ V3 T23: abandoned SENDING lease resumes after restart, never extends code expiry and scrubs terminal ciphertext (5.004292ms)
+✔ V3 T21/T25: shared provider budget cannot be doubled by preview and production processes (1.830208ms)
+✔ V3 T21/T22: SMTP auth failure is terminal, clears body, disables mail only and keeps password login available (30.68175ms)
+✔ V3 T06/T25: leading-zero code verifies, expires at ten minutes and wrong environment cannot reopen database (5.457167ms)
+✔ V3 T24: rolling limits do not reset at wall-clock boundaries; email, IP and login budgets persist (139.214ms)
+✔ V3 T30: SQLite backup restores accounts, legacy revocation and new-session identity without downgrading (28.086709ms)
+✔ V3 T21/T22: a pending SMTP connection holds no game/auth transaction; permanent refusal and corrupt outbox never retry (30.057708ms)
+✔ V3 T03/T10: invalid and cross-context completion grants never consume a password worker; completed retries still return the receipt (15.454333ms)
+✔ V3 T03/T18: completion proof is rechecked after hashing and cannot outlive its original five-minute authorization (14.854125ms)
+✔ V3 T25/T26: production registration uses the requested recipient and does not claim the preview allowlist restriction (3.870125ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 758.49175

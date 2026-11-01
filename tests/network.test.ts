@@ -7,7 +7,12 @@ import { join, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { io, type Socket } from "socket.io-client";
 import { chooseBot } from "../backend/src/bot.ts";
-import type { Room, Frame, Action } from "../shared/types.ts";
+import {
+  APP_VERSION,
+  type Room,
+  type Frame,
+  type Action,
+} from "../shared/types.ts";
 const origin = "http://127.0.0.1:3101",
   dir = mkdtempSync(join(tmpdir(), "mahjong-test-"));
 let child: ChildProcess;
@@ -627,7 +632,7 @@ test(
                 "serverTime",
               ].sort(),
             );
-            assert.equal(d.appVersion, "0.2.0");
+            assert.equal(d.appVersion, APP_VERSION);
             assert.equal(
               (
                 await cs[0].emit("game:control", {
@@ -927,12 +932,12 @@ test(
       );
       mkdirSync("reports", { recursive: true });
       writeFileSync(
-        "reports/v2-network.json",
+        "reports/v3-game-network.json",
         JSON.stringify(
           {
             at: new Date().toISOString(),
             passed: !subtestFailed,
-            version: "0.2.0",
+            version: APP_VERSION,
             protocol: "2.0",
             rematches: 3,
             formats: ["EAST_ONLY", "HANCHAN"],

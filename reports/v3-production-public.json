@@ -1,0 +1,42 @@
+{
+  "at": "2026-11-01T08:22:19.753276+00:00",
+  "https": true,
+  "version": "0.3.0",
+  "buildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+  "protocol": "2.0",
+  "asset": "/assets/index-7IxdzzqY.js",
+  "assetFetched": true,
+  "oldGuestCookieRecovered": true,
+  "oldGuestUserIdUnchanged": true,
+  "oldGuestHistoryEndpoint": true,
+  "cookieName": "mj_session",
+  "cookiePath": "/",
+  "auth": {
+    "enabled": true,
+    "passwordLogin": true,
+    "registration": true,
+    "passwordReset": true,
+    "mailAvailable": true,
+    "previewRestricted": false,
+    "environment": "production"
+  },
+  "maintenanceDuringCheck": true,
+  "previewHealthy": true,
+  "previewBuildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+  "userConfirmedMobilePage": true,
+  "mobileDeviceAndOSUnspecified": true,
+  "newProductionMailSent": false,
+  "maintenanceAtFinish": false,
+  "browserOriginalGuestRecovered": true,
+  "browserRegistrationPageVerified": true,
+  "screenshot": "v3-ui/production-register.png",
+  "fullPublicMatchPassed": true,
+  "finalServiceReport": "v3-production-final-check.json",
+  "finalPublicCheckAt": "2026-11-01T08:29:07.992029+00:00",
+  "finalPublicHealth": {
+    "ok": true,
+    "version": "0.3.0",
+    "buildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+    "activeTables": 0
+  }
+}

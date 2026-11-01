@@ -1,0 +1,32 @@
+{
+  "at": "2026-11-01",
+  "source": "mahjong_v2_preview_20261029",
+  "restoredCopy": "mahjong_v3_release_restore_20261101",
+  "backup": "/opt/mahjong/v3-preview-rc5-before-20261101.dump",
+  "backupBytes": 156245,
+  "before": {
+    "tables": 17,
+    "rows": 611,
+    "sha256": "1d42d63976dd97b06729f0e72a23048d19943f815f770fa666f9011f154b3db6"
+  },
+  "copied": {
+    "tables": 17,
+    "rows": 611,
+    "sha256": "1d42d63976dd97b06729f0e72a23048d19943f815f770fa666f9011f154b3db6"
+  },
+  "allRowsIdentical": true,
+  "flagsClosedVerification": {
+    "environment": "preview",
+    "accounts": 1,
+    "profiles": 3,
+    "validAccountSessions": 1,
+    "validGuestSessions": 2,
+    "oldVersionSessions": 3,
+    "oldVersionSessionsDenied": 3,
+    "registrationClosed": true,
+    "accountDowngrade": false,
+    "passed": true
+  },
+  "sourceDatabaseModified": false,
+  "passed": true
+}

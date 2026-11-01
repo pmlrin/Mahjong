@@ -1,0 +1,345 @@
+{
+  "cpuSupplement": {
+    "samples": 128,
+    "elapsedSeconds": 127.22064800281078,
+    "cpuPercentP95": 65.94366645317355,
+    "maxRssMiB": 225.88671875,
+    "minHostAvailableMiB": 343.9140625,
+    "abortedForMemory": false
+  },
+  "main": {
+    "realSMTP": false,
+    "serverMemoryMaxMiB": 320,
+    "serverMemoryHighMiB": 256,
+    "oomScoreAdjust": 1000,
+    "abortBelowHostAvailableMiB": 200,
+    "loadGenerator": "separate local Mac",
+    "cases": {
+      "4": {
+        "abortedForMemory": false,
+        "maxRssMiB": 218.90625,
+        "minimumHostAvailableMiB": 311.18359375,
+        "monitorDurationSeconds": 449.0208387635648,
+        "cpuP95Percent": null,
+        "cpuSamples": 0,
+        "serverMetrics": {
+          "actionCommitMs": {
+            "event": "PERF",
+            "metric": "actionCommitMs",
+            "count": 4166,
+            "p95Ms": 70.19612199999392,
+            "maxMs": 228.86032899998827
+          },
+          "resolutionCommitMs": {
+            "event": "PERF",
+            "metric": "resolutionCommitMs",
+            "count": 3350,
+            "p95Ms": 70.84612800000468,
+            "maxMs": 228.86409799999092
+          },
+          "botStandardMs": {
+            "event": "PERF",
+            "metric": "botStandardMs",
+            "count": 360,
+            "p95Ms": 13.379910000017844,
+            "maxMs": 29.474723000021186
+          }
+        }
+      },
+      "1": {
+        "abortedForMemory": false,
+        "maxRssMiB": 245.11328125,
+        "minimumHostAvailableMiB": 298.2421875,
+        "monitorDurationSeconds": 449.906880620867,
+        "cpuP95Percent": 52.92241674813722,
+        "cpuSamples": 449,
+        "serverMetrics": {
+          "botBasicMs": {
+            "event": "PERF",
+            "metric": "botBasicMs",
+            "count": 1075,
+            "p95Ms": 10.395935000036843,
+            "maxMs": 63.269879000028595
+          },
+          "actionCommitMs": {
+            "event": "PERF",
+            "metric": "actionCommitMs",
+            "count": 2128,
+            "p95Ms": 56.64823600000818,
+            "maxMs": 158.90737900001113
+          },
+          "resolutionCommitMs": {
+            "event": "PERF",
+            "metric": "resolutionCommitMs",
+            "count": 1707,
+            "p95Ms": 55.437272000010125,
+            "maxMs": 158.9087559999898
+          },
+          "botStandardMs": {
+            "event": "PERF",
+            "metric": "botStandardMs",
+            "count": 636,
+            "p95Ms": 10.721271000045817,
+            "maxMs": 44.35193399997661
+          }
+        }
+      }
+    },
+    "globalOOMEventsDuringBoundedRuns": 0,
+    "servicesHealthy": true
+  },
+  "cleanup": {
+    "privateProxyRemoved": true,
+    "testPortClosed": true,
+    "temporaryServerCredentialsRemoved": true,
+    "servicesHealthy": true,
+    "temporaryLocalAccessCredentialRemoved": true
+  },
+  "at": "2026-11-01",
+  "version": "0.3.0",
+  "mainBuildSourceSha256": "cc85e68f71bb1fe9e1e02fd189a5e71fc6ac61525349388b4f7c7dc98469af33",
+  "cpuSupplementBuildSourceSha256": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+  "clients": {
+    "4": {
+      "at": "2026-11-01T04:06:18.201Z",
+      "version": "0.3.0",
+      "protocol": "2.0",
+      "tables": 10,
+      "humanCount": 4,
+      "botCount": 0,
+      "queryRate": {
+        "history": 5,
+        "stats": 1,
+        "replay": 1
+      },
+      "clientAddressModel": "Distinct TEST-NET addresses, trusted loopback test proxy only",
+      "syntheticSummaries": 10000,
+      "durationMs": 305626,
+      "measurementWindowMs": 300000,
+      "clientRunsOnServer": false,
+      "environment": {
+        "platform": "darwin",
+        "release": "27.0.0",
+        "node": "v24.22.1",
+        "cpus": 15,
+        "totalMemoryMiB": 24576
+      },
+      "serverCpuPercentP95": null,
+      "serverRssMiBMax": null,
+      "metrics": {
+        "rtt": {
+          "count": 599,
+          "p95Ms": 40.501834000024246,
+          "maxMs": 121.64099999997416
+        },
+        "receipt": {
+          "count": 3802,
+          "p95Ms": 135.96691700001247,
+          "maxMs": 718.6994579999882
+        },
+        "restore": {
+          "count": 40,
+          "p95Ms": 24.288208999999824,
+          "maxMs": 27.481582999999773
+        },
+        "history": {
+          "count": 1494,
+          "p95Ms": 55.75149999999849,
+          "maxMs": 281.62404100000003
+        },
+        "stats": {
+          "count": 299,
+          "p95Ms": 61.84616700001061,
+          "maxMs": 533.4322080000002
+        },
+        "replay": {
+          "count": 299,
+          "p95Ms": 116.47254200000316,
+          "maxMs": 290.6272910000116
+        },
+        "authLogin": {
+          "count": 1192,
+          "p95Ms": 223.83137500000885,
+          "maxMs": 811.7143750000105
+        },
+        "invalidGrant": {
+          "count": 1192,
+          "p95Ms": 110.6773749999702,
+          "maxMs": 649.6789160000044
+        }
+      },
+      "failures": [],
+      "authentication": {
+        "enabled": true,
+        "successfulLoginLogout": 1192,
+        "invalidGrantRejections": 1192,
+        "maxInFlight": 4,
+        "requestedPerSecond": 4,
+        "realSMTP": false
+      },
+      "passed": true
+    },
+    "1": {
+      "at": "2026-11-01T04:16:09.041Z",
+      "version": "0.3.0",
+      "protocol": "2.0",
+      "tables": 10,
+      "humanCount": 1,
+      "botCount": 3,
+      "queryRate": {
+        "history": 5,
+        "stats": 1,
+        "replay": 1
+      },
+      "clientAddressModel": "Distinct TEST-NET addresses, trusted loopback test proxy only",
+      "syntheticSummaries": 10000,
+      "durationMs": 302682,
+      "measurementWindowMs": 300000,
+      "clientRunsOnServer": false,
+      "environment": {
+        "platform": "darwin",
+        "release": "27.0.0",
+        "node": "v24.22.1",
+        "cpus": 15,
+        "totalMemoryMiB": 24576
+      },
+      "serverCpuPercentP95": null,
+      "serverRssMiBMax": null,
+      "metrics": {
+        "rtt": {
+          "count": 598,
+          "p95Ms": 31.833125000004657,
+          "maxMs": 122.40950000000157
+        },
+        "receipt": {
+          "count": 426,
+          "p95Ms": 95.86570900003426,
+          "maxMs": 213.69537499999933
+        },
+        "restore": {
+          "count": 10,
+          "p95Ms": 21.23983400000003,
+          "maxMs": 21.23983400000003
+        },
+        "history": {
+          "count": 1489,
+          "p95Ms": 50.70204200001899,
+          "maxMs": 175.02754199999617
+        },
+        "stats": {
+          "count": 299,
+          "p95Ms": 74.29200000001583,
+          "maxMs": 169.900083
+        },
+        "replay": {
+          "count": 299,
+          "p95Ms": 111.70970800000214,
+          "maxMs": 197.57133299999987
+        },
+        "authLogin": {
+          "count": 1193,
+          "p95Ms": 151.1078330000164,
+          "maxMs": 250.2842079999973
+        },
+        "invalidGrant": {
+          "count": 1193,
+          "p95Ms": 45.49779199998011,
+          "maxMs": 256.64729200000875
+        }
+      },
+      "failures": [],
+      "authentication": {
+        "enabled": true,
+        "successfulLoginLogout": 1193,
+        "invalidGrantRejections": 1193,
+        "maxInFlight": 2,
+        "requestedPerSecond": 4,
+        "realSMTP": false
+      },
+      "passed": true
+    }
+  },
+  "cpuSupplementClient": {
+    "at": "2026-11-01T04:26:00.653Z",
+    "version": "0.3.0",
+    "protocol": "2.0",
+    "tables": 10,
+    "humanCount": 4,
+    "botCount": 0,
+    "queryRate": {
+      "history": 5,
+      "stats": 1,
+      "replay": 1
+    },
+    "clientAddressModel": "Distinct TEST-NET addresses, trusted loopback test proxy only",
+    "syntheticSummaries": 10000,
+    "durationMs": 65974,
+    "measurementWindowMs": 60000,
+    "clientRunsOnServer": false,
+    "environment": {
+      "platform": "darwin",
+      "release": "27.0.0",
+      "node": "v24.22.1",
+      "cpus": 15,
+      "totalMemoryMiB": 24576
+    },
+    "serverCpuPercentP95": null,
+    "serverRssMiBMax": null,
+    "metrics": {
+      "rtt": {
+        "count": 119,
+        "p95Ms": 46.66258300000118,
+        "maxMs": 120.02341700000397
+      },
+      "receipt": {
+        "count": 835,
+        "p95Ms": 113.84770899999785,
+        "maxMs": 393.58608300000196
+      },
+      "restore": {
+        "count": 40,
+        "p95Ms": 24.156750000000102,
+        "maxMs": 31.491792000000032
+      },
+      "history": {
+        "count": 298,
+        "p95Ms": 53.099874999999884,
+        "maxMs": 130.64658399999917
+      },
+      "stats": {
+        "count": 59,
+        "p95Ms": 71.7992919999997,
+        "maxMs": 249.77120800000012
+      },
+      "replay": {
+        "count": 59,
+        "p95Ms": 100.18287500000042,
+        "maxMs": 137.85095899999942
+      },
+      "authLogin": {
+        "count": 238,
+        "p95Ms": 205.1755830000002,
+        "maxMs": 456.82791699999507
+      },
+      "invalidGrant": {
+        "count": 238,
+        "p95Ms": 62.4206669999985,
+        "maxMs": 265.83812500000204
+      }
+    },
+    "failures": [],
+    "authentication": {
+      "enabled": true,
+      "successfulLoginLogout": 238,
+      "invalidGrantRejections": 238,
+      "maxInFlight": 4,
+      "requestedPerSecond": 4,
+      "realSMTP": false
+    },
+    "passed": true
+  },
+  "passed": true,
+  "initialFailedRun": "v3-capacity-initial-failed.json",
+  "monitorWindowNote": "Main server samples include setup and time after clients disconnected; CPU supplement is 60s client load within 127s server monitoring. Four-human main ended with one naturally finished table; nine still running. One-human group retained ten running tables.",
+  "scopeLimit": "Two five-minute runs with synthetic auth on disposable databases; no real SMTP and no long-term capacity guarantee."
+}

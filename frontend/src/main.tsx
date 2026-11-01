@@ -16,20 +16,20 @@ import {
   type Seat,
   type Envelope,
   type Action,
+  type CurrentUser,
+  type AuthCapabilities,
 } from "../../shared/types";
 import "./style.css";
 import { api } from "./api";
+import { AccountPanel, type AccountPage } from "./account";
 import { History, Stats, formatName } from "./history-pages";
 import { Tile } from "./Tile";
-import { LatestDiscard, CallChoices, ResponseSource } from "./turn-feedback";
+import { Melds } from "./Melds";
+import { TableSurface } from "./TableSurface";
+import { CallChoices, ResponseSource } from "./turn-feedback";
 import { responseTarget } from "../../shared/game-feedback";
 const uuid = () => crypto.randomUUID();
-interface Me {
-  userId: string;
-  displayName: string;
-  roomId: string | null;
-  matchId: string | null;
-}
+type Me = CurrentUser;
 const actionNames: Record<string, string> = {
   DISCARD: "打出",
   RIICHI_DISCARD: "立直并打出",
@@ -82,6 +82,7 @@ function App() {
       | "history"
       | "stats"
       | "settings"
+      | "account"
     >(() =>
       new URLSearchParams(location.search).has("replay") ? "replay" : "home",
     ),
@@ -110,10 +111,15 @@ function App() {
       formats: ("EAST_ONLY" | "HANCHAN")[];
       botLevels: ("BASIC" | "STANDARD")[];
       maintenance: boolean;
-    } | null>(null);
+      auth?: AuthCapabilities;
+    } | null>(null),
+    [accountPage, setAccountPage] = useState<AccountPage>("profile"),
+    [sessionEpoch, setSessionEpoch] = useState(0),
+    [authPaused, setAuthPaused] = useState(false);
   const initialReplayIntent = useRef(
     new URLSearchParams(location.search).has("replay"),
   );
+  const identityGeneration = useRef(0);
   const socket = useRef<Socket | null>(null),
     binding = useRef(""),
     latest = useRef<Frame | null>(null),
@@ -129,6 +135,11 @@ function App() {
     try {
       await fn();
     } catch (e) {
+      if ((e as any).code === "UNAUTHENTICATED") {
+        clearIdentityContext(true);
+        setAccountPage("login");
+        setScreen("account");
+      }
       setError((e as Error).message);
     } finally {
       setBusy(false);
@@ -140,7 +151,8 @@ function App() {
     requestId: string = uuid(),
   ): Promise<any> {
     return new Promise((resolve, reject) => {
-      const s = socket.current;
+      const s = socket.current,
+        generation = identityGeneration.current;
       if (!s?.connected) {
         reject(new Error("网络连接中，请稍候"));
         return;
@@ -149,6 +161,13 @@ function App() {
         event,
         { protocolVersion: PROTOCOL, requestId, payload },
         (err: Error | null, r: any) => {
+          if (
+            socket.current !== s ||
+            identityGeneration.current !== generation
+          ) {
+            reject(new Error("身份或连接已变化，请重新同步"));
+            return;
+          }
           if (err) reject(new Error("操作回执尚未收到，正在重新同步"));
           else if (!r?.ok)
             reject(
@@ -163,37 +182,53 @@ function App() {
   }
   async function attach(matchId: string) {
     if (!binding.current) return;
+    const generation = identityGeneration.current;
     await emit("game:attach", {
       matchId,
       bindingId: binding.current,
       lastStreamId: latest.current?.streamId ?? null,
       lastViewSeq: latest.current?.viewSeq ?? null,
     });
-    setScreen("game");
+    if (generation === identityGeneration.current) setScreen("game");
   }
   async function watch(r: Room) {
+    const generation = identityGeneration.current;
+    if (!r.slots.some((member) => member?.userId === meRef.current?.userId))
+      return;
     setRoom(r);
     await emit("room:watch", { roomId: r.roomId });
+    if (generation !== identityGeneration.current) return;
     if (r.matchId) await attach(r.matchId);
     else setScreen("room");
   }
   async function claim(force = false) {
+    const generation = identityGeneration.current,
+      connection = socket.current;
+    const valid = () =>
+      generation === identityGeneration.current &&
+      connection === socket.current;
     try {
       const r = await emit("session:claim", { takeover: force });
+      if (!valid()) return;
       binding.current = r.bindingId;
       setTakeover(false);
       const u = await api<Me>("/me");
+      if (!valid()) return;
+      meRef.current = u;
       setMe(u);
       if (u.roomId) {
         const r = await api<Room>("/rooms/" + u.roomId);
+        if (!valid()) return;
         await watch(r);
       } else if (roomRef.current?.matchId)
         await attach(roomRef.current.matchId);
+      if (!valid()) return;
       if (initialReplayIntent.current) {
         setScreen("replay");
         initialReplayIntent.current = false;
       }
     } catch (e) {
+      if (!valid()) return;
       if ((e as any).code === "CONTROL_IN_USE") {
         setTakeover(true);
         binding.current = "";
@@ -210,26 +245,37 @@ function App() {
       .finally(() => setBoot(false));
   }, []);
   useEffect(() => {
-    if (!me?.userId) return;
+    if (!me?.userId || authPaused) return;
     const s = io("/game", {
       path: import.meta.env.BASE_URL + "socket.io",
       auth: { protocolVersion: PROTOCOL },
       withCredentials: true,
     });
     socket.current = s;
+    let active = true;
+    const expectedUser = me.userId,
+      generation = identityGeneration.current;
+    const valid = () =>
+      active &&
+      generation === identityGeneration.current &&
+      meRef.current?.userId === expectedUser;
     s.on("connect", () => {
+      if (!valid()) return;
       setNetwork(true);
       claim();
     });
     s.on("disconnect", () => {
+      if (!valid()) return;
       setNetwork(false);
       binding.current = "";
     });
     s.on("connect_error", (e) => {
+      if (!valid()) return;
       setNetwork(false);
       setError(e.message);
     });
     s.on("room:view", (r: Room) => {
+      if (!valid()) return;
       if (roomRef.current && roomRef.current.roomId !== r.roomId) return;
       if (
         r.status === "CLOSED" ||
@@ -263,6 +309,7 @@ function App() {
         attach(r.matchId).catch((e) => setError(e.message));
     });
     s.on("game:view", (f: Frame) => {
+      if (!valid()) return;
       if (
         roomRef.current?.status === "WAITING" &&
         roomRef.current.previousMatchIds.includes(f.matchId)
@@ -286,7 +333,17 @@ function App() {
         beep();
     });
     s.on("server:notice", (n: { code: string; message: string }) => {
+      if (!valid()) return;
       setError(n.message);
+      if (n.code === "SESSION_REVOKED" || n.code === "AUTH_CONTEXT_RELEASED") {
+        clearIdentityContext(n.code === "SESSION_REVOKED");
+        setAuthPaused(true);
+        if (n.code === "SESSION_REVOKED") {
+          setAccountPage("login");
+          setScreen("account");
+        }
+        return;
+      }
       if (n.code === "CONTROL_REVOKED") {
         binding.current = "";
         setTakeover(true);
@@ -295,10 +352,12 @@ function App() {
       }
     });
     return () => {
+      active = false;
+      s.removeAllListeners();
       s.disconnect();
       socket.current = null;
     };
-  }, [me?.userId]);
+  }, [me?.userId, sessionEpoch, authPaused]);
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (screen === "replay" && replayTarget)
@@ -317,17 +376,39 @@ function App() {
   }
   const inviteConsumed = useRef(false);
   useEffect(() => {
-    if (!me || !network || !binding.current || !code || inviteConsumed.current)
+    if (
+      screen === "account" ||
+      authPaused ||
+      !me ||
+      !network ||
+      !binding.current ||
+      !code ||
+      inviteConsumed.current
+    )
       return;
     const pending = new URLSearchParams(location.search).get("invite");
     if (!pending) return;
     inviteConsumed.current = true;
+    const generation = identityGeneration.current;
     run(async () => {
-      const r = await api<Room>("/rooms/join", "POST", { inviteCode: code });
-      await watch(r);
-      history.replaceState(null, "", location.pathname);
+      try {
+        const r = await api<Room>("/rooms/join", "POST", { inviteCode: code });
+        if (generation !== identityGeneration.current) return;
+        await watch(r);
+        const params = new URLSearchParams(location.search);
+        params.delete("invite");
+        const query = params.toString();
+        history.replaceState(
+          null,
+          "",
+          location.pathname + (query ? "?" + query : ""),
+        );
+      } catch (error) {
+        inviteConsumed.current = false;
+        throw error;
+      }
     });
-  }, [me, network, takeover]);
+  }, [me, network, takeover, screen, authPaused]);
   async function newRoom() {
     await run(async () => {
       const r = await api<Room>("/rooms", "POST", {
@@ -423,6 +504,68 @@ function App() {
       await watch(next);
     });
   }
+  function clearIdentityContext(clearMe: boolean) {
+    identityGeneration.current++;
+    inviteConsumed.current = false;
+    binding.current = "";
+    latest.current = null;
+    roomRef.current = null;
+    setRoom(null);
+    setFrame(null);
+    setTakeover(false);
+    setReplayTarget(null);
+    initialReplayIntent.current = false;
+    for (const key of Object.keys(sessionStorage))
+      if (key.startsWith("mj_pending_")) sessionStorage.removeItem(key);
+    if (clearMe) {
+      meRef.current = null;
+      setMe(null);
+    }
+    setNetwork(false);
+  }
+  function openAccount(page: AccountPage = "profile") {
+    setAccountPage(page);
+    setScreen("account");
+  }
+  async function authIdentity(result: "changed" | "logout" | "loginRequired") {
+    if (result === "logout") {
+      clearIdentityContext(true);
+      setAuthPaused(false);
+      setSessionEpoch((v) => v + 1);
+      setScreen("home");
+      return;
+    }
+    if (result === "loginRequired") {
+      const current = await api<Me>("/me").catch(() => null);
+      setMe(current);
+      if (!current) clearIdentityContext(true);
+      setAccountPage("login");
+      setScreen("account");
+      setError("操作已完成，请用账号密码重新登录；当前游客记录不会合并");
+      return;
+    }
+    const current = await api<Me>("/me");
+    clearIdentityContext(false);
+    setMe(current);
+    meRef.current = current;
+    setAuthPaused(false);
+    setSessionEpoch((v) => v + 1);
+    setAccountPage(current.identityKind === "GUEST" ? "register" : "profile");
+    setScreen("account");
+    setCapabilities(await api<any>("/capabilities"));
+  }
+  async function releaseForAuth() {
+    await api("/auth/release-control", "POST", {});
+    clearIdentityContext(false);
+    setAuthPaused(true);
+    setMe((old) => (old ? { ...old, roomId: null, matchId: null } : null));
+    setScreen("account");
+  }
+  function cancelAccount() {
+    setAuthPaused(false);
+    setSessionEpoch((v) => v + 1);
+    setScreen(frame ? "game" : "home");
+  }
   const view = frame?.state;
   return (
     <div
@@ -460,7 +603,18 @@ function App() {
         </nav>
         <div className="user">
           <span className={`status-dot ${network ? "on" : ""}`} />
-          {me?.displayName ?? "欢迎来坐"}
+          <button
+            className="account-entry"
+            aria-label="个人与账号"
+            onClick={() => openAccount()}
+          >
+            <span className="identity-name">
+              {me?.displayName ?? "欢迎来坐"}
+            </span>
+            <span className="identity-kind">
+              {me ? (me.identityKind === "ACCOUNT" ? "账号" : "游客") : "登录"}
+            </span>
+          </button>
           <button
             className="icon-button"
             onClick={toggleSound}
@@ -539,9 +693,42 @@ function App() {
                     </button>
                   </div>
                   <small>以游客身份进入，刷新后仍会为你保留座位。</small>
+                  <div className="account-shortcuts">
+                    <button
+                      type="button"
+                      className="text-button"
+                      disabled={!capabilities?.auth?.passwordLogin}
+                      onClick={() => openAccount("login")}
+                    >
+                      登录已有账号
+                    </button>
+                    <button
+                      type="button"
+                      className="text-button"
+                      disabled={!capabilities?.auth?.registration}
+                      onClick={() => openAccount("register")}
+                    >
+                      注册新账号
+                    </button>
+                  </div>
                 </form>
               ) : (
                 <div className="entry-card">
+                  <p className="guest-hint">
+                    {me.identityKind === "ACCOUNT"
+                      ? `正式账号 · ${me.maskedEmail}`
+                      : "游客身份，注册后可在其他浏览器登录"}
+                  </p>
+                  <div className="account-shortcuts">
+                    <button
+                      className="text-button"
+                      onClick={() => openAccount()}
+                    >
+                      {me.identityKind === "ACCOUNT"
+                        ? "个人与账号"
+                        : "注册／登录账号"}
+                    </button>
+                  </div>
                   <label>
                     赛制{" "}
                     <select
@@ -872,6 +1059,18 @@ function App() {
         />
       ) : screen === "rules" ? (
         <Rules text={rules} onBack={() => setScreen(view ? "game" : "home")} />
+      ) : screen === "account" ? (
+        <AccountPanel
+          key={accountPage}
+          page={accountPage}
+          setPage={setAccountPage}
+          me={me}
+          capabilities={capabilities?.auth ?? null}
+          needsRelease={!!binding.current && !!(room || me?.roomId)}
+          onRelease={releaseForAuth}
+          onIdentity={authIdentity}
+          onCancel={cancelAccount}
+        />
       ) : screen === "history" && me ? (
         <History userId={me.userId} onReplay={openReplay} />
       ) : screen === "stats" && me ? (
@@ -1093,44 +1292,6 @@ function Game({
     finished = hand.phase === "MATCH_RESULT";
   const own = hand.seats[self];
   const tiles = v.self.concealedTiles;
-  function player(relative: number) {
-    const s = ((self + relative) % 4) as Seat,
-      p = v.players[s],
-      h = hand.seats[s];
-    return (
-      <div
-        className={`opponent position-${relative} ${hand.activeSeat === s && hand.phase === "SELF_ACTION" ? "turn" : ""}`}
-      >
-        <div className="opponent-info">
-          <span className="wind-badge">{wind(h.seatWind)}</span>
-          <span>
-            {p.displayName}
-            <small>
-              {hand.phase === "SELF_ACTION" &&
-              hand.activeSeat === s &&
-              p.effectiveControl === "AI"
-                ? "AI 思考中…"
-                : p.participantKind === "BOT"
-                  ? "AI 牌友"
-                  : !p.connected
-                    ? "离线 · 托管"
-                    : p.effectiveControl === "AI"
-                      ? "AI 托管"
-                      : "在线"}
-            </small>
-          </span>
-          <strong>{p.points.toLocaleString()}</strong>
-          {h.riichi !== "NONE" && <b className="riichi-label">立直</b>}
-        </div>
-        <div className="opponent-backs">
-          {Array.from({ length: h.concealedCount }, (_, i) => (
-            <Tile key={i} back small />
-          ))}
-        </div>
-        <Melds melds={h.melds} />
-      </div>
-    );
-  }
   const unique = [
     ...new Set(
       options
@@ -1202,63 +1363,7 @@ function Game({
           </button>
         </div>
       )}
-      <section className="game-table">
-        <div className="table-inlay" />
-        <LatestDiscard view={v} />
-        {player(2)}
-        {player(1)}
-        {player(3)}
-        <div className="table-center">
-          <div className="round-label">
-            {wind(hand.roundWind)}
-            <strong>{["一", "二", "三", "四"][hand.roundNumber - 1]}</strong>局
-          </div>
-          <div className="round-meta">
-            <span>{hand.honba} 本场</span>
-            <span>供托 {hand.kyotakuPoints.toLocaleString()}</span>
-          </div>
-          <div className="wall-count">
-            余 <b>{hand.liveWallRemaining}</b> 张
-          </div>
-          <div className="dora">
-            <small>宝牌指示</small>
-            {hand.doraIndicators.map((t) => (
-              <Tile key={t} tile={t} small />
-            ))}
-          </div>
-          <div className="center-brand">一 桌</div>
-        </div>
-        {[0, 1, 2, 3].map((relative) => {
-          const s = ((self + relative) % 4) as Seat;
-          return (
-            <div key={s} className={`river river-${relative}`}>
-              {hand.seats[s].discards.map((x) => (
-                <span
-                  key={x.discardId}
-                  className={`${x.riichiDeclaration ? "riichi-tile" : ""} ${x.claimedByMeldId ? "claimed" : ""} ${x.tsumogiri ? "tsumogiri" : ""} ${x.discardId === hand.seats[s].discards.at(-1)?.discardId ? "last-in-river" : ""} ${x.discardId === hand.lastDiscard?.discardId ? "latest-discard" : ""}`}
-                  title={`${v.players[s].displayName}打出${tileName(x.tile)} · ${x.tsumogiri ? "摸切" : "手切"}`}
-                  aria-current={
-                    x.discardId === hand.lastDiscard?.discardId
-                      ? "true"
-                      : undefined
-                  }
-                >
-                  <Tile tile={x.tile} small />
-                </span>
-              ))}
-            </div>
-          );
-        })}
-        <div className="self-info">
-          <span className="wind-badge">{wind(own.seatWind)}</span>
-          <span>
-            {v.players[self].displayName}
-            <small>你{own.riichi !== "NONE" ? " · 已立直" : ""}</small>
-          </span>
-          <strong>{v.players[self].points.toLocaleString()}</strong>
-          <Melds melds={own.melds} />
-        </div>
-      </section>
+      <TableSurface view={v} />
       <section className="hand-panel">
         <div className="action-row">
           <div className="action-hint">
@@ -1496,29 +1601,6 @@ function Game({
         </div>
       )}
     </main>
-  );
-}
-function Melds({
-  melds,
-}: {
-  melds: MatchView["hand"]["seats"][number]["melds"];
-}) {
-  return (
-    <div className="melds">
-      {melds.map((m) => (
-        <div key={m.meldId} title={actionNames[m.type]}>
-          {m.tiles.map((t, i) => (
-            <span key={t} className={m.calledTile === t ? "called-tile" : ""}>
-              <Tile
-                tile={t}
-                back={m.type === "ANKAN" && (i === 0 || i === 3)}
-                small
-              />
-            </span>
-          ))}
-        </div>
-      ))}
-    </div>
   );
 }
 function HandResult({

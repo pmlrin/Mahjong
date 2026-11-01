@@ -1,5 +1,13 @@
-import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+  rmSync,
+} from "node:fs";
 import { execFileSync } from "node:child_process";
+// This directory is generated; remove prior bundles so old assets are not shipped.
+rmSync("dist-server", { recursive: true, force: true });
 execFileSync(
   process.execPath,
   ["node_modules/typescript/bin/tsc", "-p", "tsconfig.server.json"],
@@ -9,8 +17,19 @@ mkdirSync("dist-server/backend/vendor", { recursive: true });
 cpSync("backend/vendor", "dist-server/backend/vendor", { recursive: true });
 cpSync("dist", "dist-server/dist", { recursive: true });
 cpSync("docs", "dist-server/docs", { recursive: true });
+cpSync(".env.auth.example", "dist-server/.env.auth.example");
+cpSync("backend/migrations", "dist-server/backend/migrations", {
+  recursive: true,
+});
 const p = JSON.parse(readFileSync("package.json", "utf8"));
-const deps = ["@kobalab/majiang-core", "express", "pg", "socket.io", "zod"];
+const deps = [
+  "@kobalab/majiang-core",
+  "express",
+  "pg",
+  "socket.io",
+  "zod",
+  "nodemailer",
+];
 writeFileSync(
   "deploy/runtime-package.json",
   JSON.stringify(
