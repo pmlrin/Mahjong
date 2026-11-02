@@ -1,0 +1,32 @@
+{
+  "viewport": 390,
+  "cards": 42,
+  "completeHands": 42,
+  "search": true,
+  "overflow": false,
+  "avatarSaved": true,
+  "avatarImages": [
+    {
+      "loaded": true,
+      "width": 256
+    },
+    {
+      "loaded": true,
+      "width": 256
+    }
+  ],
+  "console": [],
+  "realPhone": false,
+  "syntheticLocalOnly": true,
+  "desktopCards": 42,
+  "desktopCompleteHands": 42,
+  "desktopClippedHands": 0,
+  "previewPublicCards": 42,
+  "previewPublicCompleteHands": 42,
+  "previewPublicClippedHands": 0,
+  "previewPublicConsoleErrors": 0,
+  "productionPublicCards": 42,
+  "productionPublicCompleteHands": 42,
+  "productionPublicClippedHands": 0,
+  "productionPublicConsoleErrors": 0
+}

@@ -1,3 +1,4 @@
+import { RulesPage as Rules } from "./rules-page";
 import { useSocial } from "./use-social";
 import { SocialPage } from "./social-page";
 import { Avatar } from "./Avatar";
@@ -1798,58 +1799,6 @@ function HandResult({
         </div>
       )}
     </>
-  );
-}
-function Rules({ text, onBack }: { text: string; onBack: () => void }) {
-  return (
-    <main className="rules-page">
-      <button className="text-button" onClick={onBack}>
-        ← 返回
-      </button>
-      <div className="eyebrow">落座之前</div>
-      <h1>这一桌的规矩</h1>
-      <div className="rule-intro">
-        <article>
-          <span>01 / 基本</span>
-          <h2>四人立直，东风或半庄</h2>
-          <p>
-            每人 25,000 点开局，30,000
-            点为目标。允许食断、后付，万筒索各有一张赤五。连庄与延长照常进行。
-          </p>
-        </article>
-        <article>
-          <span>02 / 和牌</span>
-          <h2>有役，才能和</h2>
-          <p>
-            四面子一雀头、七对子或国士无双，且至少有一役。宝牌增加番数，不能单独作为役。
-          </p>
-        </article>
-        <article>
-          <span>03 / 振听</span>
-          <h2>振听时，可以自摸</h2>
-          <p>
-            自己的弃牌包含当前任一完成牌时不能荣和。放过合法荣和会产生同巡振听；立直后见逃持续本局。
-          </p>
-        </article>
-      </div>
-      <details>
-        <summary>查看完整规则与役种说明</summary>
-        <pre className="full-rules">{text || "正在读取规则…"}</pre>
-      </details>
-      <div className="rules-note">
-        <p>
-          行动限时 15 秒，响应 8
-          秒。超时按规定摸切或过牌；掉线不会暂停牌局，后续窗口由 AI
-          托管，重连后按窗口边界恢复人工。
-        </p>
-        <p>
-          游客身份保存在当前浏览器，清除 Cookie
-          后无法凭昵称找回。正常成绩与牌谱保存至少 30 天，技术中止资料至少 7
-          天。整场结束前不能导出完整牌谱。
-        </p>
-        <p>音效由本项目合成，默认关闭，可点击右上角音符开启。</p>
-      </div>
-    </main>
   );
 }
 interface ReplayData {

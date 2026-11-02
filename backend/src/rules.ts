@@ -156,6 +156,7 @@ const names: Record<string, string> = {
   天和: "TENHOU",
   地和: "CHIIHOU",
 };
+export const SUPPORTED_YAKU_IDS = [...Object.values(names), 'YAKUHAI_ROUND_WIND', 'YAKUHAI_SEAT_WIND'];
 export function score(c: ScoreContext): Win | null {
   const s = hand(c.tiles, c.melds, c.seat, c.source === null ? c.drawn : null);
   const p = M.Util.hule_param({

@@ -1,0 +1,31 @@
+{
+  "at": "2026-11-02T09:49:06.168504+00:00",
+  "scope": "Git candidates, index, locally reachable history, and final v4.1 release archives",
+  "candidateFiles": 310,
+  "historyBlobs": 319,
+  "knownCredentialValuesCompared": 6,
+  "liveCredentialMatches": 0,
+  "privateKeyOrServiceTokenMatches": 0,
+  "reviewedNonSecretPatterns": {
+    "credential_url": 4,
+    "credential_assignment": 37
+  },
+  "originalContactMetadataRetained": true,
+  "archives": [
+    {
+      "kind": "production",
+      "files": 109,
+      "liveCredentialMatches": 0
+    },
+    {
+      "kind": "preview",
+      "files": 109,
+      "liveCredentialMatches": 0
+    }
+  ],
+  "localAuthFileIgnored": true,
+  "authConfigMode": "0o600",
+  "dedicatedSecretScannerUsed": false,
+  "credentialAuditPassed": true,
+  "contactPrivacyDetails": "Existing Git author email metadata remains; prior GitHub privacy review still applies."
+}

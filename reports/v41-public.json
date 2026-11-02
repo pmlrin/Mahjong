@@ -1,0 +1,85 @@
+{
+  "at": "2026-11-02T09:45:42.243924+00:00",
+  "origin": "https://mahjong.yangjm.cn",
+  "health": {
+    "ok": true,
+    "version": "0.4.1",
+    "buildId": "02726a6c8fe0d5c53e622dc35b89fc64200b52fc32b19df4dae1ba544f3ee707",
+    "activeTables": 0
+  },
+  "capabilities": {
+    "appVersion": "0.4.1",
+    "buildId": "02726a6c8fe0d5c53e622dc35b89fc64200b52fc32b19df4dae1ba544f3ee707",
+    "protocolVersion": "2.0",
+    "formats": [
+      "EAST_ONLY",
+      "HANCHAN"
+    ],
+    "botLevels": [
+      "BASIC",
+      "STANDARD"
+    ],
+    "timePresetId": "standard-v1",
+    "maintenance": false,
+    "retentionDays": 30,
+    "auth": {
+      "enabled": true,
+      "passwordLogin": true,
+      "registration": true,
+      "passwordReset": true,
+      "mailAvailable": true,
+      "previewRestricted": false,
+      "environment": "production"
+    },
+    "profileEditing": true,
+    "sessionManagement": true,
+    "friends": true,
+    "friendInvitations": true,
+    "socialSchemaVersion": 1,
+    "limits": {
+      "friends": 200,
+      "pendingRequests": 50,
+      "pendingInvitations": 20,
+      "blocks": 500,
+      "profileWrites": 10,
+      "lookupMinute": 20,
+      "lookupDay": 200,
+      "lookupIpMinute": 100,
+      "requestHour": 10,
+      "requestDay": 30,
+      "inviteHour": 30,
+      "stateMinute": 60,
+      "passwordAccount": 5,
+      "passwordIp": 20
+    }
+  },
+  "htmlAndAssetsByteIdentical": true,
+  "assets": [
+    {
+      "kind": "production",
+      "asset": "index-BmuTKPlu.css",
+      "bytes": 49242,
+      "sha256": "157b2267ce00a6f1a9a35bc17a280e66cbfc5ae160b13d1347b3963baa4ccf6f"
+    },
+    {
+      "kind": "production",
+      "asset": "index-zzvEzHCJ.js",
+      "bytes": 452968,
+      "sha256": "4d598938f3dce79dd49938e0caff8863a0794fcf7bcc80b9dc2fa70d5d45e8af"
+    },
+    {
+      "kind": "preview",
+      "asset": "index-BmuTKPlu.css",
+      "bytes": 49242,
+      "sha256": "157b2267ce00a6f1a9a35bc17a280e66cbfc5ae160b13d1347b3963baa4ccf6f"
+    },
+    {
+      "kind": "preview",
+      "asset": "index-DkY6l5Tg.js",
+      "bytes": 453016,
+      "sha256": "0c132950b0e7a6b9d6af141edcf0b0d3f2f28cfb0739ca4c04700093c07dd241"
+    }
+  ],
+  "realAccountsUsed": false,
+  "passed": true
+}

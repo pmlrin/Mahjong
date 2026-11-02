@@ -1,0 +1,179 @@
+{
+  "at": "2026-11-02T09:37:32.451331Z",
+  "tests": {
+    "version": "0.4.1",
+    "database": "PostgreSQL",
+    "isolated": true,
+    "checks": [
+      "migration rerun preserves codes, user IDs, names and sessions",
+      "profile CAS commits with authoritative identity cache",
+      "canonical PNG bytes and immutable avatar ID survive migration rerun and identity reload",
+      "crossed request uniqueness and reciprocal friendship",
+      "invitation join, room, revision and receipt commit once",
+      "failed transaction rolls back block, friendship and receipts together",
+      "block privacy and shared room preserved",
+      "session revocation preserves current session and authoritative cache",
+      "injected lost COMMIT acknowledgement reloads authoritative room and replay commits no duplicate seat",
+      "121-day cleanup expires inactive requests and invitations; restart does not recreate device metadata; friendship and auth session records remain"
+    ],
+    "tables": [
+      {
+        "table": "auth_accounts",
+        "rows": 4,
+        "sha256": "b5c8f622b4e639e68f116e07553fa591e780c1651cff047a05e89f989f6d228a"
+      },
+      {
+        "table": "auth_audit",
+        "rows": 1,
+        "sha256": "1887f2ef14c36ffc5c1a425e7200c0602b1d04b18f12011f7146305f27d1ffd5"
+      },
+      {
+        "table": "auth_challenges",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_environment",
+        "rows": 1,
+        "sha256": "f919a57ad557df8e5135a4424124961cec995cfdb4ee9bbc8d1543b9e7c94132"
+      },
+      {
+        "table": "auth_grants",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_limits",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_mail_jobs",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_migration_issues",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_migrations",
+        "rows": 1,
+        "sha256": "5ec067853a603cb8f06062fbf4caf2e747b9664280294f31bd39a897f3d909f5"
+      },
+      {
+        "table": "auth_receipts",
+        "rows": 1,
+        "sha256": "047ec28bd515d8b4faae3083b98cc38ba441ce3de1dd28b1e39dec688fad6567"
+      },
+      {
+        "table": "auth_sessions",
+        "rows": 5,
+        "sha256": "2fb98c4bc70301174b1c5e611adfeed4749e3efaa5b7bedf60f1acf9a4a2f69f"
+      },
+      {
+        "table": "auth_users",
+        "rows": 4,
+        "sha256": "5ed902f6dafb98960d451f6aac14f2d40107e4b16a3821afeff3e0951c53c5a7"
+      },
+      {
+        "table": "avatar_assets",
+        "rows": 1,
+        "sha256": "da5225d0080ce36dc8b3d3d583ceba1d21607a066bb2a0117a24224bfe9e7065"
+      },
+      {
+        "table": "blocks",
+        "rows": 1,
+        "sha256": "b929df3d7cbf825cdd7173bcac74207d79f4cdf02b1b7fda1ba11635ad965e3f"
+      },
+      {
+        "table": "documents",
+        "rows": 2,
+        "sha256": "1e21f06bc11b0ff861d730f4b3b89faf8f78d448e3d150f1d1135cb8f91c6142"
+      },
+      {
+        "table": "friend_requests",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "friendships",
+        "rows": 1,
+        "sha256": "f36ff88d469c2c57244d3f0eb20ac350b3af23486571f91454fac26afc82b5e9"
+      },
+      {
+        "table": "history_members",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "history_summaries",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "migration_issues",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "replay_positions",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "room_invitations",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_audit",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_cooldowns",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_limits",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_profiles",
+        "rows": 4,
+        "sha256": "7c3ca3b2a986badfe0f9134608ad50a2dd67c324e7ca7996585e21920987f94e"
+      },
+      {
+        "table": "social_receipts",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_sessions",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_user_state",
+        "rows": 4,
+        "sha256": "d132ba01e4669720bac6a07944b4e2fd0de8de4b5d8fb498fca6ba1823c27a1c"
+      }
+    ],
+    "passed": true
+  },
+  "restore": {
+    "tables": 29,
+    "allRowsIdentical": true,
+    "avatarAssetRows": 1,
+    "source": "mahjong_v4_test_v41_20261102",
+    "restored": "mahjong_v4_test_v41_restore_20261102",
+    "backupBytes": 44123
+  },
+  "productionModified": false,
+  "realSMTP": false,
+  "passed": true
+}

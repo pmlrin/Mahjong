@@ -1,0 +1,18 @@
+{
+  "version": "0.4.1",
+  "profileFrozen": true,
+  "customAvatarUploaded": true,
+  "avatarOwnershipEnforced": true,
+  "avatarFrozenInReplay": true,
+  "avatarPublicImmutablePNG": true,
+  "friendsAccepted": true,
+  "inviteJoined": true,
+  "normalMatchFinished": true,
+  "replayAuthorized": true,
+  "remoteSessionRevoked": true,
+  "privateResponsesNoStore": true,
+  "notificationsObserved": 15,
+  "scriptedClients": true,
+  "realSMTP": false,
+  "passed": true
+}

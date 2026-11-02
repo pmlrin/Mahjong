@@ -1,0 +1,379 @@
+{
+  "allSupportedYaku": 42,
+  "physicalTileChecksPassed": true,
+  "scoringContextChecksPassed": true,
+  "checks": [
+    {
+      "id": "RIICHI",
+      "name": "立直",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "RIICHI",
+        "PINFU",
+        "TANYAO"
+      ]
+    },
+    {
+      "id": "DOUBLE_RIICHI",
+      "name": "双立直",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "DOUBLE_RIICHI",
+        "PINFU",
+        "TANYAO"
+      ]
+    },
+    {
+      "id": "IPPATSU",
+      "name": "一发",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "RIICHI",
+        "IPPATSU",
+        "PINFU",
+        "TANYAO"
+      ]
+    },
+    {
+      "id": "MENZEN_TSUMO",
+      "name": "门前清自摸和",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "MENZEN_TSUMO",
+        "PINFU",
+        "TANYAO"
+      ]
+    },
+    {
+      "id": "TANYAO",
+      "name": "断幺九",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "PINFU",
+        "TANYAO"
+      ]
+    },
+    {
+      "id": "PINFU",
+      "name": "平和",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "PINFU",
+        "TANYAO"
+      ]
+    },
+    {
+      "id": "IIPEIKOU",
+      "name": "一杯口",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "PINFU",
+        "IIPEIKOU"
+      ]
+    },
+    {
+      "id": "YAKUHAI_WHITE",
+      "name": "役牌·白",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "YAKUHAI_WHITE"
+      ]
+    },
+    {
+      "id": "YAKUHAI_GREEN",
+      "name": "役牌·发",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "YAKUHAI_GREEN"
+      ]
+    },
+    {
+      "id": "YAKUHAI_RED",
+      "name": "役牌·中",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "YAKUHAI_RED"
+      ]
+    },
+    {
+      "id": "YAKUHAI_SEAT_WIND",
+      "name": "役牌·自风",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "YAKUHAI_SEAT_WIND"
+      ]
+    },
+    {
+      "id": "YAKUHAI_ROUND_WIND",
+      "name": "役牌·场风",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "YAKUHAI_ROUND_WIND"
+      ]
+    },
+    {
+      "id": "HAITEI",
+      "name": "海底摸月",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "HAITEI",
+        "MENZEN_TSUMO",
+        "PINFU",
+        "TANYAO"
+      ]
+    },
+    {
+      "id": "HOUTEI",
+      "name": "河底捞鱼",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "HOUTEI",
+        "PINFU",
+        "TANYAO"
+      ]
+    },
+    {
+      "id": "RINSHAN",
+      "name": "岭上开花",
+      "physicalTiles": 15,
+      "scoredYaku": [
+        "RINSHAN",
+        "MENZEN_TSUMO"
+      ]
+    },
+    {
+      "id": "CHANKAN",
+      "name": "抢杠",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "CHANKAN",
+        "PINFU",
+        "TANYAO"
+      ]
+    },
+    {
+      "id": "CHIITOITSU",
+      "name": "七对子",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "CHIITOITSU"
+      ]
+    },
+    {
+      "id": "TOITOI",
+      "name": "对对和",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "YAKUHAI_GREEN",
+        "TOITOI",
+        "SANANKOU"
+      ]
+    },
+    {
+      "id": "SANANKOU",
+      "name": "三暗刻",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "SANANKOU"
+      ]
+    },
+    {
+      "id": "SANKANTSU",
+      "name": "三杠子",
+      "physicalTiles": 17,
+      "scoredYaku": [
+        "SANKANTSU"
+      ]
+    },
+    {
+      "id": "SANSHOKU_DOUKOU",
+      "name": "三色同刻",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "TANYAO",
+        "SANANKOU",
+        "SANSHOKU_DOUKOU"
+      ]
+    },
+    {
+      "id": "SANSHOKU_DOUJUN",
+      "name": "三色同顺",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "TANYAO",
+        "SANSHOKU_DOUJUN"
+      ]
+    },
+    {
+      "id": "ITTSUU",
+      "name": "一气通贯",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "ITTSUU"
+      ]
+    },
+    {
+      "id": "CHANTA",
+      "name": "混全带幺九",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "YAKUHAI_WHITE",
+        "CHANTA"
+      ]
+    },
+    {
+      "id": "HONROUTOU",
+      "name": "混老头",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "YAKUHAI_WHITE",
+        "TOITOI",
+        "SANANKOU",
+        "HONROUTOU"
+      ]
+    },
+    {
+      "id": "SHOUSANGEN",
+      "name": "小三元",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "YAKUHAI_WHITE",
+        "YAKUHAI_GREEN",
+        "CHANTA",
+        "SHOUSANGEN"
+      ]
+    },
+    {
+      "id": "RYANPEIKOU",
+      "name": "两杯口",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "RYANPEIKOU"
+      ]
+    },
+    {
+      "id": "JUNCHAN",
+      "name": "纯全带幺九",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "PINFU",
+        "JUNCHAN"
+      ]
+    },
+    {
+      "id": "HONITSU",
+      "name": "混一色",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "YAKUHAI_ROUND_WIND",
+        "HONITSU"
+      ]
+    },
+    {
+      "id": "CHINITSU",
+      "name": "清一色",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "ITTSUU",
+        "CHINITSU"
+      ]
+    },
+    {
+      "id": "KOKUSHI",
+      "name": "国士无双",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "KOKUSHI"
+      ]
+    },
+    {
+      "id": "SUUANKOU",
+      "name": "四暗刻",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "SUUANKOU"
+      ]
+    },
+    {
+      "id": "DAISANGEN",
+      "name": "大三元",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "DAISANGEN"
+      ]
+    },
+    {
+      "id": "SHOUSUUSHII",
+      "name": "小四喜",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "SHOUSUUSHII"
+      ]
+    },
+    {
+      "id": "DAISUUSHII",
+      "name": "大四喜",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "DAISUUSHII"
+      ]
+    },
+    {
+      "id": "TSUUIISOU",
+      "name": "字一色",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "TSUUIISOU"
+      ]
+    },
+    {
+      "id": "CHINROUTOU",
+      "name": "清老头",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "CHINROUTOU"
+      ]
+    },
+    {
+      "id": "RYUUIISOU",
+      "name": "绿一色",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "RYUUIISOU"
+      ]
+    },
+    {
+      "id": "CHUUREN",
+      "name": "九莲宝灯",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "CHUUREN"
+      ]
+    },
+    {
+      "id": "SUUKANTSU",
+      "name": "四杠子",
+      "physicalTiles": 18,
+      "scoredYaku": [
+        "SUUKANTSU"
+      ]
+    },
+    {
+      "id": "TENHOU",
+      "name": "天和",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "TENHOU"
+      ]
+    },
+    {
+      "id": "CHIIHOU",
+      "name": "地和",
+      "physicalTiles": 14,
+      "scoredYaku": [
+        "CHIIHOU"
+      ]
+    }
+  ],
+  "passed": true
+}

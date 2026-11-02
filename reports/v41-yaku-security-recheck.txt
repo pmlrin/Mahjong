@@ -1,0 +1,14 @@
+✔ V4.1 avatar decoding is bounded, rejects spoofed/damaged/animated images, strips metadata (18.461ms)
+✔ V4.1 avatar ownership, immutable asset, CAS, idempotence and room occupancy (35.903667ms)
+✔ V4.1 avatar transaction rollback and restart preserve image references (27.682958ms)
+✔ V4.1 all supported yaku have a physically valid hand that scores the named yaku (4.453125ms)
+✔ V4.1 upload rate remains durable and failed uploads create no orphan assets (41.176584ms)
+✔ V4.1 cleanup keeps frozen match avatars and only prunes old unreferenced images (35.123292ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 338.980834

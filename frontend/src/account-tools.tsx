@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { api } from "./api";
 import { Avatar } from "./Avatar";
+import { AvatarUpload } from "./avatar-upload";
 import type {
   SocialProfile,
   DeviceSession,
@@ -23,6 +24,7 @@ export function AccountTools({
     [name, setName] = useState(""),
     [avatar, setAvatar] = useState("bamboo"),
     [editing, setEditing] = useState(false),
+    [uploading, setUploading] = useState(false),
     [devices, setDevices] = useState<DeviceSession[]>([]),
     [cursor, setCursor] = useState<string | null>(null),
     [showDevices, setShowDevices] = useState(false),
@@ -204,6 +206,33 @@ export function AccountTools({
                 保存资料
               </button>
             </form>
+          )}
+          {capabilities.profileEditing && (
+            <button
+              type="button"
+              className="secondary"
+              disabled={busy}
+              onClick={() => {
+                setUploading((v) => !v);
+                setEditing(false);
+              }}
+            >
+              上传个人头像
+            </button>
+          )}
+          {uploading && (
+            <AvatarUpload
+              version={profile.profileVersion}
+              onRefresh={load}
+              onCancel={() => setUploading(false)}
+              onSaved={async () => {
+                await load();
+                if (!live.current) return;
+                await onUpdated();
+                setUploading(false);
+                setMessage("头像已保存，旧比赛保留原头像");
+              }}
+            />
           )}
         </>
       )}

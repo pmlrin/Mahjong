@@ -30,6 +30,7 @@ const deps = [
   "socket.io",
   "zod",
   "nodemailer",
+  "pngjs",
 ];
 writeFileSync(
   "deploy/runtime-package.json",

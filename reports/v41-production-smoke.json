@@ -1,0 +1,20 @@
+{
+  "origin": "https://mahjong.yangjm.cn",
+  "transport": "local relay; upstream verified HTTPS bound en0; system settings unchanged",
+  "scriptedClients": true,
+  "humanControlWithAutomatedInputs": true,
+  "realHumanFullMatch": false,
+  "at": "2026-11-02T09:45:39.473Z",
+  "elapsedMs": 74126,
+  "humanSessions": 4,
+  "aiSeats": 0,
+  "matchId": "7a09c073-751d-4dca-8428-fff0d83d5713",
+  "points": [
+    31200,
+    19000,
+    20000,
+    29800
+  ],
+  "replayEvents": 597,
+  "passed": true
+}

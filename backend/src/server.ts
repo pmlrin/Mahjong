@@ -233,7 +233,7 @@ app.use((_req, res, next) => {
     "X-Frame-Options": "DENY",
     "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
     "Content-Security-Policy":
-      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws: wss:; frame-ancestors 'none'",
+      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ws: wss:; frame-ancestors 'none'",
   });
   next();
 });
@@ -1872,10 +1872,10 @@ if (existsSync(resolve(staticDirectory, "index.html"))) {
   );
 }
 app.use((err: unknown, _req: Request, res: Response, _next: unknown) =>
-  res.status(400).json({
+  res.status((err as any)?.type==='entity.too.large'?413:400).json({
     error: {
-      code: "INVALID_PAYLOAD",
-      message: "请求无法解析",
+      code: (err as any)?.type==='entity.too.large'?"PAYLOAD_TOO_LARGE":"INVALID_PAYLOAD",
+      message: (err as any)?.type==='entity.too.large'?"上传内容超过大小限制":"请求无法解析",
       retryable: false,
     },
   }),

@@ -22,6 +22,8 @@ export const SOCIAL_SCHEMA = [
   "CREATE INDEX IF NOT EXISTS social_limit_window ON social_limits(bucket,at)",
   "CREATE TABLE IF NOT EXISTS social_receipts (scope TEXT NOT NULL,request_id TEXT NOT NULL,payload_hmac TEXT NOT NULL,result TEXT NOT NULL,created_at BIGINT NOT NULL,PRIMARY KEY(scope,request_id))",
   "CREATE TABLE IF NOT EXISTS social_audit (audit_id TEXT PRIMARY KEY,event TEXT NOT NULL,actor_id TEXT NOT NULL,subject_id TEXT,at BIGINT NOT NULL,result TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS avatar_assets (avatar_id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES auth_accounts(user_id),sha256 TEXT NOT NULL,png_base64 TEXT NOT NULL,created_at BIGINT NOT NULL,UNIQUE(user_id,sha256))",
+  "CREATE INDEX IF NOT EXISTS avatar_asset_owner ON avatar_assets(user_id,created_at)",
 ];
 export const FRIEND_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
 export async function ensureSocialProfile(

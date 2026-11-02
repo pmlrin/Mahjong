@@ -1,0 +1,52 @@
+{
+  "at": "2026-11-02T09:38:51.213046Z",
+  "kind": "preview",
+  "release": "/opt/mahjong/releases/20261102-v41-preview-rc2",
+  "manifest": {
+    "archive": "mahjong-v41-preview-rc2-20261102.tar.gz",
+    "sha256": "328bbb9122b46a3eac92728c1149e83a8eda6765487061724d6014bde33b2a80",
+    "bytes": 421758,
+    "release": {
+      "version": "0.4.1",
+      "protocolVersion": "2.0",
+      "sourceSha256": "02726a6c8fe0d5c53e622dc35b89fc64200b52fc32b19df4dae1ba544f3ee707",
+      "builtAt": "2026-11-02T09:33:27.859Z"
+    },
+    "assets": [
+      "index-BmuTKPlu.css",
+      "index-DkY6l5Tg.js"
+    ],
+    "dependencies": {
+      "@kobalab/majiang-core": "1.4.1",
+      "express": "5.3.0",
+      "pg": "8.23.1",
+      "socket.io": "4.8.4",
+      "zod": "4.6.7",
+      "nodemailer": "10.3.1",
+      "pngjs": "7.0.0"
+    }
+  },
+  "backup": "/opt/mahjong/backups/mahjong-v41-preview-stopped-20261102.dump",
+  "backupBytes": 173693,
+  "configBackup": "/opt/mahjong/backups/v41-preview-config-20261102",
+  "beforeTables": 28,
+  "afterTables": 29,
+  "originalRowsPreserved": true,
+  "unchangedOriginalTables": 27,
+  "deviceMetadataBackfilled": 0,
+  "migrationRerunStable": true,
+  "health": {
+    "ok": true,
+    "version": "0.4.1",
+    "buildId": "02726a6c8fe0d5c53e622dc35b89fc64200b52fc32b19df4dae1ba544f3ee707",
+    "activeTables": 0
+  },
+  "credentialsPreserved": true,
+  "cookieName": "mj_preview_session",
+  "cookiePath": "/preview",
+  "mailAvailable": true,
+  "realAccountsModified": false,
+  "otherServiceUnchanged": true,
+  "servicesHealthy": true,
+  "passed": true
+}

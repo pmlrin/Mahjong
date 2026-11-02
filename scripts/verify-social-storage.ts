@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { createHash, randomUUID } from "node:crypto";
 import { fixture, password } from "../tests/social-fixture.ts";
+import { avatarPNG } from "../tests/avatar-fixture.ts";
 const f = await fixture(process.env.V4_TEST_DATABASE_URL);
 const checks: string[] = [];
 try {
@@ -26,6 +27,17 @@ try {
     "资料验证",
   );
   checks.push("profile CAS commits with authoritative identity cache");
+  const uploaded = await f.social.uploadAvatar(f.ctx(1), avatarPNG(17), 1);
+  const avatarBefore = await f.social.avatarImage(uploaded.avatarId);
+  await f.auth.initialize();
+  assert.equal((await f.social.profile(f.ctx(1))).avatarId, uploaded.avatarId);
+  assert.equal(
+    (await f.social.avatarImage(uploaded.avatarId)).sha256,
+    avatarBefore.sha256,
+  );
+  checks.push(
+    "canonical PNG bytes and immutable avatar ID survive migration rerun and identity reload",
+  );
   const [a, b] = await Promise.all([
     f.social.sendRequest(f.ctx(0), f.codes[1]),
     f.social.sendRequest(f.ctx(1), f.codes[0]),
@@ -47,6 +59,12 @@ try {
   assert.equal(
     (await f.store.get<any>("room", room.roomId)).slots.filter(Boolean).length,
     2,
+  );
+  assert.equal(
+    (await f.store.get<any>("room", room.roomId)).slots.find(
+      (p: any) => p?.userId === f.users[1].id,
+    ).avatarId,
+    uploaded.avatarId,
   );
   checks.push("invitation join, room, revision and receipt commit once");
   const tx = f.store.transaction.bind(f.store);
@@ -210,7 +228,7 @@ try {
   });
   console.log(
     JSON.stringify({
-      version: "0.4.0",
+      version: "0.4.1",
       database: f.store.pool ? "PostgreSQL" : "SQLite",
       isolated: true,
       checks,

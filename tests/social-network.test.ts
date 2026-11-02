@@ -7,6 +7,8 @@ import { io, type Socket } from "socket.io-client";
 import { writeFileSync } from "node:fs";
 import { fixture, password } from "./social-fixture.ts";
 import { chooseBot } from "../backend/src/bot.ts";
+import { avatarPNG } from "./avatar-fixture.ts";
+import { APP_VERSION } from "../shared/types.ts";
 import type { Frame } from "../shared/types.ts";
 const origin = "http://127.0.0.1:3181";
 test(
@@ -116,7 +118,7 @@ test(
       return socket;
     }
     const caps = await ok(0, "/capabilities");
-    assert.equal(caps.appVersion, "0.4.0");
+    assert.equal(caps.appVersion, APP_VERSION);
     assert(caps.friends && caps.sessionManagement);
     const profiles = await Promise.all(
       [0, 1, 2, 3].map((i) => ok(i, "/profile")),
@@ -132,6 +134,83 @@ test(
     });
     cookies[8] = guest.cookie!.split(";")[0];
     assert.equal((await api(8, "/profile")).status, 403);
+    const photo = avatarPNG();
+    const avatarKey = randomUUID();
+    async function upload(
+      i: number,
+      version: number,
+      bytes = photo,
+      key: string = randomUUID(),
+      type = "image/png",
+      source = origin,
+    ) {
+      const r = await fetch(origin + "/api/v2/profile/avatar", {
+        method: "PUT",
+        headers: {
+          Origin: source,
+          Cookie: cookies[i],
+          "Idempotency-Key": key,
+          "Content-Type": type,
+          "X-Profile-Version": String(version),
+        },
+        body: new Uint8Array(bytes),
+      });
+      return { status: r.status, ...(await r.json()) };
+    }
+    assert.equal((await upload(8, 1)).status, 403);
+    assert.equal(
+      (await upload(2, 1, photo, randomUUID(), "image/jpeg")).status,
+      415,
+    );
+    assert.equal((await upload(2, 1, Buffer.from("<svg/>"))).status, 400);
+    assert.equal((await upload(2, 1, Buffer.alloc(301 * 1024))).status, 413);
+    assert.equal(
+      (
+        await upload(
+          2,
+          1,
+          photo,
+          randomUUID(),
+          "image/png",
+          "https://invalid.example",
+        )
+      ).status,
+      403,
+    );
+    const imageUpload = await upload(1, 1, photo, avatarKey);
+    assert.equal(imageUpload.status, 200);
+    const uploadedAvatar = imageUpload.data.avatarId;
+    assert.deepEqual(await upload(1, 1, photo, avatarKey), imageUpload);
+    assert.equal((await upload(1, 1)).status, 409);
+    assert.equal(
+      (
+        await api(2, "/profile", "PATCH", {
+          displayName: "Other",
+          avatarId: uploadedAvatar,
+          expectedProfileVersion: 1,
+        })
+      ).status,
+      400,
+    );
+    const imageResponse = await fetch(
+      origin + "/api/v2/avatars/" + uploadedAvatar,
+    );
+    assert.equal(imageResponse.status, 200);
+    assert.equal(imageResponse.headers.get("content-type"), "image/png");
+    assert.match(imageResponse.headers.get("cache-control")!, /immutable/);
+    const savedImage = Buffer.from(await imageResponse.arrayBuffer());
+    assert.equal(
+      (
+        await fetch(origin + "/api/v2/avatars/" + uploadedAvatar, {
+          headers: { "If-None-Match": imageResponse.headers.get("etag")! },
+        })
+      ).status,
+      304,
+    );
+    assert.equal(
+      (await fetch(origin + "/api/v2/avatars/upload_invalid")).status,
+      404,
+    );
     const a = await connect(0),
       b = await connect(1);
     let notifications = 0;
@@ -184,6 +263,11 @@ test(
     );
     room = await ok(0, "/rooms/" + room.roomId);
     assert.equal(room.slots.filter(Boolean).length, 2);
+    assert.equal(
+      room.slots.find((m: any) => m?.userId === f.users[1].id).avatarId,
+      uploadedAvatar,
+    );
+    assert.equal((await upload(1, 2)).status, 409);
     assert.equal(
       (
         await api(0, "/profile", "PATCH", {
@@ -257,9 +341,34 @@ test(
       100000,
     );
     const replay = await ok(0, "/matches/" + matchId + "/replay");
-    const frozenA = replay.players.find((p: any) => p.displayName === "甲的更新昵称");
+    const frozenA = replay.players.find(
+      (p: any) => p.displayName === "甲的更新昵称",
+    );
     assert(frozenA, "随机分座后仍保留账号A的开场资料");
     assert.equal(frozenA.avatarId, "crane");
+    const frozenB = replay.players.find(
+      (p: any) => p.avatarId === uploadedAvatar,
+    );
+    assert(frozenB);
+    await ok(1, "/profile", "PATCH", {
+      displayName: "用户1",
+      avatarId: "moon",
+      expectedProfileVersion: 2,
+    });
+    assert.equal(
+      (await ok(0, "/matches/" + matchId + "/replay")).players.find(
+        (p: any) => p.avatarId === uploadedAvatar,
+      ).avatarId,
+      uploadedAvatar,
+    );
+    assert.deepEqual(
+      Buffer.from(
+        await (
+          await fetch(origin + "/api/v2/avatars/" + uploadedAvatar)
+        ).arrayBuffer(),
+      ),
+      savedImage,
+    );
     assert.equal((await api(2, "/matches/" + matchId + "/replay")).status, 403);
     const login = await api(9, "/auth/login", "POST", {
       email: "test0@example.com",
@@ -283,11 +392,15 @@ test(
     assert.equal((await api(0, "/me")).status, 200);
     assert(notifications > 0);
     writeFileSync(
-      "reports/v4-social-network.json",
+      "reports/v41-social-network.json",
       JSON.stringify(
         {
-          version: "0.4.0",
+          version: APP_VERSION,
           profileFrozen: true,
+          customAvatarUploaded: true,
+          avatarOwnershipEnforced: true,
+          avatarFrozenInReplay: true,
+          avatarPublicImmutablePNG: true,
           friendsAccepted: true,
           inviteJoined: true,
           normalMatchFinished: true,

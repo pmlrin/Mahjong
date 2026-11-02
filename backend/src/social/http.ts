@@ -1,4 +1,5 @@
 import type { Express, Request } from "express";
+import express from "express";
 import { z } from "zod";
 import { AuthError } from "../auth/types.ts";
 import type { SocialService, SocialContext } from "./service.ts";
@@ -10,6 +11,7 @@ import {
   inviteInputSchema,
   deviceRevokeSchema,
   devicesRevokeSchema,
+  AVATAR_MAX_UPLOAD_BYTES,
 } from "../../../shared/social.ts";
 export function mountSocialRoutes(
   app: Express,
@@ -50,8 +52,56 @@ export function mountSocialRoutes(
                 : 503;
           if ((e as any).retryAfter)
             res.set("Retry-After", String((e as any).retryAfter));
+          res.status(code).json({
+            error: {
+              ...errorData(e),
+              ...((e as any).retryAfter
+                ? { retryAfter: (e as any).retryAfter }
+                : {}),
+            },
+          });
+        });
+    });
+  }
+  const empty = z.object({}).strict(),
+    page = z.object({ cursor: z.string().max(128).optional() }).strict();
+  route("get", "/profile", empty, (r) => s.profile(ctx(r)));
+  app.put(
+    "/api/v2/profile/avatar",
+    express.raw({ type: "image/png", limit: AVATAR_MAX_UPLOAD_BYTES }),
+    (req, res) => {
+      res.set("Cache-Control", "no-store");
+      Promise.resolve()
+        .then(() => {
+          if (!req.is("image/png") || !Buffer.isBuffer(req.body))
+            throw new AuthError(
+              "UNSUPPORTED_AVATAR_TYPE",
+              "请通过头像裁剪器上传 PNG 图片",
+              415,
+            );
+          return s.uploadAvatar(
+            ctx(req, true),
+            req.body,
+            z.coerce
+              .number()
+              .int()
+              .positive()
+              .max(Number.MAX_SAFE_INTEGER)
+              .parse(req.headers["x-profile-version"]),
+          );
+        })
+        .then((data) => res.json({ data }))
+        .catch((e) => {
+          if ((e as any).retryAfter)
+            res.set("Retry-After", String((e as any).retryAfter));
           res
-            .status(code)
+            .status(
+              e instanceof AuthError
+                ? e.status
+                : e instanceof z.ZodError
+                  ? 400
+                  : 503,
+            )
             .json({
               error: {
                 ...errorData(e),
@@ -61,11 +111,29 @@ export function mountSocialRoutes(
               },
             });
         });
-    });
-  }
-  const empty = z.object({}).strict(),
-    page = z.object({ cursor: z.string().max(128).optional() }).strict();
-  route("get", "/profile", empty, (r) => s.profile(ctx(r)));
+    },
+  );
+  app.get("/api/v2/avatars/:avatarId", (req, res) => {
+    s.avatarImage(String(req.params.avatarId))
+      .then((asset) => {
+        res.set({
+          "Content-Type": "image/png",
+          "Content-Length": String(asset.bytes.length),
+          "Cache-Control": "public, max-age=31536000, immutable",
+          "X-Content-Type-Options": "nosniff",
+          "Cross-Origin-Resource-Policy": "same-origin",
+          ETag: '"' + asset.sha256 + '"',
+        });
+        if (req.headers["if-none-match"] === '"' + asset.sha256 + '"')
+          res.status(304).end();
+        else res.send(asset.bytes);
+      })
+      .catch((e) =>
+        res
+          .status(e instanceof AuthError ? e.status : 503)
+          .json({ error: errorData(e) }),
+      );
+  });
   route("patch", "/profile", profileUpdateSchema, (r, p) =>
     s.updateProfile(ctx(r, true), p),
   );

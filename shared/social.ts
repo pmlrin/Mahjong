@@ -15,9 +15,18 @@ export const AVATARS = [
 ] as const;
 export const DEFAULT_AVATAR = "bamboo";
 export type AvatarId = (typeof AVATARS)[number]["id"];
-export const avatarSchema = z.enum(
+export const presetAvatarSchema = z.enum(
   AVATARS.map((a) => a.id) as [AvatarId, ...AvatarId[]],
 );
+export const uploadedAvatarSchema = z
+  .string()
+  .regex(
+    /^upload_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+  );
+export const avatarSchema = z.union([presetAvatarSchema, uploadedAvatarSchema]);
+export const AVATAR_SIZE = 256;
+export const AVATAR_MAX_UPLOAD_BYTES = 300 * 1024;
+export const AVATAR_MAX_SOURCE_BYTES = 5 * 1024 * 1024;
 export const nicknameSchema = z
   .string()
   .max(256)
@@ -37,7 +46,10 @@ export const friendCodeSchema = z
   .string()
   .max(40)
   .transform((s) =>
-    s.trim().replace(/-/g, "").replace(/[a-z]/g, (c) => c.toUpperCase()),
+    s
+      .trim()
+      .replace(/-/g, "")
+      .replace(/[a-z]/g, (c) => c.toUpperCase()),
   )
   .pipe(z.string().regex(/^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{12}$/));
 export const profileUpdateSchema = z

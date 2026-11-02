@@ -8,3 +8,6 @@
 - 字体使用设备已有的系统字体，不分发第三方字体文件。
 
 - V4 的 12 款预设头像位于 `frontend/public/avatars/`，为本项目自制 SVG 色块、圆环与文字图案，固定 ID 映射；不引用外部图片、不分发字体。
+## V4.1 image decoding
+
+pngjs 7.0.0 uses the MIT license; its original license is included in the installed package. It decodes and re-encodes bounded avatar PNGs. Project: https://github.com/pngjs/pngjs . @types/pngjs 6.0.5 supplies development-only TypeScript definitions under MIT.

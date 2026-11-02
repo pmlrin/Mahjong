@@ -665,7 +665,7 @@ test(
         "server logs must not contain credentials",
       );
       writeFileSync(
-        "reports/v4-auth-network.json",
+        "reports/v41-auth-network.json",
         JSON.stringify(
           {
             at: new Date().toISOString(),

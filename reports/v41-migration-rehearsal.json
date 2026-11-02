@@ -1,0 +1,83 @@
+{
+  "at": "2026-11-02T09:36:23.693027Z",
+  "manifest": {
+    "production": {
+      "archive": "mahjong-v41-production-rc2-20261102.tar.gz",
+      "sha256": "940201ce7cf14dbfad28692381675693a15577486f4c3575973e63f2bb66f666",
+      "bytes": 421747,
+      "release": {
+        "version": "0.4.1",
+        "protocolVersion": "2.0",
+        "sourceSha256": "02726a6c8fe0d5c53e622dc35b89fc64200b52fc32b19df4dae1ba544f3ee707",
+        "builtAt": "2026-11-02T09:33:27.859Z"
+      },
+      "assets": [
+        "index-BmuTKPlu.css",
+        "index-zzvEzHCJ.js"
+      ],
+      "dependencies": {
+        "@kobalab/majiang-core": "1.4.1",
+        "express": "5.3.0",
+        "pg": "8.23.1",
+        "socket.io": "4.8.4",
+        "zod": "4.6.7",
+        "nodemailer": "10.3.1",
+        "pngjs": "7.0.0"
+      }
+    },
+    "preview": {
+      "archive": "mahjong-v41-preview-rc2-20261102.tar.gz",
+      "sha256": "328bbb9122b46a3eac92728c1149e83a8eda6765487061724d6014bde33b2a80",
+      "bytes": 421758,
+      "release": {
+        "version": "0.4.1",
+        "protocolVersion": "2.0",
+        "sourceSha256": "02726a6c8fe0d5c53e622dc35b89fc64200b52fc32b19df4dae1ba544f3ee707",
+        "builtAt": "2026-11-02T09:33:27.859Z"
+      },
+      "assets": [
+        "index-BmuTKPlu.css",
+        "index-DkY6l5Tg.js"
+      ],
+      "dependencies": {
+        "@kobalab/majiang-core": "1.4.1",
+        "express": "5.3.0",
+        "pg": "8.23.1",
+        "socket.io": "4.8.4",
+        "zod": "4.6.7",
+        "nodemailer": "10.3.1",
+        "pngjs": "7.0.0"
+      }
+    }
+  },
+  "backup": "/opt/mahjong/backups/mahjong-v41-preflight-rc2-20261102.dump",
+  "restoredCopy": "mahjong_v41_production_rehearsal_rc2_20261102",
+  "beforeTables": 28,
+  "afterTables": 29,
+  "originalRowsPreserved": true,
+  "unchangedOriginalTables": 27,
+  "deviceMetadataBackfilled": 1,
+  "migrationRerunStable": true,
+  "firstMigration": {
+    "migration": "social-v4",
+    "environment": "production",
+    "accountsWithFriendCode": 3,
+    "before": {
+      "documents": 38,
+      "sha256": "d45be9c9af5b377879d3c2874587e9ed5e7e80ffca3fd61797d5878427ad651d"
+    },
+    "after": {
+      "documents": 38,
+      "sha256": "d45be9c9af5b377879d3c2874587e9ed5e7e80ffca3fd61797d5878427ad651d"
+    },
+    "legacyUnchanged": true,
+    "authMigration": {
+      "alreadyApplied": true,
+      "users": 0,
+      "sessions": 0,
+      "conflicts": 0
+    }
+  },
+  "productionModified": false,
+  "passed": true
+}

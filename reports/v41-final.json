@@ -1,0 +1,49 @@
+{
+  "at": "2026-11-02T09:46:15.318697Z",
+  "health": {
+    "production": {
+      "ok": true,
+      "version": "0.4.1",
+      "buildId": "02726a6c8fe0d5c53e622dc35b89fc64200b52fc32b19df4dae1ba544f3ee707",
+      "activeTables": 0
+    },
+    "preview": {
+      "ok": true,
+      "version": "0.4.1",
+      "buildId": "02726a6c8fe0d5c53e622dc35b89fc64200b52fc32b19df4dae1ba544f3ee707",
+      "activeTables": 0
+    }
+  },
+  "services": {
+    "mahjong": {
+      "NRestarts": "0",
+      "MemoryCurrent": "93151232",
+      "ActiveState": "active"
+    },
+    "mahjong-v2-preview": {
+      "NRestarts": "0",
+      "MemoryCurrent": "80752640",
+      "ActiveState": "active"
+    },
+    "astrbot": {
+      "NRestarts": "3",
+      "MemoryCurrent": "320921600",
+      "ActiveState": "active"
+    },
+    "napcat": {
+      "NRestarts": "1",
+      "MemoryCurrent": "332374016",
+      "ActiveState": "active"
+    }
+  },
+  "originalConfigurationBytesUnchanged": {
+    "production": true,
+    "preview": true
+  },
+  "backupTimer": {
+    "enabled": true,
+    "active": true
+  },
+  "currentRelease": "/opt/mahjong/releases/20261102-v41-production-rc2",
+  "passed": true
+}

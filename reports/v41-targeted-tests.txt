@@ -1,0 +1,15 @@
+✔ V4 HTTP/Socket end-to-end: profiles, private friendships, invitation join, normal match/replay and remote session revocation (2789.8ms)
+✔ V4.1 avatar decoding is bounded, rejects spoofed/damaged/animated images, strips metadata (19.622167ms)
+✔ V4.1 avatar ownership, immutable asset, CAS, idempotence and room occupancy (43.322458ms)
+✔ V4.1 avatar transaction rollback and restart preserve image references (29.421125ms)
+✔ V4.1 all supported yaku have a physically valid hand that scores the named yaku (4.608ms)
+✔ V4.1 upload rate remains durable and failed uploads create no orphan assets (48.954084ms)
+✔ V4.1 cleanup keeps frozen match avatars and only prunes old unreferenced images (38.054209ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2918.339708

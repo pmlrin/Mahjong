@@ -1,4 +1,5 @@
-import { randomUUID } from "node:crypto";
+import { randomUUID, createHash } from "node:crypto";
+import { normalizeAvatar } from "./avatar-image.ts";
 import type { Store } from "../store.ts";
 import type { Sql } from "../sql.ts";
 import { AuthService } from "../auth/service.ts";
@@ -9,6 +10,7 @@ import {
   DEFAULT_AVATAR,
   friendCodeSchema,
   profileUpdateSchema,
+  uploadedAvatarSchema,
   type SocialCapabilities,
   type SocialProfile,
   type SocialSnapshot,
@@ -449,7 +451,7 @@ export class SocialService {
                 MIN,
                 this.limits.lookupIpMinute,
               );
-            } else if (name === "PROFILE_UPDATE") {
+            } else if (name === "PROFILE_UPDATE" || name === "AVATAR_UPLOAD") {
               this.enabled("profileEditing");
               await this.limit(
                 tx,
@@ -536,60 +538,165 @@ export class SocialService {
   }
   async updateProfile(ctx: SocialContext, input: unknown) {
     const p = profileUpdateSchema.parse(input);
-    return this.mutate(ctx, "PROFILE_UPDATE", p, async (tx, s, w) => {
-      if (await this.occupied(tx, s.userId))
-        error(
-          "PROFILE_CHANGE_IN_ROOM",
-          "请先自行处理等待厅或进行中的对局，再修改资料",
+    return this.mutate(ctx, "PROFILE_UPDATE", p, (tx, s, w) =>
+      this.writeProfile(tx, s, w, p),
+    );
+  }
+  async uploadAvatar(
+    ctx: SocialContext,
+    input: Buffer,
+    expectedProfileVersion: number,
+  ) {
+    const digest = createHash("sha256").update(input).digest("hex");
+    return this.mutate(
+      ctx,
+      "AVATAR_UPLOAD",
+      { digest, expectedProfileVersion },
+      async (tx, s, w) => {
+        this.enabled("profileEditing");
+        if (await this.occupied(tx, s.userId))
+          error(
+            "PROFILE_CHANGE_IN_ROOM",
+            "请先自行处理等待厅或进行中的对局，再修改头像",
+          );
+        const old = await tx.one(
+          "SELECT p.profile_version,u.display_name FROM social_profiles p JOIN auth_users u ON u.user_id=p.user_id WHERE p.user_id=?",
+          [s.userId],
         );
-      const old = await tx.one(
-        "SELECT p.*,u.display_name FROM social_profiles p JOIN auth_users u ON u.user_id=p.user_id WHERE p.user_id=?",
-        [s.userId],
-      );
-      if (Number(old!.profile_version) !== p.expectedProfileVersion)
-        error("PROFILE_VERSION_CONFLICT", "资料已在其他设备修改，请刷新后重试");
-      if (old!.display_name === p.displayName && old!.avatar_id === p.avatarId)
-        return { updated: true, profileVersion: Number(old!.profile_version) };
-      const renamed = old!.display_name !== p.displayName;
-      if (
-        renamed &&
-        old!.last_nickname_changed_at !== null &&
-        this.now() - Number(old!.last_nickname_changed_at) < DAY
-      )
-        error("NICKNAME_COOLDOWN", "昵称每24小时只能实际修改一次");
-      await tx.query("UPDATE auth_users SET display_name=? WHERE user_id=?", [
-        p.displayName,
-        s.userId,
-      ]);
-      await tx.query(
-        "UPDATE social_profiles SET avatar_id=?,profile_version=profile_version+1,last_nickname_changed_at=? WHERE user_id=?",
-        [
-          p.avatarId,
-          renamed ? this.now() : old!.last_nickname_changed_at,
-          s.userId,
-        ],
-      );
-      w.authChanged = true;
-      w.changed.add(s.userId);
-      for (const r of await tx.rows(
-        "SELECT low_id,high_id FROM friendships WHERE low_id=? OR high_id=?",
-        [s.userId, s.userId],
-      ))
-        w.changed.add(r.low_id === s.userId ? r.high_id : r.low_id);
-      for (const r of await tx.rows(
-        "SELECT sender_id,recipient_id FROM friend_requests WHERE state='PENDING' AND (sender_id=? OR recipient_id=?)",
-        [s.userId, s.userId],
-      )) {
-        if (!(await this.blocked(tx, r.sender_id, r.recipient_id))) {
-          w.changed.add(r.sender_id);
-          w.changed.add(r.recipient_id);
+        if (Number(old!.profile_version) !== expectedProfileVersion)
+          error(
+            "PROFILE_VERSION_CONFLICT",
+            "资料已在其他设备修改，请刷新后重试",
+          );
+        await this.limit(tx, "avatar-hour:" + s.userId, HOUR, 5);
+        await this.limit(tx, "avatar-day:" + s.userId, DAY, 20);
+        const clean = normalizeAvatar(input),
+          sha = createHash("sha256").update(clean).digest("hex");
+        let asset = await tx.one(
+          "SELECT avatar_id FROM avatar_assets WHERE user_id=? AND sha256=?",
+          [s.userId, sha],
+        );
+        if (!asset) {
+          const unused = await tx.rows(
+            "SELECT a.avatar_id FROM avatar_assets a WHERE a.user_id=? AND a.created_at<? AND NOT EXISTS(SELECT 1 FROM social_profiles p WHERE p.avatar_id=a.avatar_id) AND NOT EXISTS(SELECT 1 FROM documents d WHERE d.kind IN ('room','match') AND CAST(d.payload AS TEXT) LIKE '%' || a.avatar_id || '%') ORDER BY a.created_at LIMIT 8",
+            [s.userId, this.now() - 7 * DAY],
+          );
+          for (const a of unused)
+            await tx.query("DELETE FROM avatar_assets WHERE avatar_id=?", [
+              a.avatar_id,
+            ]);
+          if (
+            Number(
+              (await tx.one(
+                "SELECT COUNT(*) AS n FROM avatar_assets WHERE user_id=?",
+                [s.userId],
+              ))!.n,
+            ) >= 64
+          )
+            error(
+              "AVATAR_STORAGE_LIMIT",
+              "已保存的头像达到上限，请先使用预设头像",
+            );
+          const id = "upload_" + randomUUID();
+          await tx.query(
+            "INSERT INTO avatar_assets(avatar_id,user_id,sha256,png_base64,created_at) VALUES(?,?,?,?,?)",
+            [id, s.userId, sha, clean.toString("base64"), this.now()],
+          );
+          asset = { avatar_id: id };
         }
+        const result = await this.writeProfile(tx, s, w, {
+          displayName: old!.display_name,
+          avatarId: asset.avatar_id,
+          expectedProfileVersion,
+        });
+        return { ...result, avatarId: asset.avatar_id };
+      },
+    );
+  }
+  async avatarImage(id: string) {
+    if (!uploadedAvatarSchema.safeParse(id).success)
+      error("NOT_FOUND", "头像不存在", 404);
+    const row = await this.store.transaction((tx) =>
+      tx.one("SELECT png_base64,sha256 FROM avatar_assets WHERE avatar_id=?", [
+        id,
+      ]),
+    );
+    if (!row) error("NOT_FOUND", "头像不存在", 404);
+    return {
+      bytes: Buffer.from(row.png_base64, "base64"),
+      sha256: String(row.sha256),
+    };
+  }
+  private async writeProfile(
+    tx: Sql,
+    s: Identity,
+    w: Work,
+    p: {
+      displayName: string;
+      avatarId: string;
+      expectedProfileVersion: number;
+    },
+  ) {
+    if (await this.occupied(tx, s.userId))
+      error(
+        "PROFILE_CHANGE_IN_ROOM",
+        "请先自行处理等待厅或进行中的对局，再修改资料",
+      );
+    const old = await tx.one(
+      "SELECT p.*,u.display_name FROM social_profiles p JOIN auth_users u ON u.user_id=p.user_id WHERE p.user_id=?",
+      [s.userId],
+    );
+    if (Number(old!.profile_version) !== p.expectedProfileVersion)
+      error("PROFILE_VERSION_CONFLICT", "资料已在其他设备修改，请刷新后重试");
+    if (
+      uploadedAvatarSchema.safeParse(p.avatarId).success &&
+      !(await tx.one(
+        "SELECT avatar_id FROM avatar_assets WHERE avatar_id=? AND user_id=?",
+        [p.avatarId, s.userId],
+      ))
+    )
+      error("INVALID_AVATAR", "只能使用本人上传的头像", 400);
+    if (old!.display_name === p.displayName && old!.avatar_id === p.avatarId)
+      return { updated: true, profileVersion: Number(old!.profile_version) };
+    const renamed = old!.display_name !== p.displayName;
+    if (
+      renamed &&
+      old!.last_nickname_changed_at !== null &&
+      this.now() - Number(old!.last_nickname_changed_at) < DAY
+    )
+      error("NICKNAME_COOLDOWN", "昵称每24小时只能实际修改一次");
+    await tx.query("UPDATE auth_users SET display_name=? WHERE user_id=?", [
+      p.displayName,
+      s.userId,
+    ]);
+    await tx.query(
+      "UPDATE social_profiles SET avatar_id=?,profile_version=profile_version+1,last_nickname_changed_at=? WHERE user_id=?",
+      [
+        p.avatarId,
+        renamed ? this.now() : old!.last_nickname_changed_at,
+        s.userId,
+      ],
+    );
+    w.authChanged = true;
+    w.changed.add(s.userId);
+    for (const r of await tx.rows(
+      "SELECT low_id,high_id FROM friendships WHERE low_id=? OR high_id=?",
+      [s.userId, s.userId],
+    ))
+      w.changed.add(r.low_id === s.userId ? r.high_id : r.low_id);
+    for (const r of await tx.rows(
+      "SELECT sender_id,recipient_id FROM friend_requests WHERE state='PENDING' AND (sender_id=? OR recipient_id=?)",
+      [s.userId, s.userId],
+    )) {
+      if (!(await this.blocked(tx, r.sender_id, r.recipient_id))) {
+        w.changed.add(r.sender_id);
+        w.changed.add(r.recipient_id);
       }
-      return {
-        updated: true,
-        profileVersion: Number(old!.profile_version) + 1,
-      };
-    });
+    }
+    return {
+      updated: true,
+      profileVersion: Number(old!.profile_version) + 1,
+    };
   }
   async lookup(ctx: SocialContext, code: string) {
     return this.mutate(ctx, "LOOKUP", { friendCode: code }, async (tx, s) => {
