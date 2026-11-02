@@ -1,3 +1,4 @@
+import type { MouseEventHandler, PointerEventHandler } from "react";
 import { kind, isRed, tileName } from "../../shared/types";
 export function Tile({
   tile,
@@ -6,6 +7,7 @@ export function Tile({
   selected = false,
   disabled = false,
   onClick,
+  onPointerDown,
   mark = false,
 }: {
   tile?: number;
@@ -13,7 +15,8 @@ export function Tile({
   small?: boolean;
   selected?: boolean;
   disabled?: boolean;
-  onClick?: () => void;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
+  onPointerDown?: PointerEventHandler<HTMLButtonElement>;
   mark?: boolean;
 }) {
   const k = tile === undefined ? 0 : kind(tile),
@@ -172,6 +175,8 @@ export function Tile({
       className={cls}
       disabled={disabled}
       onClick={onClick}
+      onPointerDown={onPointerDown}
+      data-hand-tile={onPointerDown ? tile : undefined}
       aria-label={tileName(tile!)}
       aria-pressed={selected}
     >

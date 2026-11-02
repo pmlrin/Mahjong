@@ -1,7 +1,7 @@
 {
   "name": "mahjong-friends",
   "private": true,
-  "version": "0.4.1",
+  "version": "0.4.2",
   "type": "module",
   "engines": {
     "node": ">=24.7.0"
@@ -18,7 +18,9 @@
     "smoke": "node --import tsx scripts/smoke.ts",
     "auth:configure": "node --import tsx scripts/auth-configure.ts",
     "auth:migrate": "node --import tsx backend/src/auth/migrate.ts",
-    "mail:verify": "node --import tsx scripts/mail-verify.ts"
+    "mail:verify": "node --import tsx scripts/mail-verify.ts",
+    "test:table": "node --import tsx --test tests/v42*.test.ts",
+    "test:table:browser": "node --import tsx scripts/verify-table-browser.ts"
   },
   "dependencies": {
     "@kobalab/majiang-core": "^1.4.1",

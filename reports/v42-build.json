@@ -1,0 +1,43 @@
+{
+  "at": "2026-11-02T12:09:59.328989+00:00",
+  "version": "0.4.2",
+  "protocolVersion": "2.0",
+  "localBuildOnly": true,
+  "deployed": false,
+  "builds": [
+    {
+      "base": "/",
+      "indexSha256": "f49db86ac3ec87c61feeb6d5aa0e7551caafe299aca28ae6acef7282700babaa",
+      "assets": [
+        {
+          "url": "/assets/index-B8oei9Sc.js",
+          "bytes": 478232,
+          "sha256": "da6669cd134501f9552b27737d6d7bc3a9f4d8a18e1588075382f8df1429f121"
+        },
+        {
+          "url": "/assets/index-DHOuO0N6.css",
+          "bytes": 50353,
+          "sha256": "595704076336a199547dece5bd89a2e61607a0c2da03ab4345d9acf17b1e7cea"
+        }
+      ],
+      "testFixtureAbsent": true
+    },
+    {
+      "base": "/preview/",
+      "indexSha256": "45f818292237b05a742e68ec79b631c2dbb4616e820f9745f81fd577cd36b4db",
+      "assets": [
+        {
+          "url": "/preview/assets/index-rGajXiD6.js",
+          "bytes": 478296,
+          "sha256": "ca3c0a72a3d3edcffea56e8afc8f66e91337de34791a6e73d31bbaad3f75a521"
+        },
+        {
+          "url": "/preview/assets/index-DHOuO0N6.css",
+          "bytes": 50353,
+          "sha256": "595704076336a199547dece5bd89a2e61607a0c2da03ab4345d9acf17b1e7cea"
+        }
+      ],
+      "testFixtureAbsent": true
+    }
+  ]
+}

@@ -3641,3 +3641,81 @@ select {
     padding: 18px;
   }
 }
+
+/* V4.2 operation settings stay in flow, including on narrow touch screens. */
+.table-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1.1rem;
+  padding: 0.65rem 0;
+}
+.table-controls label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.table-controls input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: #276854;
+}
+.table-controls small {
+  color: var(--muted, #65756c);
+}
+.operation-help {
+  font-size: 0.78rem;
+  line-height: 1.6;
+  margin: 0.3rem 0;
+  color: var(--muted, #65756c);
+}
+.auto-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.6rem;
+  margin: 0.5rem 0;
+  border: 1px solid #cbd5ca;
+  border-radius: 8px;
+  font-size: 0.82rem;
+}
+.auto-status.enabled {
+  background: #e4f0e7;
+  border-color: #44785d;
+}
+.auto-status button {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+}
+.hand-panel:focus-visible,
+.action-modal:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid #bb7827;
+  outline-offset: 4px;
+}
+.own-hand .tile:focus-visible {
+  outline: 3px solid #bb7827;
+  outline-offset: 3px;
+}
+.action-modal .chosen {
+  box-shadow: 0 0 0 3px #387360;
+}
+.action-modal {
+  max-height: 85dvh;
+  overflow-y: auto;
+}
+@media (max-width: 600px) {
+  .table-controls {
+    gap: 0.6rem;
+  }
+  .table-controls label {
+    min-height: 36px;
+  }
+  .auto-status button {
+    min-height: 36px;
+  }
+}

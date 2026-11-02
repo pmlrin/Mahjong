@@ -1,0 +1,17 @@
+chromium: defaults and normal select-confirm
+chromium: quick click exact red copy; double click and duplicate frame stay locked
+chromium: quick riichi selects then confirms
+chromium: keyboard always selects then Enter; held Enter cannot cross decision
+chromium: keyboard native tile activation selects without quick discard or dual activation
+chromium: call opens first, arrows choose physical consumption, new Enter confirms
+chromium: W and Space confirmations, cancel default and Escape never PASS
+chromium: input focus, composing input and modifiers isolate shortcuts
+chromium: pointer drag >8px, cross-tile, cancel, secondary and multi-touch never discard
+chromium: auto-discard waits 500ms; manual selection cancels without rerender rearming
+chromium: no-call PASS, RON preservation and disabled call entries
+chromium: special choices and near-deadline do not auto-discard
+chromium: blur and disconnect disable automatic modes, and resume never reenables
+chromium: lost ack plus receipt 404 never unlocks or generates another intent
+chromium: quick and keyboard preferences survive remount while automatic modes reset
+chromium: unavailable browser preference and recovery storage still allow manual play
+chromium: 17 browser scenarios passed

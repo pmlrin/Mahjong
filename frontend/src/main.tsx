@@ -1,3 +1,9 @@
+import {
+  TablePreferenceSettings,
+  readLocalPreference,
+  writeLocalPreference,
+} from "./table-preferences";
+import { Game, actionNames, resultNames } from "./Game";
 import { RulesPage as Rules } from "./rules-page";
 import { useSocial } from "./use-social";
 import { SocialPage } from "./social-page";
@@ -15,12 +21,7 @@ import {
   WINDS,
   type Room,
   type Frame,
-  type MatchView,
-  type Option,
-  type Result,
   type Seat,
-  type Envelope,
-  type Action,
   type CurrentUser,
   type AuthCapabilities,
 } from "../../shared/types";
@@ -30,43 +31,8 @@ import { AccountPanel, type AccountPage } from "./account";
 import { History, Stats, formatName } from "./history-pages";
 import { Tile } from "./Tile";
 import { Melds } from "./Melds";
-import { TableSurface } from "./TableSurface";
-import { CallChoices, ResponseSource } from "./turn-feedback";
-import { responseTarget } from "../../shared/game-feedback";
 const uuid = () => crypto.randomUUID();
 type Me = CurrentUser;
-const actionNames: Record<string, string> = {
-  DISCARD: "打出",
-  RIICHI_DISCARD: "立直并打出",
-  TSUMO: "自摸",
-  RON: "荣和",
-  PASS: "过",
-  PON: "碰",
-  CHI: "吃",
-  ANKAN: "暗杠",
-  KAKAN: "加杠",
-  DAIMINKAN: "明杠",
-  ABORT_KYUUSHU: "九种九牌",
-};
-const resultNames: Record<string, string> = {
-  TSUMO: "自摸",
-  RON: "荣和",
-  EXHAUSTIVE_DRAW: "荒牌流局",
-  NAGASHI_MANGAN: "流局满贯",
-  ABORT_KYUUSHU: "九种九牌",
-  ABORT_FOUR_WINDS: "四风连打",
-  ABORT_FOUR_RIICHI: "四家立直",
-  ABORT_FOUR_KANS: "四杠散了",
-  ABORT_TRIPLE_RON: "三家和",
-};
-const endNames: Record<string, string> = {
-  BANKRUPTCY: "飞人终局",
-  DEALER_AGARI_YAME: "庄家和了止",
-  DEALER_TENPAI_YAME: "庄家听牌止",
-  SCHEDULE_COMPLETE: "计划赛程结束",
-  EXTENSION_TARGET_REACHED: "延长达到目标点数",
-  EXTENSION_HARD_LIMIT: "延长场结束",
-};
 const wind = (w: string) =>
   ({ EAST: "东", SOUTH: "南", WEST: "西", NORTH: "北" })[w] ?? w;
 function App() {
@@ -96,7 +62,7 @@ function App() {
     [busy, setBusy] = useState(false),
     [network, setNetwork] = useState(false),
     [takeover, setTakeover] = useState(false),
-    [sound, setSound] = useState(localStorage.getItem("mj_sound") === "true"),
+    [sound, setSound] = useState(readLocalPreference("mj_sound") === "true"),
     [rules, setRules] = useState(""),
     [format, setFormat] = useState<"EAST_ONLY" | "HANCHAN">("EAST_ONLY"),
     [replayTarget, setReplayTarget] = useState<{
@@ -107,10 +73,10 @@ function App() {
       return id ? { id } : null;
     }),
     [size, setSize] = useState(
-      localStorage.getItem("mj_tableSize") ?? "standard",
+      readLocalPreference("mj_tableSize") ?? "standard",
     ),
     [reduced, setReduced] = useState(
-      localStorage.getItem("mj_reducedMotion") === "true",
+      readLocalPreference("mj_reducedMotion") === "true",
     ),
     [diagnostic, setDiagnostic] = useState(""),
     [capabilities, setCapabilities] = useState<{
@@ -487,7 +453,7 @@ function App() {
   }
   function toggleSound() {
     setSound((v) => {
-      localStorage.setItem("mj_sound", String(!v));
+      writeLocalPreference("mj_sound", String(!v));
       if (!v) beep();
       return !v;
     });
@@ -1094,6 +1060,15 @@ function App() {
         </main>
       ) : screen === "game" && view ? (
         <Game
+          key={me!.userId + ":" + sessionEpoch + ":" + view.matchId}
+          userId={me!.userId}
+          identity={me!.userId + ":" + sessionEpoch}
+          authorized={(c) =>
+            latest.current === c.frame &&
+            binding.current === c.binding &&
+            !!socket.current?.connected &&
+            meRef.current?.userId === me?.userId
+          }
           view={view}
           frame={frame!}
           network={network}
@@ -1168,7 +1143,7 @@ function App() {
                 value={size}
                 onChange={(e) => {
                   setSize(e.target.value);
-                  localStorage.setItem("mj_tableSize", e.target.value);
+                  writeLocalPreference("mj_tableSize", e.target.value);
                 }}
               >
                 <option value="standard">标准</option>
@@ -1181,7 +1156,7 @@ function App() {
                 checked={reduced}
                 onChange={(e) => {
                   setReduced(e.target.checked);
-                  localStorage.setItem(
+                  writeLocalPreference(
                     "mj_reducedMotion",
                     String(e.target.checked),
                   );
@@ -1190,6 +1165,9 @@ function App() {
               减少动画
             </label>
             <p>默认先选牌再确认；设置在当前浏览器保存。</p>
+            {me && (
+              <TablePreferenceSettings key={me.userId} userId={me.userId} />
+            )}
             {me && (
               <button
                 className="secondary"
@@ -1251,555 +1229,6 @@ function beep() {
     o.start();
     o.stop(audio.currentTime + 0.08);
   } catch {}
-}
-function Game({
-  view: v,
-  frame,
-  network,
-  binding,
-  emit,
-  setError,
-  onNew,
-  onRematch,
-  onReplay,
-}: {
-  view: MatchView;
-  frame: Frame;
-  network: boolean;
-  binding: string;
-  emit: (e: string, p: any, id?: string) => Promise<any>;
-  setError: (s: string) => void;
-  onNew: () => void;
-  onRematch?: () => void;
-  onReplay: () => void;
-}) {
-  const [selected, setSelected] = useState<number | null>(null),
-    [riichi, setRiichi] = useState(false),
-    [pending, setPending] = useState(false),
-    [modal, setModal] = useState<string | null>(null),
-    [now, setNow] = useState(Date.now()),
-    [details, setDetails] = useState(false);
-  const current = useRef({ v, frame });
-  current.current = { v, frame };
-  const offset = useRef(Date.now() - frame.serverTime);
-  useEffect(() => {
-    offset.current = Date.now() - frame.serverTime;
-  }, [frame.serverTime]);
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 200);
-    return () => clearInterval(t);
-  }, []);
-  const d = v.self.decision,
-    can = !!d?.canSubmit && network && !!binding && !pending,
-    options = d?.options ?? [];
-  const decisionId = d?.decisionId;
-  useEffect(() => {
-    setSelected(null);
-    setRiichi(false);
-    setPending(false);
-    setModal(null);
-  }, [
-    decisionId,
-    frame.serverEpoch,
-    frame.viewSeq,
-    v.self.desiredControl,
-    d?.canSubmit,
-  ]);
-  useEffect(() => {
-    if (!d || !d.canSubmit) setPending(false);
-  }, [d?.canSubmit]);
-  const time = d
-    ? Math.max(0, Math.ceil((d.deadlineAt - (now - offset.current)) / 1000))
-    : null;
-  async function submit(o: Option) {
-    if (!can || !d) return;
-    setPending(true);
-    const requestId = uuid();
-    const payload: Action = {
-      matchId: v.matchId,
-      handId: v.hand.handId,
-      serverEpoch: frame.serverEpoch,
-      bindingId: binding,
-      windowId: d.windowId,
-      decisionId: d.decisionId,
-      optionId: o.optionId,
-      lastSeenViewSeq: frame.viewSeq,
-    };
-    const key = "mj_pending_" + v.matchId;
-    sessionStorage.setItem(key, JSON.stringify({ requestId, payload }));
-    try {
-      const r = await emit("game:action", payload, requestId);
-      if (r.status === "REJECTED") throw Error(r.error.message);
-      sessionStorage.removeItem(key);
-    } catch (e) {
-      setError((e as Error).message);
-      try {
-        const r = await api<any>(`/matches/${v.matchId}/requests/${requestId}`);
-        if (r.status === "ACCEPTED") sessionStorage.removeItem(key);
-      } catch {}
-      await emit("game:sync", { matchId: v.matchId, syncId: uuid() }).catch(
-        () => {},
-      );
-      setPending(false);
-    }
-  }
-  useEffect(() => {
-    if (!network || !binding) return;
-    const key = "mj_pending_" + v.matchId;
-    const raw = sessionStorage.getItem(key);
-    if (!raw) return;
-    try {
-      const saved = JSON.parse(raw);
-      api<any>(`/matches/${v.matchId}/requests/${saved.requestId}`)
-        .then(() => sessionStorage.removeItem(key))
-        .catch(async () => {
-          if (
-            saved.payload.decisionId ===
-              current.current.v.self.decision?.decisionId &&
-            saved.payload.serverEpoch === current.current.frame.serverEpoch
-          ) {
-            await emit(
-              "game:action",
-              { ...saved.payload, bindingId: binding },
-              saved.requestId,
-            ).catch(() => {});
-          }
-          sessionStorage.removeItem(key);
-        });
-    } catch {
-      sessionStorage.removeItem(key);
-    }
-  }, [network, binding, v.matchId]);
-  const hand = v.hand,
-    self = v.viewerSeat,
-    finished = hand.phase === "MATCH_RESULT";
-  const own = hand.seats[self];
-  const tiles = v.self.concealedTiles;
-  const unique = [
-    ...new Set(
-      options
-        .filter((o) => !["DISCARD", "RIICHI_DISCARD"].includes(o.type))
-        .map((o) => o.type),
-    ),
-  ];
-  const target = responseTarget(v);
-  const availableResponses = [
-    ...new Set(
-      options
-        .filter((o) => ["CHI", "PON", "DAIMINKAN", "RON"].includes(o.type))
-        .map((o) => actionNames[o.type]),
-    ),
-  ];
-  const actionPrompt =
-    v.status === "ABORTED"
-      ? "本场因技术原因中止"
-      : pending || d?.submittedRequestId
-        ? "已提交，等待裁决"
-        : d?.owner === "AI"
-          ? "AI 正在思考…"
-          : d?.disabledReason === "CONTROL_PENDING"
-            ? "将在下个操作窗口恢复人工"
-            : can
-              ? hand.phase === "SELF_ACTION"
-                ? riichi
-                  ? "选择立直弃牌"
-                  : "选择一张牌，再点击打出"
-                : `你可以${availableResponses.join("、")}，或选择过牌`
-              : hand.phase === "HAND_RESULT"
-                ? "本局已结束"
-                : hand.phase === "SELF_ACTION" && hand.activeSeat !== null
-                  ? `${v.players[hand.activeSeat].displayName}${v.players[hand.activeSeat].effectiveControl === "AI" ? "正在思考…" : "正在选择出牌…"}`
-                  : "等待其他玩家响应…";
-  const selectedOption = options.find(
-    (o) =>
-      o.type === (riichi ? "RIICHI_DISCARD" : "DISCARD") && o.tile === selected,
-  );
-  return (
-    <main className="play-page">
-      <div className="game-topline">
-        <span>
-          <span className={`status-dot ${network ? "on" : ""}`} />
-          {network ? "牌桌已连接" : "正在重连，当前操作时间仍会继续"}
-        </span>
-        <span>
-          {formatName(v.format)} <i>·</i> 四人立直
-        </span>
-        <button
-          className="text-button"
-          onClick={() =>
-            emit("game:control", {
-              matchId: v.matchId,
-              bindingId: binding,
-              mode: v.self.desiredControl === "AI" ? "HUMAN" : "AI",
-            }).catch((e) => setError(e.message))
-          }
-        >
-          {v.self.desiredControl === "AI" ? "恢复人工" : "交给 AI 托管"} ↗
-        </button>
-      </div>
-      <div className="portrait-hint">转为横屏，牌桌看得更清楚 ↻</div>
-      {v.status === "ABORTED" && (
-        <div className="takeover">
-          <p>本场因技术原因中止，不计入有效战绩。请另开一桌继续。</p>
-          <button className="primary" onClick={onNew}>
-            创建新房间
-          </button>
-        </div>
-      )}
-      <TableSurface view={v} />
-      <section className="hand-panel">
-        <div className="action-row">
-          <div className="action-hint">
-            {target && d ? (
-              <ResponseSource source={target} prompt={actionPrompt} />
-            ) : (
-              actionPrompt
-            )}
-            {Object.values(v.self.furiten).some(Boolean) && (
-              <span className="furiten">振听：不可荣和，可有役自摸</span>
-            )}
-          </div>
-          <div className="action-buttons">
-            {time !== null && (
-              <span className={`countdown ${time <= 5 ? "urgent" : ""}`}>
-                {time}
-                <small>秒</small>
-              </span>
-            )}
-            {options.some((o) => o.type === "RIICHI_DISCARD") && (
-              <button
-                className={`secondary ${riichi ? "chosen" : ""}`}
-                disabled={!can}
-                onClick={() => {
-                  setRiichi(!riichi);
-                  setSelected(null);
-                }}
-              >
-                立直
-              </button>
-            )}
-            {unique.map((type) => (
-              <button
-                key={type}
-                className={
-                  type === "RON" || type === "TSUMO"
-                    ? "primary win-button"
-                    : "secondary"
-                }
-                disabled={!can}
-                onClick={() => {
-                  const os = options.filter((o) => o.type === type);
-                  if (
-                    os.length === 1 &&
-                    !["CHI", "PON", "DAIMINKAN"].includes(type)
-                  )
-                    submit(os[0]);
-                  else setModal(type);
-                }}
-              >
-                {actionNames[type]}
-              </button>
-            ))}
-            {options.some((o) => o.type === "DISCARD") && (
-              <button
-                className="primary discard-button"
-                disabled={!can || !selectedOption}
-                onClick={() => selectedOption && submit(selectedOption)}
-              >
-                {riichi ? "立直并打出" : "打出"} <span>↑</span>
-              </button>
-            )}
-          </div>
-        </div>
-        <div className="own-hand">
-          {tiles.map((t) => (
-            <Tile
-              key={t}
-              tile={t}
-              selected={selected === t}
-              disabled={
-                !can ||
-                !options.some(
-                  (o) =>
-                    o.type === (riichi ? "RIICHI_DISCARD" : "DISCARD") &&
-                    o.tile === t,
-                )
-              }
-              onClick={() => setSelected(t)}
-            />
-          ))}
-          {v.self.drawnTile !== null && (
-            <Tile
-              tile={v.self.drawnTile}
-              selected={selected === v.self.drawnTile}
-              disabled={
-                !can ||
-                !options.some(
-                  (o) =>
-                    o.type === (riichi ? "RIICHI_DISCARD" : "DISCARD") &&
-                    o.tile === v.self.drawnTile,
-                )
-              }
-              onClick={() => setSelected(v.self.drawnTile)}
-              mark
-            />
-          )}
-        </div>
-        <div className="hand-footer">
-          <span>
-            {own.riichi === "ESTABLISHED"
-              ? "立直后只能摸切，或选择合法和牌与暗杠"
-              : "点选手牌 · 点击打出"}
-          </span>
-          <span>
-            {wind(own.seatWind)}家 / {hand.handIndex} 次配牌
-          </span>
-        </div>
-      </section>
-      {modal && (
-        <div className="modal-shade">
-          <section className="modal">
-            <button className="close" onClick={() => setModal(null)}>
-              ×
-            </button>
-            <h2>选择{actionNames[modal]}的方案</h2>
-            {time !== null && (
-              <span
-                className={`call-window-time ${time <= 3 ? "urgent" : ""}`}
-                role="timer"
-              >
-                剩余 {time} 秒
-              </span>
-            )}
-            {target && ["CHI", "PON", "DAIMINKAN"].includes(modal) ? (
-              <CallChoices
-                type={modal}
-                target={target}
-                options={options.filter((o) => o.type === modal)}
-                disabled={!can}
-                onConfirm={(o) => {
-                  setModal(null);
-                  submit(o);
-                }}
-              />
-            ) : (
-              <div className="call-options">
-                {options
-                  .filter((o) => o.type === modal)
-                  .map((o) => (
-                    <button
-                      className="secondary"
-                      key={o.optionId}
-                      onClick={() => {
-                        setModal(null);
-                        submit(o);
-                      }}
-                    >
-                      {(o.consumedTiles ?? o.tiles ?? [o.tile!]).map((t) => (
-                        <Tile key={t} tile={t} small />
-                      ))}
-                      <span>确认</span>
-                    </button>
-                  ))}
-              </div>
-            )}
-          </section>
-        </div>
-      )}
-      {hand.phase === "HAND_RESULT" && v.lastHandResult && (
-        <div className="modal-shade result-shade">
-          <section className="modal result-modal">
-            <div className="eyebrow">这一局，落定</div>
-            <h2>
-              {resultNames[v.lastHandResult.reason] ?? v.lastHandResult.reason}
-            </h2>
-            <HandResult
-              result={v.lastHandResult}
-              view={v}
-              details={details}
-              setDetails={setDetails}
-            />
-            <p className="auto-next">
-              {v.matchResult ? "即将显示整场成绩" : "下一局即将开始"} ·{" "}
-              {Math.max(
-                0,
-                Math.ceil(
-                  ((hand.resultDisplayUntil ?? 0) - (now - offset.current)) /
-                    1000,
-                ),
-              )}{" "}
-              秒
-            </p>
-          </section>
-        </div>
-      )}
-      {finished && v.matchResult && (
-        <div className="modal-shade">
-          <section className="modal final-modal">
-            <div className="eyebrow">一场好时光，感谢同桌</div>
-            <h2>本场结算</h2>
-            <p className="muted">{endNames[v.matchResult.reason]}</p>
-            <div className="rankings">
-              {[...v.players]
-                .sort(
-                  (a, b) =>
-                    v.matchResult!.ranks[a.seat] - v.matchResult!.ranks[b.seat],
-                )
-                .map((p) => (
-                  <div
-                    key={p.seat}
-                    className={p.seat === self ? "is-self" : ""}
-                  >
-                    <span className="rank">
-                      0{v.matchResult!.ranks[p.seat]}
-                    </span>
-                    <span>
-                      <Avatar id={p.avatarId} /> {p.displayName}
-                      {p.seat === self ? " · 你" : ""}
-                    </span>
-                    <strong>{p.points.toLocaleString()}</strong>
-                    <small>
-                      {p.points >= 25000 ? "+" : ""}
-                      {(p.points - 25000).toLocaleString()}
-                    </small>
-                  </div>
-                ))}
-            </div>
-            <div className="final-actions">
-              <button className="secondary" onClick={onReplay}>
-                回看本场牌谱 ↗
-              </button>
-              {onRematch ? (
-                <button className="primary" onClick={onRematch}>
-                  同桌再战 →
-                </button>
-              ) : (
-                <p>等待房主发起同桌再战</p>
-              )}
-              <button className="text-button" onClick={onNew}>
-                另开一桌 ＋
-              </button>
-            </div>
-          </section>
-        </div>
-      )}
-    </main>
-  );
-}
-function HandResult({
-  result: r,
-  view: v,
-  details,
-  setDetails,
-}: {
-  result: Result;
-  view: MatchView;
-  details: boolean;
-  setDetails: (b: boolean) => void;
-}) {
-  return (
-    <>
-      {r.wins.map((w) => (
-        <div className="win-detail" key={w.winnerSeat}>
-          <h3>
-            {v.players[w.winnerSeat].displayName}{" "}
-            <small>
-              {w.method === "TSUMO"
-                ? "自摸"
-                : w.method === "RON"
-                  ? `荣和 · ${v.players[w.sourceSeat!].displayName} 放铳`
-                  : "流局满贯"}
-            </small>
-          </h3>
-          <div className="reveal-tiles">
-            {r.revealedHands
-              .find((h) => h.seat === w.winnerSeat)
-              ?.concealedTiles.map((t) => (
-                <Tile key={t} tile={t} small />
-              ))}
-            {w.winningTile !== null && <Tile tile={w.winningTile} mark small />}
-          </div>
-          <div className="yaku-list">
-            {w.yaku.map((y, i) => (
-              <span key={i}>
-                {y.name}{" "}
-                <b>
-                  {y.yakumanMultiplier
-                    ? `${y.yakumanMultiplier} 倍役满`
-                    : `${y.han} 番`}
-                </b>
-              </span>
-            ))}
-          </div>
-          <div className="score-summary">
-            {w.yakumanMultiplier
-              ? `${w.yakumanMultiplier} 倍役满`
-              : w.fu === null
-                ? "满贯"
-                : `${w.han} 番 ${w.fu} 符`}{" "}
-            <small>
-              宝牌 {w.dora.omote} · 赤 {w.dora.aka} · 里 {w.dora.ura}
-            </small>
-          </div>
-        </div>
-      ))}
-      {r.tenpaiSeats && (
-        <p>
-          {r.tenpaiSeats.length
-            ? r.tenpaiSeats.map((s) => v.players[s].displayName).join("、") +
-              " 听牌"
-            : "四家未听"}
-        </p>
-      )}
-      <div className="result-points">
-        {v.players.map((p) => (
-          <div key={p.seat}>
-            <small>{p.displayName}</small>
-            <b
-              className={
-                r.delta[p.seat] > 0
-                  ? "positive"
-                  : r.delta[p.seat] < 0
-                    ? "negative"
-                    : ""
-              }
-            >
-              {r.delta[p.seat] > 0 ? "+" : ""}
-              {r.delta[p.seat].toLocaleString()}
-            </b>
-            <span>{r.pointsAfter[p.seat].toLocaleString()}</span>
-          </div>
-        ))}
-      </div>
-      <button className="text-button" onClick={() => setDetails(!details)}>
-        {details ? "收起" : "查看"}支付明细 {details ? "−" : "＋"}
-      </button>
-      {details && (
-        <div className="ledger">
-          {r.transfers.map((t) => (
-            <p key={t.transferId}>
-              <span>
-                {t.from === "KYOTAKU" ? "供托" : v.players[t.from].displayName}{" "}
-                → {t.to === "KYOTAKU" ? "供托" : v.players[t.to].displayName}
-              </span>
-              <b>{t.amount.toLocaleString()}</b>
-              <small>
-                {
-                  {
-                    HAND_VALUE: "和牌",
-                    HONBA: "本场",
-                    NOTEN: "未听罚符",
-                    KYOTAKU_AWARD: "供托",
-                    FINAL_KYOTAKU: "终局供托",
-                  }[t.reason]
-                }
-              </small>
-            </p>
-          ))}
-        </div>
-      )}
-    </>
-  );
 }
 interface ReplayData {
   format?: string;

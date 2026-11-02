@@ -72,12 +72,14 @@ export function CallChoices({
   options,
   disabled,
   onConfirm,
+  activeIndex,
 }: {
   type: string;
   target: TileSource;
   options: Option[];
   disabled: boolean;
   onConfirm: (option: Option) => void;
+  activeIndex?: number;
 }) {
   return (
     <>
@@ -92,9 +94,10 @@ export function CallChoices({
         </p>
       </div>
       <div className="call-options explained-call-options">
-        {options.map((o) => (
+        {options.map((o, i) => (
           <button
-            className="secondary call-choice"
+            className={`secondary call-choice ${activeIndex === i ? "chosen" : ""}`}
+            aria-current={activeIndex === i ? "true" : undefined}
             key={o.optionId}
             disabled={disabled}
             onClick={() => onConfirm(o)}

@@ -1,0 +1,39 @@
+✔ V42 full engine match: 1 scripted HUMAN controller(s), 3 bots (198.699917ms)
+✔ V42 full engine match: 4 scripted HUMAN controller(s), 0 bots (913.239375ms)
+✔ V42 defaults and scoped preference failures are safe (2.659042ms)
+✔ normal and keyboard selection never quick-discard; a quick pointer uses exact physical tile (0.697375ms)
+✔ quick riichi requires explicit confirmation and cancellation has no effect (0.483291ms)
+✔ all inputs and same-frame repeats share a synchronous decision lock (0.68925ms)
+✔ manual choice wins before timeout and cannot be rescheduled by viewSeq (0.347709ms)
+✔ 500ms wait is not extended by a same-decision snapshot or system clock (0.313208ms)
+✔ duplicate snapshots and accepted responses keep the action lock until decision changes (0.388334ms)
+✔ automatic cancellation, toggle-off, decision expiry and delayed callbacks never spill into another window (1.171667ms)
+✔ deadline <=500ms will not schedule; old timers never replace the exact draw (0.790417ms)
+✔ special choices pause auto-discard; riichi opportunity alone does not (0.8725ms)
+✔ manual riichi intervention cancels auto and next decision resumes (0.218875ms)
+✔ after-call discard, invalid drawn ID, AI and pending human control never auto-discard (0.954541ms)
+✔ no-call sends the original PASS once for multiple calls and pass-only decisions (0.455042ms)
+✔ RON and robbing-kan never auto-PASS; explicit refusal needs a cancellable confirmation (0.37475ms)
+✔ closing no-call restores calls and it never hides self kan (0.306416ms)
+✔ select traversal uses screen order, wraps physical copies and Enter has no default tile (0.157792ms)
+✔ single call and win shortcuts always open choices before confirming (0.189042ms)
+✔ unknown receipt and query 404 cannot unlock or create another request (0.635791ms)
+✔ explicit rejection requires synchronization and returns control to manual, without retry loop (0.330208ms)
+✔ fresh authority changing the decision resolves uncertainty without retransmitting old intent (0.263625ms)
+✔ background, disconnect, epoch and control changes close automatic modes; return requires fresh sync (0.878708ms)
+✔ hand results keep automatic preference while final match and new match shut down (0.852375ms)
+✔ stale identity async callbacks cannot mutate a replacement table or erase pending recovery (0.445041ms)
+✔ gesture guard rejects drag, wrong tile, nonprimary, multi-touch, stale decision, cancel and double-click (0.114708ms)
+✔ unrelated automatic toggle and equivalent option property order preserve the original wait (0.20375ms)
+✔ rinshan draw uses the exact drawn copy and never a same-kind hand tile (0.167125ms)
+✔ invalidated selected entity is cleared while still-legal entity survives snapshots (0.193125ms)
+✔ storage failure never blocks manual selection or releases the synchronous action lock (0.226333ms)
+✔ unknown result after a same-window sync resolves when a later authoritative window advances (0.245125ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1195.237459
