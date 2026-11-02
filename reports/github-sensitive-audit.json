@@ -1,0 +1,65 @@
+{
+  "checkedAt": "2026-11-02T06:16:32.664416+00:00",
+  "scope": "local Git worktree candidates, index, all locally reachable history and commit metadata; normal Git upload only",
+  "candidateFiles": 272,
+  "stagedFiles": 0,
+  "historyCommits": 5,
+  "historyBlobs": 315,
+  "knownCredentialValuesCompared": 6,
+  "liveCredentialsFound": 0,
+  "privateKeyOrServiceTokenPatternsFound": 0,
+  "reviewedNonSecretPatternMatches": 41,
+  "nonSecretClassifications": [
+    "isolated test fixtures",
+    "environment placeholders and references",
+    "runtime random credential generation"
+  ],
+  "images": {
+    "count": 21,
+    "localOfflineOCRCompleted": true,
+    "recognizedEmailsSyntheticOnly": true,
+    "pngTextOrExifMetadataFound": false,
+    "historicalVariantsBeyondCurrentImages": 0
+  },
+  "ignoreRuleChecks": {
+    ".env.auth.local": true,
+    "service.env": true,
+    "db.env": true,
+    "v3-production-auth.env": true,
+    "backup.dump": true,
+    "backup.dump.gz": true,
+    "backup-prod.sql": true,
+    "dump.sql": true,
+    "capture.har": true,
+    "cookies.json": true,
+    "old-guest.cookies": true,
+    "storage-state.json": true,
+    ".workbench/config.json": true,
+    ".git-credentials": true,
+    ".netrc": true,
+    ".npmrc": true,
+    "snapshot.tar.gz": true
+  },
+  "publicSourceAndExampleChecks": {
+    ".env.auth.example": true,
+    ".env.example": true,
+    ".env.social.example": true,
+    "service.env.example": true,
+    "backend/migrations/004_social_v4.sql": true
+  },
+  "trackedFilesUnexpectedlyIgnored": [],
+  "authConfigPermissions": "0o600",
+  "contactMetadata": {
+    "personalQQEmailInCommitMetadata": true,
+    "affectedCommits": 5,
+    "actualAddressPrintedOrRecorded": false,
+    "historyRewritten": false,
+    "requiresOwnerPrivacyDecision": true
+  },
+  "credentialAuditPassed": true,
+  "limitations": [
+    "No dedicated gitleaks/trufflehog binary was installed; used local exact-value and pattern scans with manual classification.",
+    "Contact email remains in historical Git metadata.",
+    "OCR is best-effort; ignored files still exist locally and are not safe to include in arbitrary archives."
+  ]
+}

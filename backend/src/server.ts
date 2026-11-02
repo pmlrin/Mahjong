@@ -1,3 +1,6 @@
+import { SocialService } from "./social/service.ts";
+import { mountSocialRoutes } from "./social/http.ts";
+import { DEFAULT_AVATAR } from "../../shared/social.ts";
 import express, { type Request, type Response } from "express";
 import { createServer } from "node:http";
 import { createHash, randomBytes, randomInt } from "node:crypto";
@@ -286,6 +289,17 @@ function user(req: Request): Session {
     fail("UNAUTHENTICATED", "登录状态已失效，请重新登录或选择游客试玩", 401)
   );
 }
+async function avatarFor(userId: string) {
+  return (
+    (
+      await store.transaction((tx) =>
+        tx.one("SELECT avatar_id FROM social_profiles WHERE user_id=?", [
+          userId,
+        ]),
+      )
+    )?.avatar_id ?? DEFAULT_AVATAR
+  );
+}
 function current(userId: string) {
   return (
     [...rooms.values()].find(
@@ -399,6 +413,7 @@ async function save(g: GameState | null, r: Room | null, extra: Write[] = []) {
   const effect = () => {
     if (r) {
       rooms.set(r.roomId, r);
+      if (typeof social !== "undefined") social.roomPresenceChanged(r);
       for (const connection of ns.sockets.values())
         if (
           connection.rooms.has(`room:${r.roomId}`) &&
@@ -465,11 +480,58 @@ const auth = new AuthService(store, authSettings, {
   },
   invalidate: async (hashes) => {
     for (const hash of hashes) await releaseAuthContext(hash, true);
+    if (typeof social !== "undefined") social.revoked();
   },
 });
 console.log(
   JSON.stringify({ event: "AUTH_MIGRATION", ...(await auth.initialize()) }),
 );
+const social = new SocialService(store, auth, {
+  serialize: enqueue,
+  connected: (id) => bindings.has(id),
+  roomChanged: (r) => {
+    rooms.set(r.roomId, r);
+    for (const socket of ns.sockets.values())
+      if (
+        socket.rooms.has(`room:${r.roomId}`) &&
+        auth.resolveHash(socket.data.sessionHash)
+      )
+        socket.emit("room:view", r);
+  },
+  reloadRooms: async () => {
+    rooms.clear();
+    for (const row of await store.list<Room>("room"))
+      rooms.set(row.id, normalizeRoom(row.data));
+  },
+  notify: (id, data) => {
+    if (
+      process.env.SOCIAL_PUSH_ENABLED === "false" ||
+      process.env.SOCIAL_PUSH_ENABLED === "0"
+    )
+      return;
+    for (const socket of ns.sockets.values()) {
+      const identity = auth.resolveHash(socket.data.sessionHash);
+      if (identity?.kind === "ACCOUNT" && identity.userId === id)
+        socket.emit("social:changed", data);
+    }
+  },
+});
+store.roomWriteHook = (tx, r) => social.reconcileRoom(tx, r);
+app.use((req, _res, next) => {
+  const hash = rawSessionHash(req);
+  if (hash) void social.touch(hash).catch(() => {});
+  next();
+});
+mountSocialRoutes(app, social, rawSessionHash, errorData);
+
+const socialTimer = setInterval(() => {
+  void social.presenceTick().catch(() => {});
+}, 3000);
+socialTimer.unref();
+const socialCleanup = setInterval(() => {
+  void social.cleanup(Number(process.env.SOCIAL_CLEANUP_BATCH??100)).catch(() => {});
+}, 3600000);
+socialCleanup.unref();
 const mailQueue = new MailQueue(auth);
 mailQueue.start();
 function rawSessionHash(req: Request) {
@@ -687,7 +749,7 @@ async function mutation(
       }),
     );
   return enqueue(async () => {
-    user(req);
+    const currentUser = user(req);
     const prior =
       httpReceipts.get(dedup) ?? (await store.get<HttpReceipt>("http", dedup));
     if (prior) {
@@ -697,7 +759,7 @@ async function mutation(
     }
     staged = { writes: [], effects: [] };
     try {
-      const result = await fn(u);
+      const result = await fn(currentUser);
       const record: HttpReceipt = { hash, status: 200, data: result };
       const tx = staged;
       staged = null;
@@ -753,6 +815,7 @@ route("get", "/me", async (req, res) => {
       userId: u.userId,
       displayName: u.displayName,
       identityKind: u.kind,
+      avatarId: await avatarFor(u.userId),
       maskedEmail: u.maskedEmail,
       roomId: r?.roomId ?? null,
       matchId: r?.matchId ?? null,
@@ -781,6 +844,7 @@ route("post", "/rooms", async (req, res) =>
       memberId: uid(),
       userId: u.userId,
       displayName: u.displayName,
+      avatarId: await avatarFor(u.userId),
       participantKind: "HUMAN",
       ready: false,
       connected: bindings.has(u.userId),
@@ -837,6 +901,7 @@ route("post", "/rooms/join", async (req, res) =>
       memberId: uid(),
       userId: u.userId,
       displayName: u.displayName,
+      avatarId: await avatarFor(u.userId),
       participantKind: "HUMAN",
       ready: false,
       connected: bindings.has(u.userId),
@@ -1044,6 +1109,7 @@ route("get", "/matches/:matchId/replay", async (req, res) => {
       players: g.players.map((p) => ({
         seat: p.seat,
         displayName: p.displayName,
+        avatarId: p.avatarId,
         participantKind: p.participantKind,
         botLevel: p.botLevel,
         botPolicyVersion: p.botPolicyVersion ?? null,
@@ -1071,6 +1137,7 @@ route("get", "/capabilities", async (_req, res) => {
       maintenance: maintenance(),
       retentionDays: 30,
       auth: auth.capabilities(),
+      ...social.capabilities(),
     },
   });
 });
@@ -1125,7 +1192,12 @@ route("post", "/rooms/:roomId/rematch", async (req, res) =>
           );
       }
     for (const m of r.slots)
-      if (m?.userId) m.connected = bindings.has(m.userId);
+      if (m?.userId) {
+        m.connected = bindings.has(m.userId);
+        m.displayName =
+          auth.profiles.get(m.userId)?.displayName ?? m.displayName;
+        m.avatarId = await avatarFor(m.userId);
+      }
     try {
       openRematch(r);
     } catch {
@@ -1360,6 +1432,7 @@ ns.on("connection", (socket) => {
       return fn();
     });
   const u = socketUser(socket);
+  social.connect(socket.id, u);
   socket.emit("server:hello", {
     protocolVersion: PROTOCOL,
     connectionId: socket.id,
@@ -1508,6 +1581,7 @@ ns.on("connection", (socket) => {
     }),
   );
   socket.on("disconnect", () => {
+    social.disconnect(socket.id);
     scheduleGame(async () => {
       const b = bindings.get(u.userId);
       if (b?.socketId !== socket.id) return;

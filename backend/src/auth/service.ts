@@ -1,3 +1,4 @@
+import { ensureSocialProfile } from "../social/schema.ts";
 import { randomInt, randomUUID } from "node:crypto";
 import type { Store } from "../store.ts";
 import type { Sql } from "../sql.ts";
@@ -91,7 +92,7 @@ export class AuthService {
     });
     return migration;
   }
-  private async reloadAfterFailure() {
+  async reloadAfterFailure() {
     this.failedClosed = true;
     const before = [...this.sessions.keys()];
     try {
@@ -339,13 +340,30 @@ export class AuthService {
       return result;
     });
   }
-  private async issueSession(tx: Sql, userId: string, version: number) {
+  private async issueSession(
+    tx: Sql,
+    userId: string,
+    version: number,
+    device?: { browser: string; os: string },
+  ) {
     const token = opaque(),
       hash = digest(token),
       now = this.now();
     await tx.query(
       "INSERT INTO auth_sessions(token_hash,user_id,auth_version,environment,created_at,expires_at,revoked_at) VALUES(?,?,?,?,?,?,NULL)",
       [hash, userId, version, this.config.environment, now, now + 30 * DAY],
+    );
+    await tx.query(
+      "INSERT INTO social_sessions(session_id,token_hash,user_id,browser,os,created_at,last_seen_at) VALUES(?,?,?,?,?,?,?)",
+      [
+        randomUUID(),
+        hash,
+        userId,
+        device?.browser ?? "UNKNOWN",
+        device?.os ?? "UNKNOWN",
+        now,
+        now,
+      ],
     );
     return { token, hash };
   }
@@ -829,6 +847,7 @@ export class AuthService {
               this.now(),
             ],
           );
+          await ensureSocialProfile(tx, s.userId);
           await tx.query(
             "UPDATE auth_users SET kind='ACCOUNT' WHERE user_id=?",
             [s.userId],
@@ -838,7 +857,7 @@ export class AuthService {
             [g.token_hash],
           );
           await this.revoke(tx, s.userId, invalidated);
-          const issued = await this.issueSession(tx, s.userId, 1);
+          const issued = await this.issueSession(tx, s.userId, 1, ctx.device);
           changed.add(s.userId);
           await this.audit(tx, "REGISTERED", s.userId, {
             email: maskEmail(c.email_address),
@@ -971,6 +990,7 @@ export class AuthService {
           tx,
           a.user_id,
           Number(a.auth_version),
+          ctx.device,
         );
         changed.add(a.user_id);
         await this.audit(tx, "LOGGED_IN", a.user_id);
@@ -1056,6 +1076,7 @@ export class AuthService {
           tx,
           who.userId,
           Number(a.auth_version) + 1,
+          ctx.device,
         );
         changed.add(who.userId);
         await this.audit(tx, "PASSWORD_CHANGED", who.userId);

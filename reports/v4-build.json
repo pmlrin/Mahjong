@@ -1,0 +1,20 @@
+{
+  "version": "0.4.0",
+  "publishedPreview": {
+    "version": "0.4.0",
+    "protocolVersion": "2.0",
+    "sourceSha256": "ac168f59b19d729398ac305026f90386957c62afdf658e5806f4412802632d4c",
+    "builtAt": "2026-11-01T15:19:22.792Z"
+  },
+  "finalTests": {
+    "passed": 118,
+    "failed": 0,
+    "durationMs": 54512.150458
+  },
+  "typesPassed": true,
+  "frontendBuildPassed": true,
+  "backendPackagePassed": true,
+  "capacityGeneratorSha256": "cd7d98443b53fd5a676ffe934aedc7c7bafe1c945a83ec8b37110bc9b07c5036",
+  "applicationDeltaAfterPublish": false,
+  "toolDeltaAfterPublish": "Separate startup and steady-window capacity samples, preserving startup timings and all errors."
+}

@@ -1,0 +1,155 @@
+{
+  "at": "2026-11-01T11:55:26.548688Z",
+  "url": "https://mahjong.yangjm.cn/preview/",
+  "release": "/opt/mahjong/releases/20261101-v4-preview-rc1",
+  "manifest": {
+    "release": {
+      "version": "0.4.0",
+      "protocolVersion": "2.0",
+      "sourceSha256": "ce9de0c063808ab0e9858033325441dbe715697e4c6cf2ca91fd9817dbdf21e5",
+      "builtAt": "2026-11-01T11:45:13.048Z"
+    },
+    "archiveSha256": "03c4631443e4b6284940dba7fb6b9c798fa53bd52be625eaa330a2eacda8f807",
+    "archiveBytes": 478837,
+    "parts": [
+      "/private/tmp/mahjong-v4-preview-rc1-20261101.tar.gz.part0",
+      "/private/tmp/mahjong-v4-preview-rc1-20261101.tar.gz.part1"
+    ],
+    "dependencies": {
+      "@kobalab/majiang-core": "1.4.1",
+      "express": "5.3.0",
+      "pg": "8.23.1",
+      "socket.io": "4.8.4",
+      "zod": "4.6.7",
+      "nodemailer": "10.3.1"
+    },
+    "assets": [
+      "index-CWMBFUy5.css",
+      "index-DlFxIpvI.js"
+    ]
+  },
+  "backup": "/opt/mahjong/v4-preview-before-20261101.dump",
+  "backupBytes": 156122,
+  "migration": {
+    "migration": "social-v4",
+    "environment": "preview",
+    "accountsWithFriendCode": 1,
+    "before": {
+      "documents": 7,
+      "sha256": "23dd740bdc103939a2488d9845dcc8e8dbb962c64f8bf1df7ac67ca1b637c5dc"
+    },
+    "after": {
+      "documents": 7,
+      "sha256": "23dd740bdc103939a2488d9845dcc8e8dbb962c64f8bf1df7ac67ca1b637c5dc"
+    },
+    "legacyUnchanged": true,
+    "authMigration": {
+      "alreadyApplied": true,
+      "users": 0,
+      "sessions": 0,
+      "conflicts": 0
+    }
+  },
+  "formalRehearsal": {
+    "sourceBackup": "/opt/mahjong/backups/mahjong-v4-rehearsal-20261101.dump",
+    "copy": "mahjong_v4_formal_migration_20261101",
+    "originalTablesUnchanged": true,
+    "originalTables": 17,
+    "migratedTables": 28,
+    "allTablesStableOnRerun": true,
+    "first": {
+      "migration": "social-v4",
+      "environment": "production",
+      "accountsWithFriendCode": 1,
+      "before": {
+        "documents": 35,
+        "sha256": "b24de914254ed600d906c3d5cedbc0c49bcc85447d05936320b9a57842c28610"
+      },
+      "after": {
+        "documents": 35,
+        "sha256": "b24de914254ed600d906c3d5cedbc0c49bcc85447d05936320b9a57842c28610"
+      },
+      "legacyUnchanged": true,
+      "authMigration": {
+        "alreadyApplied": true,
+        "users": 0,
+        "sessions": 0,
+        "conflicts": 0
+      }
+    },
+    "second": {
+      "migration": "social-v4",
+      "environment": "production",
+      "accountsWithFriendCode": 1,
+      "before": {
+        "documents": 35,
+        "sha256": "b24de914254ed600d906c3d5cedbc0c49bcc85447d05936320b9a57842c28610"
+      },
+      "after": {
+        "documents": 35,
+        "sha256": "b24de914254ed600d906c3d5cedbc0c49bcc85447d05936320b9a57842c28610"
+      },
+      "legacyUnchanged": true,
+      "authMigration": {
+        "alreadyApplied": true,
+        "users": 0,
+        "sessions": 0,
+        "conflicts": 0
+      }
+    }
+  },
+  "capabilities": {
+    "appVersion": "0.4.0",
+    "buildId": "ce9de0c063808ab0e9858033325441dbe715697e4c6cf2ca91fd9817dbdf21e5",
+    "protocolVersion": "2.0",
+    "formats": [
+      "EAST_ONLY",
+      "HANCHAN"
+    ],
+    "botLevels": [
+      "BASIC",
+      "STANDARD"
+    ],
+    "timePresetId": "standard-v1",
+    "maintenance": false,
+    "retentionDays": 30,
+    "auth": {
+      "enabled": true,
+      "passwordLogin": true,
+      "registration": true,
+      "passwordReset": true,
+      "mailAvailable": true,
+      "previewRestricted": true,
+      "environment": "preview"
+    },
+    "profileEditing": true,
+    "sessionManagement": true,
+    "friends": true,
+    "friendInvitations": true,
+    "socialSchemaVersion": 1,
+    "limits": {
+      "friends": 200,
+      "pendingRequests": 50,
+      "pendingInvitations": 20,
+      "blocks": 500,
+      "profileWrites": 10,
+      "lookupMinute": 20,
+      "lookupDay": 200,
+      "lookupIpMinute": 100,
+      "requestHour": 10,
+      "requestDay": 30,
+      "inviteHour": 30,
+      "stateMinute": 60,
+      "passwordAccount": 5,
+      "passwordIp": 20
+    }
+  },
+  "cookieName": "mj_preview_session",
+  "cookiePath": "/preview",
+  "originalSessionSecretPreserved": true,
+  "productionDataImported": false,
+  "productionVersion": "0.3.0",
+  "productionUpdated": false,
+  "allOriginalServicesHealthy": true,
+  "passed": true
+}

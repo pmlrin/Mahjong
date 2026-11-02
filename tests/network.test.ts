@@ -932,7 +932,7 @@ test(
       );
       mkdirSync("reports", { recursive: true });
       writeFileSync(
-        "reports/v3-game-network.json",
+        "reports/v4-game-network.json",
         JSON.stringify(
           {
             at: new Date().toISOString(),

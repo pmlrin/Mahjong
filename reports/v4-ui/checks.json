@@ -1,0 +1,19 @@
+{
+  "localSyntheticAccounts": true,
+  "profileNameAndAvatarUpdated": true,
+  "avatars": 12,
+  "deviceCurrentMarker": true,
+  "legacyDeviceUnknownTime": true,
+  "friendCodeLookup": true,
+  "requestSentThroughUI": true,
+  "otherClientAccepted": true,
+  "friendListRefreshedByNotification": true,
+  "roomInviteSentThroughUI": true,
+  "otherClientJoined": true,
+  "readinessNotAutomatic": true,
+  "narrowWidth": 390,
+  "narrowHorizontalOverflow": false,
+  "realPhone": false,
+  "realSMTP": false,
+  "consoleErrors": 0
+}

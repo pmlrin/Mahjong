@@ -1,0 +1,37 @@
+{
+  "at": "2026-11-01T12:24:58.651984Z",
+  "manifest": {
+    "release": {
+      "version": "0.4.0",
+      "protocolVersion": "2.0",
+      "sourceSha256": "1b285d1d52ced92642aa2b75927533d444167ee2e493e6c98deeb097f6770439",
+      "builtAt": "2026-11-01T12:22:37.204Z"
+    },
+    "archiveSha256": "2df73bc7050e924bf1bde0a7826ae68ce067bc9ecbd29459c348d2522c8a21b1",
+    "archiveBytes": 483482,
+    "parts": [
+      "/private/tmp/mahjong-v4-preview-rc2-20261101.tar.gz.part0",
+      "/private/tmp/mahjong-v4-preview-rc2-20261101.tar.gz.part1"
+    ],
+    "assets": [
+      "index-BiO12CB8.js",
+      "index-CWMBFUy5.css"
+    ]
+  },
+  "backup": "/opt/mahjong/v4-preview-before-rc2-20261101.dump",
+  "preview": {
+    "ok": true,
+    "version": "0.4.0",
+    "buildId": "1b285d1d52ced92642aa2b75927533d444167ee2e493e6c98deeb097f6770439",
+    "activeTables": 0
+  },
+  "formal": {
+    "ok": true,
+    "version": "0.3.0",
+    "buildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+    "activeTables": 0
+  },
+  "change": "ASCII-only friend code normalization; capacity tool initialization and teardown; acceptance documentation",
+  "credentialsReplaced": false,
+  "passed": true
+}

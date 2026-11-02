@@ -1,3 +1,5 @@
+import { AccountTools } from "./account-tools";
+import type { SocialCapabilities } from "../../shared/social";
 import React, { useEffect, useRef, useState } from "react";
 import { api } from "./api";
 import { AuthClock } from "./auth-clock";
@@ -12,7 +14,13 @@ export function AccountPanel({
   onRelease,
   onIdentity,
   onCancel,
+  socialCapabilities,
+  onProfileUpdated,
+  onFriends,
 }: {
+  socialCapabilities?: Partial<SocialCapabilities>;
+  onProfileUpdated?: () => Promise<void>;
+  onFriends?: () => void;
   page: AccountPage;
   setPage: (p: AccountPage) => void;
   me: CurrentUser | null;
@@ -259,6 +267,13 @@ export function AccountPanel({
           {me?.identityKind === "ACCOUNT" ? (
             <>
               <p>正式账号 · {me.maskedEmail}</p>
+              <AccountTools
+                key={me.userId}
+                userId={me.userId}
+                capabilities={socialCapabilities ?? {}}
+                onUpdated={onProfileUpdated ?? (async () => {})}
+                onFriends={onFriends ?? (() => {})}
+              />
               <p>
                 登录同一环境即可读取仍在保存期内的战绩；注册不会把牌谱延长为永久保存。
               </p>

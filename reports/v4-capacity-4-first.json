@@ -1,0 +1,127 @@
+{
+  "at": "2026-11-01T12:26:02.675Z",
+  "version": "0.4.0",
+  "protocol": "2.0",
+  "tables": 10,
+  "humanCount": 4,
+  "botCount": 0,
+  "queryRate": {
+    "history": 5,
+    "stats": 1,
+    "replay": 1
+  },
+  "clientAddressModel": "Distinct TEST-NET addresses, trusted loopback test proxy only",
+  "syntheticSummaries": 10000,
+  "durationMs": 355085,
+  "measurementWindowMs": 300000,
+  "clientRunsOnServer": false,
+  "environment": {
+    "platform": "darwin",
+    "release": "27.0.0",
+    "node": "v24.22.1",
+    "cpus": 15,
+    "totalMemoryMiB": 24576
+  },
+  "serverCpuPercentP95": null,
+  "serverRssMiBMax": null,
+  "metrics": {
+    "rtt": {
+      "count": 580,
+      "p95Ms": 2193.7352910000045,
+      "maxMs": 9590.95091700001
+    },
+    "receipt": {
+      "count": 2231,
+      "p95Ms": 1447.58262500001,
+      "maxMs": 9203.927041999996
+    },
+    "restore": {
+      "count": 40,
+      "p95Ms": 1137.5617090000014,
+      "maxMs": 1810.7966659999947
+    },
+    "history": {
+      "count": 1493,
+      "p95Ms": 2107.8612500000017,
+      "maxMs": 10927.597749999986
+    },
+    "stats": {
+      "count": 299,
+      "p95Ms": 1726.9030829999829,
+      "maxMs": 10443.013541000022
+    },
+    "replay": {
+      "count": 298,
+      "p95Ms": 2758.8941249999916,
+      "maxMs": 26048.079416000008
+    },
+    "authLogin": {
+      "count": 0,
+      "p95Ms": null,
+      "maxMs": null
+    },
+    "invalidGrant": {
+      "count": 0,
+      "p95Ms": null,
+      "maxMs": null
+    },
+    "socialRead": {
+      "count": 1334,
+      "p95Ms": 1962.2592499999996,
+      "maxMs": 11833.667042000045
+    },
+    "socialWrite": {
+      "count": 230,
+      "p95Ms": 1990.2066669999986,
+      "maxMs": 9329.644125000006
+    },
+    "socialConvergence": {
+      "count": 330,
+      "p95Ms": 2923.018833000009,
+      "maxMs": 10253.054332999993
+    }
+  },
+  "failures": [
+    "WINDOW_EXPIRED",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "fetch failed",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out",
+    "operation has timed out"
+  ],
+  "social": {
+    "enabled": true,
+    "accounts": 50,
+    "pollSeconds": 30,
+    "requestedValidOperationsPerSecond": 1,
+    "operations": 230,
+    "notifications": 850,
+    "rematches": 0,
+    "scriptedHumans": true
+  },
+  "authentication": {
+    "enabled": false,
+    "successfulLoginLogout": 0,
+    "invalidGrantRejections": 0,
+    "maxInFlight": 0,
+    "requestedPerSecond": 0,
+    "realSMTP": false
+  },
+  "passed": false
+}

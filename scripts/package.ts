@@ -18,6 +18,7 @@ cpSync("backend/vendor", "dist-server/backend/vendor", { recursive: true });
 cpSync("dist", "dist-server/dist", { recursive: true });
 cpSync("docs", "dist-server/docs", { recursive: true });
 cpSync(".env.auth.example", "dist-server/.env.auth.example");
+cpSync(".env.social.example", "dist-server/.env.social.example");
 cpSync("backend/migrations", "dist-server/backend/migrations", {
   recursive: true,
 });

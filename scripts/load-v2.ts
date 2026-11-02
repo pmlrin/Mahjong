@@ -1,3 +1,4 @@
+import { ensureSocialProfile } from "../backend/src/social/schema.ts";
 // Isolated capacity exercise. Never point seed at the production database.
 import { randomBytes, createHash, randomUUID } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -19,12 +20,14 @@ import { migrateAuth } from "../backend/src/auth/migration.ts";
 import { authConfig } from "../backend/src/auth/config.ts";
 import { Passwords } from "../backend/src/auth/crypto.ts";
 const authScenario = process.env.LOAD_AUTH_LOAD === "1";
+const socialScenario = process.env.LOAD_SOCIAL_LOAD === "1";
+const accountScenario = authScenario || socialScenario;
 if (process.argv.includes("--seed") || process.argv.includes("--reset")) {
   const database = process.env.DATABASE_URL;
   if (
     process.env.ALLOW_ISOLATED_SEED !== "YES" ||
     !database ||
-    !/^\/mahjong_v[23]_capacity[a-z0-9_]*$/.test(new URL(database).pathname)
+    !/^\/mahjong_v[234]_capacity[a-z0-9_]*$/.test(new URL(database).pathname)
   )
     throw Error(
       "Seeding and reset require an explicitly acknowledged isolated capacity database",
@@ -37,7 +40,10 @@ const siteOrigin = new URL(origin).origin;
 const socketPath = new URL(origin).pathname.replace(/\/$/, "") + "/socket.io";
 function loadHeaders(cookie: string, ip = "192.0.2.1") {
   return {
-    Origin: siteOrigin,
+    Origin: process.env.LOAD_PUBLIC_ORIGIN ?? siteOrigin,
+    ...(process.env.LOAD_PUBLIC_ORIGIN
+      ? { Host: new URL(process.env.LOAD_PUBLIC_ORIGIN).host }
+      : {}),
     Cookie: cookie,
     "X-Forwarded-For": ip,
     "X-Capacity-Client-IP": ip,
@@ -53,7 +59,7 @@ if (process.argv.includes("--reset")) {
   if (
     process.env.ALLOW_ISOLATED_SEED !== "YES" ||
     !process.env.DATABASE_URL ||
-    !/^\/mahjong_v[23]_capacity[a-z0-9_]*$/.test(
+    !/^\/mahjong_v[234]_capacity[a-z0-9_]*$/.test(
       new URL(process.env.DATABASE_URL).pathname,
     )
   )
@@ -78,6 +84,20 @@ if (process.argv.includes("--reset")) {
       "DELETE FROM history_members WHERE NOT EXISTS(SELECT 1 FROM history_summaries s WHERE s.match_id=history_members.match_id)",
     );
     await resetClient.query("DELETE FROM replay_positions");
+    if (socialScenario) {
+      for (const table of [
+        "friendships",
+        "friend_requests",
+        "blocks",
+        "room_invitations",
+        "social_cooldowns",
+        "social_limits",
+        "social_receipts",
+        "social_audit",
+      ])
+        await resetClient.query("DELETE FROM " + table);
+      await resetClient.query("UPDATE social_user_state SET revision=0");
+    }
     await resetClient.query("COMMIT");
     console.log(
       JSON.stringify({
@@ -100,12 +120,13 @@ if (process.argv.includes("--seed")) {
   const store = new Store();
   await store.open();
   await store.initV2();
-  const profiles = Array.from({ length: 40 }, (_, i) => ({
+  const profiles = Array.from({ length: socialScenario ? 50 : 40 }, (_, i) => ({
     userId: "capacity-user-" + i,
     displayName: "容量验证" + i,
     cookie: "mj_session=" + randomBytes(32).toString("hex"),
     email: `capacity-${i}@example.invalid`,
     password: "capacity-only-password-" + i,
+    friendCode: "",
   }));
   await store.commit(
     profiles.map((p) => ({
@@ -159,7 +180,7 @@ if (process.argv.includes("--seed")) {
       }),
     );
   }
-  if (authScenario) {
+  if (accountScenario) {
     // Preverified synthetic fixtures exist only in the guarded disposable DB.
     // No SMTP credentials, challenge bypass or test endpoint is added to the app.
     await migrateAuth(store, authConfig({ MAIL_ENVIRONMENT: "preview" }));
@@ -178,6 +199,11 @@ if (process.argv.includes("--seed")) {
           "UPDATE auth_sessions SET auth_version=1 WHERE user_id=?",
           [p.userId],
         );
+        await ensureSocialProfile(tx, p.userId);
+        p.friendCode = (await tx.one(
+          "SELECT friend_code FROM social_profiles WHERE user_id=?",
+          [p.userId],
+        ))!.friend_code;
       });
     }
     await store.commit(
@@ -190,11 +216,16 @@ if (process.argv.includes("--seed")) {
   }
   writeFileSync(
     fixture,
-    JSON.stringify({ profiles, replayMatchId: g.matchId, authScenario }),
+    JSON.stringify({
+      profiles,
+      replayMatchId: g.matchId,
+      authScenario: accountScenario,
+      socialScenario,
+    }),
     { mode: 0o600 },
   );
   await store.close();
-  console.log(JSON.stringify({ seeded: 10000, sessions: 40 }));
+  console.log(JSON.stringify({ seeded: 10000, sessions: profiles.length }));
   process.exit(0);
 }
 const fixtureData = JSON.parse(readFileSync(fixture, "utf8"));
@@ -203,6 +234,11 @@ fixtureData.profiles.forEach((p: { ip?: string }, index: number) => {
 });
 if (authScenario && !fixtureData.authScenario)
   throw Error("Authentication load requires account fixtures");
+if (
+  socialScenario &&
+  (!fixtureData.socialScenario || fixtureData.profiles.length !== 50)
+)
+  throw Error("Social load requires 50 guarded account fixtures");
 const samples: Record<string, number[]> = {
     rtt: [],
     receipt: [],
@@ -212,12 +248,27 @@ const samples: Record<string, number[]> = {
     replay: [],
     authLogin: [],
     invalidGrant: [],
+    socialRead: [],
+    socialWrite: [],
+    socialConvergence: [],
   },
   failures: string[] = [];
+const startupSamples: Record<string, number[]> = Object.fromEntries(
+  Object.keys(samples).map((metric) => [metric, []]),
+);
+let measurementStartedAt: number | null = null;
 const capture = async <T>(metric: string, fn: () => Promise<T>) => {
   const t = performance.now();
   const r = await fn();
-  samples[metric].push(performance.now() - t);
+  const elapsed = performance.now() - t;
+  if (
+    socialScenario &&
+    (measurementStartedAt === null || t < measurementStartedAt)
+  ) {
+    startupSamples[metric].push(elapsed);
+    // Restore explicitly measures startup/reconnect rather than steady traffic.
+    if (metric === "restore") samples[metric].push(elapsed);
+  } else samples[metric].push(elapsed);
   return r;
 };
 let stopping = false;
@@ -419,43 +470,201 @@ async function exerciseAuth() {
     throw Error("INVALID_GRANT_NOT_REJECTED");
   invalidGrantRejections++;
 }
-try {
-  for (let table = 0; table < 10; table++) {
-    const cs = [];
-    for (let s = 0; s < humanCount; s++) cs.push(await connect(table * 4 + s));
-    let r: Room = await api(cs[0], "POST", "/rooms", {
-      format: table % 2 ? "HANCHAN" : "EAST_ONLY",
-      rulesetId: "riichi-4p-v1.0",
-      timePresetId: "standard-v1",
+
+const socialSockets: Socket[] = [];
+const socialWrites = new Set<Promise<void>>();
+const rematchTasks = new Set<Promise<void>>();
+const socialReads = new Map<number, Promise<void>>(),
+  socialAgain = new Set<number>();
+const convergence = new Map<number, { revision: number; since: number }>();
+const expectedRevision = Array(50).fill(0);
+let socialOperations = 0,
+  socialNotifications = 0,
+  socialCursor = 0,
+  operationCursor = 0,
+  activeRequest: any = null;
+const relationPairs: [number, number][] = [];
+for (let offset = 1; offset <= 25; offset++)
+  for (let i = 0; i < 50; i++) {
+    const j = (i + offset) % 50;
+    if (i < j) relationPairs.push([i, j]);
+  }
+function refreshSocial(index: number): Promise<void> {
+  if (stopping) return Promise.resolve();
+  const old = socialReads.get(index);
+  if (old) {
+    socialAgain.add(index);
+    return old;
+  }
+  const profile = fixtureData.profiles[index];
+  const request = capture("socialRead", () =>
+    api(profile, "GET", "/social/snapshot"),
+  )
+    .then((snapshot) => {
+      const pending = convergence.get(index);
+      if (pending && snapshot.revision >= pending.revision) {
+        samples.socialConvergence.push(performance.now() - pending.since);
+        convergence.delete(index);
+      }
+    })
+    .catch((e) => {
+      failures.push(e.message);
+    })
+    .finally(() => {
+      socialReads.delete(index);
+      if (socialAgain.delete(index) && !stopping) void refreshSocial(index);
     });
-    for (const c of cs.slice(1))
-      r = await api(c, "POST", "/rooms/join", { inviteCode: r.inviteCode });
-    for (let s = humanCount; s < 4; s++)
-      r = await api(cs[0], "PUT", `/rooms/${r.roomId}/slots/${s}/bot`, {
-        botLevel: s % 2 ? "BASIC" : "STANDARD",
-        expectedRoomVersion: r.roomVersion,
-        lobbyGeneration: r.lobbyGeneration,
-      });
-    for (const c of cs)
-      r = await api(c, "PUT", `/rooms/${r.roomId}/ready`, {
-        ready: true,
-        expectedRoomVersion: r.roomVersion,
-        lobbyGeneration: r.lobbyGeneration,
-      });
-    const { matchId } = await api(cs[0], "POST", `/rooms/${r.roomId}/start`, {
-      expectedRoomVersion: r.roomVersion,
-      lobbyGeneration: r.lobbyGeneration,
-    });
-    for (const c of cs)
-      await capture("restore", () =>
-        emit(c, "game:attach", {
+  socialReads.set(index, request);
+  return request;
+}
+async function connectSocial() {
+  // Bound startup concurrency; this is outside the steady measurement window.
+  for (let start = 0; start < 50; start += 10)
+    await Promise.all(
+      Array.from({ length: 10 }, async (_, offset) => {
+        const i = start + offset;
+        const p = fixtureData.profiles[i];
+        const socket = io(siteOrigin + "/game", {
+          path: socketPath,
+          transports: ["websocket"],
+          extraHeaders: loadHeaders(p.cookie, p.ip),
+          auth: { protocolVersion: "2.0" },
+          reconnection: false,
+        });
+        socialSockets.push(socket);
+        socket.on("social:changed", () => {
+          socialNotifications++;
+          void refreshSocial(i);
+        });
+        await new Promise<void>((resolve, reject) => {
+          socket.once("connect", resolve);
+          socket.once("connect_error", reject);
+        });
+        await refreshSocial(i);
+      }),
+    );
+}
+async function exerciseSocial() {
+  const [sender, recipient] = relationPairs[Math.floor(operationCursor / 2)];
+  const action = operationCursor++ % 2;
+  const since = performance.now();
+  for (const i of [sender, recipient])
+    convergence.set(i, { revision: ++expectedRevision[i], since });
+  if (action === 0)
+    activeRequest = await capture("socialWrite", () =>
+      api(fixtureData.profiles[sender], "POST", "/friend-requests", {
+        friendCode: fixtureData.profiles[recipient].friendCode,
+      }),
+    );
+  else
+    await capture("socialWrite", () =>
+      api(
+        fixtureData.profiles[recipient],
+        "POST",
+        "/friend-requests/" + activeRequest.requestId + "/accept",
+        { expectedVersion: activeRequest.version },
+      ),
+    );
+  socialOperations++;
+}
+const loadTables: { cs: typeof clients; roomId: string; busy: boolean }[] = [];
+let rematches = 0;
+async function maintainTables() {
+  for (const table of loadTables) {
+    if (
+      table.busy ||
+      !table.cs.every((c) => c.frame?.state.status === "FINISHED")
+    )
+      continue;
+    table.busy = true;
+    try {
+      let room: Room = await api(table.cs[0], "GET", "/rooms/" + table.roomId);
+      room = await api(
+        table.cs[0],
+        "POST",
+        "/rooms/" + room.roomId + "/rematch",
+        {
+          expectedRoomVersion: room.roomVersion,
+          lobbyGeneration: room.lobbyGeneration,
+        },
+      );
+      for (const c of table.cs)
+        room = await api(c, "PUT", "/rooms/" + room.roomId + "/ready", {
+          ready: true,
+          expectedRoomVersion: room.roomVersion,
+          lobbyGeneration: room.lobbyGeneration,
+        });
+      const { matchId } = await api(
+        table.cs[0],
+        "POST",
+        "/rooms/" + room.roomId + "/start",
+        {
+          expectedRoomVersion: room.roomVersion,
+          lobbyGeneration: room.lobbyGeneration,
+        },
+      );
+      for (const c of table.cs)
+        await emit(c, "game:attach", {
           matchId,
           bindingId: c.binding,
           lastStreamId: null,
           lastViewSeq: null,
-        }),
-      );
+        });
+      rematches++;
+    } catch (e) {
+      failures.push((e as Error).message);
+    } finally {
+      table.busy = false;
+    }
   }
+}
+
+try {
+  if (socialScenario) await connectSocial();
+  await Promise.all(
+    Array.from({ length: 10 }, async (_, table) => {
+      const cs = await Promise.all(
+        Array.from({ length: humanCount }, (_, s) => connect(table * 4 + s)),
+      );
+      let r: Room = await api(cs[0], "POST", "/rooms", {
+        format: table % 2 ? "HANCHAN" : "EAST_ONLY",
+        rulesetId: "riichi-4p-v1.0",
+        timePresetId: "standard-v1",
+      });
+      for (const c of cs.slice(1))
+        r = await api(c, "POST", "/rooms/join", { inviteCode: r.inviteCode });
+      for (let s = humanCount; s < 4; s++)
+        r = await api(cs[0], "PUT", `/rooms/${r.roomId}/slots/${s}/bot`, {
+          botLevel: s % 2 ? "BASIC" : "STANDARD",
+          expectedRoomVersion: r.roomVersion,
+          lobbyGeneration: r.lobbyGeneration,
+        });
+      for (const c of cs)
+        r = await api(c, "PUT", `/rooms/${r.roomId}/ready`, {
+          ready: true,
+          expectedRoomVersion: r.roomVersion,
+          lobbyGeneration: r.lobbyGeneration,
+        });
+      const { matchId } = await api(cs[0], "POST", `/rooms/${r.roomId}/start`, {
+        expectedRoomVersion: r.roomVersion,
+        lobbyGeneration: r.lobbyGeneration,
+      });
+      loadTables.push({ cs, roomId: r.roomId, busy: false });
+      for (const c of cs)
+        await capture("restore", () =>
+          emit(c, "game:attach", {
+            matchId,
+            bindingId: c.binding,
+            lastStreamId: null,
+            lastViewSeq: null,
+          }),
+        );
+    }),
+  );
+  measurementStartedAt = performance.now();
+  console.error(
+    "CAPACITY_READY: ten tables and social connections initialized",
+  );
   const query = (metric: string, path: string) =>
     capture(metric, () => api(clients[0], "GET", path)).catch((e) =>
       failures.push(e.message),
@@ -476,6 +685,29 @@ try {
       500,
     ),
   ];
+  if (socialScenario) {
+    let active = false;
+    queries.push(
+      setInterval(() => void refreshSocial(socialCursor++ % 50), 600),
+      setInterval(() => {
+        if (active) return;
+        active = true;
+        const request = exerciseSocial()
+          .catch((e) => {
+            failures.push(e.message);
+          })
+          .finally(() => {
+            active = false;
+            socialWrites.delete(request);
+          });
+        socialWrites.add(request);
+      }, 1000),
+      setInterval(() => {
+        const task = maintainTables().finally(() => rematchTasks.delete(task));
+        rematchTasks.add(task);
+      }, 1000),
+    );
+  }
   if (authScenario)
     queries.push(
       setInterval(() => {
@@ -493,8 +725,18 @@ try {
     );
   await new Promise((r) => setTimeout(r, duration));
 } finally {
-  stopping = true;
   queries.forEach(clearInterval);
+  await Promise.allSettled([...socialWrites, ...rematchTasks]);
+  if (socialScenario) {
+    const end = performance.now() + 5000;
+    while (convergence.size && performance.now() < end) {
+      await new Promise((r) => setTimeout(r, 100));
+    }
+    if (convergence.size) failures.push("SOCIAL_CONVERGENCE_TIMEOUT");
+  }
+  stopping = true;
+  await Promise.allSettled([...socialReads.values()]);
+  socialSockets.forEach((socket) => socket.disconnect());
   await Promise.allSettled([...authRequests]);
   clearInterval(sample);
   clients.forEach((c) => c.socket.disconnect());
@@ -522,6 +764,7 @@ const report = {
   queryRate: { history: 5, stats: 1, replay: 1 },
   clientAddressModel:
     "Distinct TEST-NET addresses, trusted loopback test proxy only",
+  clientTransport: process.env.LOAD_TRANSPORT_DESCRIPTION ?? "direct origin",
   syntheticSummaries: 10000,
   durationMs: Math.round(performance.now() - started),
   measurementWindowMs: duration,
@@ -537,7 +780,36 @@ const report = {
     cpu.sort((a, b) => a - b)[Math.ceil(cpu.length * 0.95) - 1] ?? null,
   serverRssMiBMax: rss.length ? Math.max(...rss) : null,
   metrics,
+  startup: {
+    durationMs:
+      measurementStartedAt === null
+        ? null
+        : Math.round(measurementStartedAt - started),
+    metrics: Object.fromEntries(
+      Object.entries(startupSamples).map(([name, values]) => {
+        values.sort((a, b) => a - b);
+        return [
+          name,
+          {
+            count: values.length,
+            p95Ms: values[Math.ceil(values.length * 0.95) - 1] ?? null,
+            maxMs: values.at(-1) ?? null,
+          },
+        ];
+      }),
+    ),
+  },
   failures,
+  social: {
+    enabled: socialScenario,
+    accounts: socialScenario ? 50 : 0,
+    pollSeconds: 30,
+    requestedValidOperationsPerSecond: 1,
+    operations: socialOperations,
+    notifications: socialNotifications,
+    rematches,
+    scriptedHumans: true,
+  },
   authentication: {
     enabled: authScenario,
     successfulLoginLogout: authSuccesses,
@@ -547,6 +819,15 @@ const report = {
     realSMTP: false,
   },
   passed:
+    (!socialScenario ||
+      (socialOperations >= Math.floor(duration / 1000) * 0.9 &&
+        metrics.socialRead.p95Ms !== null &&
+        metrics.socialRead.p95Ms <= 500 &&
+        metrics.socialWrite.p95Ms !== null &&
+        metrics.socialWrite.p95Ms <= 500 &&
+        metrics.socialConvergence.p95Ms !== null &&
+        metrics.socialConvergence.maxMs !== null &&
+        metrics.socialConvergence.maxMs <= 5000)) &&
     (!authScenario ||
       (authSuccesses >= Math.floor(duration / 250) * 0.75 &&
         invalidGrantRejections === authSuccesses &&

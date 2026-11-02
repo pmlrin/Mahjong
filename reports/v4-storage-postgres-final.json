@@ -1,0 +1,315 @@
+{
+  "databaseTests": {
+    "version": "0.4.0",
+    "database": "PostgreSQL",
+    "isolated": true,
+    "checks": [
+      "migration rerun preserves codes, user IDs, names and sessions",
+      "profile CAS commits with authoritative identity cache",
+      "crossed request uniqueness and reciprocal friendship",
+      "invitation join, room, revision and receipt commit once",
+      "failed transaction rolls back block, friendship and receipts together",
+      "block privacy and shared room preserved",
+      "session revocation preserves current session and authoritative cache",
+      "injected lost COMMIT acknowledgement reloads authoritative room and replay commits no duplicate seat",
+      "121-day cleanup expires inactive requests and invitations; restart does not recreate device metadata; friendship and auth session records remain"
+    ],
+    "tables": [
+      {
+        "table": "auth_accounts",
+        "rows": 4,
+        "sha256": "b220420366280649dacc7b1bcaf7b5a4c65e67a566e60b46d137ab551b590f17"
+      },
+      {
+        "table": "auth_audit",
+        "rows": 1,
+        "sha256": "ce9c8099f01e3d30e58847ef0276137ad0a957be71f92bb9523460735add5bd2"
+      },
+      {
+        "table": "auth_challenges",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_environment",
+        "rows": 1,
+        "sha256": "f919a57ad557df8e5135a4424124961cec995cfdb4ee9bbc8d1543b9e7c94132"
+      },
+      {
+        "table": "auth_grants",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_limits",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_mail_jobs",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_migration_issues",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_migrations",
+        "rows": 1,
+        "sha256": "5ec067853a603cb8f06062fbf4caf2e747b9664280294f31bd39a897f3d909f5"
+      },
+      {
+        "table": "auth_receipts",
+        "rows": 1,
+        "sha256": "dc14fc315cd0ad1cc128657fc851be607142b92236d1497f447d8db6029cb2d4"
+      },
+      {
+        "table": "auth_sessions",
+        "rows": 5,
+        "sha256": "0fa897bfe4d534215c7f74077d178f2569e0e64581b5169c3016f21d5a910ca5"
+      },
+      {
+        "table": "auth_users",
+        "rows": 4,
+        "sha256": "5ed902f6dafb98960d451f6aac14f2d40107e4b16a3821afeff3e0951c53c5a7"
+      },
+      {
+        "table": "blocks",
+        "rows": 1,
+        "sha256": "b929df3d7cbf825cdd7173bcac74207d79f4cdf02b1b7fda1ba11635ad965e3f"
+      },
+      {
+        "table": "documents",
+        "rows": 2,
+        "sha256": "5d1f51d7374e89946e301a272f78b6ca7946dd7dbc958790b9f4023a2ff1f3df"
+      },
+      {
+        "table": "friend_requests",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "friendships",
+        "rows": 1,
+        "sha256": "f36ff88d469c2c57244d3f0eb20ac350b3af23486571f91454fac26afc82b5e9"
+      },
+      {
+        "table": "history_members",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "history_summaries",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "migration_issues",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "replay_positions",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "room_invitations",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_audit",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_cooldowns",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_limits",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_profiles",
+        "rows": 4,
+        "sha256": "17c7a770bd2eb0374fa07b6fffd07445b6e15f80101b346c3a49fe51571d2e8e"
+      },
+      {
+        "table": "social_receipts",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_sessions",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_user_state",
+        "rows": 4,
+        "sha256": "3d3e2566c5d28638484ef11b6f25cc96da25958b92687b9de4c4aeec0d757518"
+      }
+    ],
+    "passed": true
+  },
+  "restore": {
+    "source": "mahjong_v4_test_20261102",
+    "copy": "mahjong_v4_test_restore_20261102",
+    "backupBytes": 41695,
+    "tables": 28,
+    "allRowsIdentical": true,
+    "fingerprints": [
+      {
+        "table": "auth_accounts",
+        "rows": 4,
+        "sha256": "75f4e617a7aae454e3d5dfa2a3e5068625891cd71522bc026bd9eebc3d139374"
+      },
+      {
+        "table": "auth_audit",
+        "rows": 1,
+        "sha256": "69bcab3ea92b59a0b713df2dff63307c4da04ab08c68cd09ffa1598013fe38d9"
+      },
+      {
+        "table": "auth_challenges",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_environment",
+        "rows": 1,
+        "sha256": "f919a57ad557df8e5135a4424124961cec995cfdb4ee9bbc8d1543b9e7c94132"
+      },
+      {
+        "table": "auth_grants",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_limits",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_mail_jobs",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_migration_issues",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "auth_migrations",
+        "rows": 1,
+        "sha256": "da21f6e11026e82e747bebdd8e4dc79d190bc918de20f33a7b25c304fe3ba7dc"
+      },
+      {
+        "table": "auth_receipts",
+        "rows": 1,
+        "sha256": "ab63da7430d5282c2ce0cd66e7bb213d77778e96113071317463d32708220a18"
+      },
+      {
+        "table": "auth_sessions",
+        "rows": 5,
+        "sha256": "725ef403052cca1b647238211271dfca4d5c3fcf60074d4ae8d1e6c7bae86eac"
+      },
+      {
+        "table": "auth_users",
+        "rows": 4,
+        "sha256": "84d6b6cc423c2404c12be5663862f6d543d2f5a1f5a103b94cb862fb33211cae"
+      },
+      {
+        "table": "blocks",
+        "rows": 1,
+        "sha256": "c5246a06c4c20b68db65c0e866cdf47107a0b7974f0f35a5a5c5a76be3137585"
+      },
+      {
+        "table": "documents",
+        "rows": 2,
+        "sha256": "d129395624f76290d93ff27b78689068ba5199b04a5c6469914e7622ec435dfb"
+      },
+      {
+        "table": "friend_requests",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "friendships",
+        "rows": 1,
+        "sha256": "8a60b225e94401bf01543786c7f1158caf0be0e7f4caca517860ed68684bc7c4"
+      },
+      {
+        "table": "history_members",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "history_summaries",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "migration_issues",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "replay_positions",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "room_invitations",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_audit",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_cooldowns",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_limits",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_profiles",
+        "rows": 4,
+        "sha256": "abc450fd6ed34d6cfb93351f0c8f040c2a2c69e8b34a088c13813787fa2a8236"
+      },
+      {
+        "table": "social_receipts",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_sessions",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "social_user_state",
+        "rows": 4,
+        "sha256": "9ace5d4d2f333217597090e14be573392d26925483204b2734c24f18939ccedd"
+      }
+    ]
+  },
+  "originalServicesHealthy": true,
+  "memoryMaxMiB": 192,
+  "realSMTP": false,
+  "productionModified": false,
+  "passed": true
+}

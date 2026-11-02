@@ -1,0 +1,105 @@
+{
+  "at": "2026-11-01T15:44:03.665171Z",
+  "cases": {
+    "4": {
+      "abortedForMemory": false,
+      "maxRssMiB": 140.3671875,
+      "minimumHostAvailableMiB": 375.88671875,
+      "monitorDurationSeconds": 391.80766173265874,
+      "cpuP95Percent": 43.95598955675516,
+      "samples": 392,
+      "serverMetrics": {
+        "actionCommitMs": {
+          "event": "PERF",
+          "metric": "actionCommitMs",
+          "count": 4199,
+          "p95Ms": 62.874649999983376,
+          "maxMs": 470.712881000014
+        },
+        "resolutionCommitMs": {
+          "event": "PERF",
+          "metric": "resolutionCommitMs",
+          "count": 3368,
+          "p95Ms": 62.36764399999811,
+          "maxMs": 470.7147620000178
+        },
+        "botStandardMs": {
+          "event": "PERF",
+          "metric": "botStandardMs",
+          "count": 379,
+          "p95Ms": 8.45353099994827,
+          "maxMs": 33.3882600000361
+        }
+      },
+      "serverErrors": {},
+      "database": {
+        "numbackends": 0,
+        "xact_commit": 44834,
+        "xact_rollback": 1,
+        "blks_read": 160524,
+        "blks_hit": 4549171,
+        "temp_files": 0,
+        "temp_bytes": 0,
+        "deadlocks": 0,
+        "conflicts": 0,
+        "database_bytes": 86562483
+      }
+    },
+    "1": {
+      "abortedForMemory": false,
+      "maxRssMiB": 135.0078125,
+      "minimumHostAvailableMiB": 341.22265625,
+      "monitorDurationSeconds": 395.7906197346747,
+      "cpuP95Percent": 26.96140245286317,
+      "samples": 396,
+      "serverMetrics": {
+        "botBasicMs": {
+          "event": "PERF",
+          "metric": "botBasicMs",
+          "count": 1127,
+          "p95Ms": 7.955144999999902,
+          "maxMs": 37.49518100000023
+        },
+        "botStandardMs": {
+          "event": "PERF",
+          "metric": "botStandardMs",
+          "count": 689,
+          "p95Ms": 7.727834999997867,
+          "maxMs": 49.12196700001368
+        },
+        "actionCommitMs": {
+          "event": "PERF",
+          "metric": "actionCommitMs",
+          "count": 2228,
+          "p95Ms": 49.02502599999934,
+          "maxMs": 164.92631199999596
+        },
+        "resolutionCommitMs": {
+          "event": "PERF",
+          "metric": "resolutionCommitMs",
+          "count": 1766,
+          "p95Ms": 48.730097999970894,
+          "maxMs": 164.92986400000518
+        }
+      },
+      "serverErrors": {},
+      "database": {
+        "numbackends": 0,
+        "xact_commit": 38595,
+        "xact_rollback": 0,
+        "blks_read": 46403,
+        "blks_hit": 4277097,
+        "temp_files": 0,
+        "temp_bytes": 0,
+        "deadlocks": 0,
+        "conflicts": 0,
+        "database_bytes": 76109491
+      }
+    }
+  },
+  "serverCpus": 2,
+  "serverMemoryMiB": 1870.984375,
+  "resourceMonitorIncludesInitializationAndTeardown": true,
+  "kernelOOMEventsInLast60Minutes": 0,
+  "allOriginalServicesHealthy": true
+}

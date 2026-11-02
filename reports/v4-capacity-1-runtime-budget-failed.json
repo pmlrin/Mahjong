@@ -1,0 +1,112 @@
+{
+  "at": "2026-11-01T12:49:55.204Z",
+  "version": "0.4.0",
+  "protocol": "2.0",
+  "tables": 10,
+  "humanCount": 1,
+  "botCount": 3,
+  "queryRate": {
+    "history": 5,
+    "stats": 1,
+    "replay": 1
+  },
+  "clientAddressModel": "Distinct TEST-NET addresses, trusted loopback test proxy only",
+  "clientTransport": "loopback relay; verified upstream TLS on physical en0; system routes unchanged",
+  "syntheticSummaries": 10000,
+  "durationMs": 894943,
+  "measurementWindowMs": 300000,
+  "clientRunsOnServer": false,
+  "environment": {
+    "platform": "darwin",
+    "release": "27.0.0",
+    "node": "v24.22.1",
+    "cpus": 15,
+    "totalMemoryMiB": 24576
+  },
+  "serverCpuPercentP95": null,
+  "serverRssMiBMax": null,
+  "metrics": {
+    "rtt": {
+      "count": 583,
+      "p95Ms": 40.44150000001537,
+      "maxMs": 251.6545000000042
+    },
+    "receipt": {
+      "count": 414,
+      "p95Ms": 84.69391699999687,
+      "maxMs": 249.28979200002505
+    },
+    "restore": {
+      "count": 10,
+      "p95Ms": 290.86295800000016,
+      "maxMs": 290.86295800000016
+    },
+    "history": {
+      "count": 1453,
+      "p95Ms": 49.652916999999434,
+      "maxMs": 504.7834579999908
+    },
+    "stats": {
+      "count": 291,
+      "p95Ms": 60.35058299999946,
+      "maxMs": 329.45329099998344
+    },
+    "replay": {
+      "count": 291,
+      "p95Ms": 119.81637499999852,
+      "maxMs": 801.2704169999924
+    },
+    "authLogin": {
+      "count": 0,
+      "p95Ms": null,
+      "maxMs": null
+    },
+    "invalidGrant": {
+      "count": 0,
+      "p95Ms": null,
+      "maxMs": null
+    },
+    "socialRead": {
+      "count": 1236,
+      "p95Ms": 193.08054199999998,
+      "maxMs": 375.0418329999666
+    },
+    "socialWrite": {
+      "count": 291,
+      "p95Ms": 112.81120799999917,
+      "maxMs": 329.1555000000517
+    },
+    "socialConvergence": {
+      "count": 582,
+      "p95Ms": 182.33425000001444,
+      "maxMs": 491.6143329999759
+    }
+  },
+  "failures": [
+    "Unexpected token '<', \"<html>\r\n<h\"... is not valid JSON",
+    "Unexpected token '<', \"<html>\r\n<h\"... is not valid JSON",
+    "Unexpected token '<', \"<html>\r\n<h\"... is not valid JSON",
+    "Unexpected token '<', \"<html>\r\n<h\"... is not valid JSON",
+    "Unexpected token '<', \"<html>\r\n<h\"... is not valid JSON",
+    "SOCIAL_CONVERGENCE_TIMEOUT"
+  ],
+  "social": {
+    "enabled": true,
+    "accounts": 50,
+    "pollSeconds": 30,
+    "requestedValidOperationsPerSecond": 1,
+    "operations": 291,
+    "notifications": 702,
+    "rematches": 0,
+    "scriptedHumans": true
+  },
+  "authentication": {
+    "enabled": false,
+    "successfulLoginLogout": 0,
+    "invalidGrantRejections": 0,
+    "maxInFlight": 0,
+    "requestedPerSecond": 0,
+    "realSMTP": false
+  },
+  "passed": false
+}

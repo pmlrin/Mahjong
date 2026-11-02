@@ -1,3 +1,4 @@
+import { deviceClass } from "../../../shared/social.ts";
 import type { Express, Request, Response } from "express";
 import { z } from "zod";
 import type { AuthService } from "./service.ts";
@@ -23,6 +24,7 @@ export function mountAuthRoutes(d: Dependencies) {
     grant = z.string().min(32).max(256),
     challenge = z.uuid();
   const ctx = (req: Request, flowId: string): AuthContext => ({
+    device: deviceClass(req.headers["user-agent"] ?? ""),
     tokenHash: d.rawSessionHash(req),
     flowId,
     ip: req.ip ?? "unknown",

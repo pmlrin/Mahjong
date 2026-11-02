@@ -1,0 +1,67 @@
+{
+  "at": "2026-11-02T05:37:32.688828+00:00",
+  "health": {
+    "ok": true,
+    "version": "0.4.0",
+    "buildId": "e995b39f3502eb52ae3dc110984bb34baf748fb5bc2ad63faed24659205d211d",
+    "activeTables": 0
+  },
+  "capabilities": {
+    "appVersion": "0.4.0",
+    "buildId": "e995b39f3502eb52ae3dc110984bb34baf748fb5bc2ad63faed24659205d211d",
+    "protocolVersion": "2.0",
+    "formats": [
+      "EAST_ONLY",
+      "HANCHAN"
+    ],
+    "botLevels": [
+      "BASIC",
+      "STANDARD"
+    ],
+    "timePresetId": "standard-v1",
+    "maintenance": false,
+    "retentionDays": 30,
+    "auth": {
+      "enabled": true,
+      "passwordLogin": true,
+      "registration": true,
+      "passwordReset": true,
+      "mailAvailable": true,
+      "previewRestricted": false,
+      "environment": "production"
+    },
+    "profileEditing": true,
+    "sessionManagement": true,
+    "friends": true,
+    "friendInvitations": true,
+    "socialSchemaVersion": 1,
+    "limits": {
+      "friends": 200,
+      "pendingRequests": 50,
+      "pendingInvitations": 20,
+      "blocks": 500,
+      "profileWrites": 10,
+      "lookupMinute": 20,
+      "lookupDay": 200,
+      "lookupIpMinute": 100,
+      "requestHour": 10,
+      "requestDay": 30,
+      "inviteHour": 30,
+      "stateMinute": 60,
+      "passwordAccount": 5,
+      "passwordIp": 20
+    }
+  },
+  "assets": [
+    "/assets/index-DE9MxD5V.js",
+    "/assets/index-CWMBFUy5.css"
+  ],
+  "presetAvatars": 12,
+  "staticBytesMatchPackage": true,
+  "oldGuestIdentityPreserved": true,
+  "oldGuestHistoryReadable": true,
+  "guestSocialAccessDenied": true,
+  "publicHTTPS": true,
+  "networkInterface": "en0 per request",
+  "passed": true
+}

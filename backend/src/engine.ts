@@ -1105,6 +1105,7 @@ export function project(g: GameState, s: Seat): MatchView {
       return {
         seat: t,
         displayName: x.displayName,
+        ...(x.avatarId ? { avatarId: x.avatarId } : {}),
         participantKind: x.participantKind,
         connected: x.connected,
         effectiveControl:

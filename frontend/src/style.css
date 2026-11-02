@@ -3080,10 +3080,9 @@ select {
   grid-template-columns: var(--left-depth) var(--center-width) var(
       --right-depth
     );
-  grid-template-rows: auto minmax(
-      max(var(--center-height), var(--river-width)),
-      auto
-    ) auto;
+  grid-template-rows:
+    auto minmax(max(var(--center-height), var(--river-width)), auto)
+    auto;
   gap: var(--field-gap);
   width: max-content;
   margin: auto;
@@ -3213,5 +3212,164 @@ select {
   .table-layout .melds {
     --meld-width: 14px;
     --meld-height: 20px;
+  }
+}
+
+/* V4 account and social panels: independent pages, non-blocking game badge. */
+.profile-avatar {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  border-radius: 11px;
+  object-fit: contain;
+}
+.person-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.person-line strong {
+  overflow-wrap: anywhere;
+}
+.person-line small,
+.devices small {
+  display: block;
+  color: #6e7e6a;
+  font-size: 12px;
+  margin-top: 5px;
+}
+.account-entry .profile-avatar {
+  width: 28px;
+  height: 28px;
+}
+.social-page {
+  max-width: 1050px;
+  margin: auto;
+  padding: 30px 5%;
+}
+.social-page h1 {
+  font-family: serif;
+  font-size: 32px;
+  font-weight: 400;
+  margin: 20px 0;
+}
+.social-page h2 {
+  font-size: 20px;
+  margin: 24px 0 12px;
+}
+.social-tabs,
+.social-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 14px 0;
+}
+.social-tabs button {
+  padding: 10px 16px;
+  border-radius: 8px;
+}
+.social-tabs .active {
+  background: #dfe9db;
+}
+.social-page input,
+.account-tools input {
+  padding: 12px;
+  border: 1px solid #c8d3c3;
+  border-radius: 7px;
+  width: 100%;
+  margin: 8px 0;
+}
+.friend-lookup {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 20px 0;
+}
+.friend-lookup label {
+  flex: 1;
+}
+.friend-lookup button {
+  margin-bottom: 8px;
+}
+.social-card,
+.devices article {
+  background: #fffdf6;
+  border: 1px solid #d8dfd0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 12px 0;
+}
+.social-card p {
+  width: 100%;
+  color: #6c7d64;
+}
+.social-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 4px;
+  border-radius: 50%;
+  background: #356a50;
+  color: #fff;
+  font: 11px sans-serif;
+}
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0;
+}
+.avatar-grid button {
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  border: 2px solid transparent;
+  padding: 9px;
+  border-radius: 9px;
+}
+.avatar-grid .selected {
+  border-color: #52795b;
+  background: #e5eddf;
+}
+.profile-editor,
+.devices,
+.social-confirm {
+  padding: 16px;
+  margin-top: 20px;
+  border: 1px solid #cbd8c4;
+  border-radius: 10px;
+}
+.social-confirm {
+  background: #f8f0d9;
+}
+.social-confirm button {
+  margin: 10px 10px 0 0;
+}
+.table-layout .profile-avatar {
+  width: 24px;
+  height: 24px;
+}
+@media (max-width: 600px) {
+  .friend-lookup {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .social-page {
+    padding: 20px 14px;
+  }
+  .avatar-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .social-card {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

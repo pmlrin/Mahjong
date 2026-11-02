@@ -1,0 +1,68 @@
+{
+  "at": "2026-11-01T15:32:15.066884+00:00",
+  "preview": {
+    "ok": true,
+    "version": "0.4.0",
+    "buildId": "ac168f59b19d729398ac305026f90386957c62afdf658e5806f4412802632d4c",
+    "activeTables": 0
+  },
+  "formal": {
+    "ok": true,
+    "version": "0.3.0",
+    "buildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+    "activeTables": 0
+  },
+  "assets": [
+    "/preview/assets/index-BiO12CB8.js",
+    "/preview/assets/index-CWMBFUy5.css"
+  ],
+  "presetAvatars": 12,
+  "capabilities": {
+    "appVersion": "0.4.0",
+    "buildId": "ac168f59b19d729398ac305026f90386957c62afdf658e5806f4412802632d4c",
+    "protocolVersion": "2.0",
+    "formats": [
+      "EAST_ONLY",
+      "HANCHAN"
+    ],
+    "botLevels": [
+      "BASIC",
+      "STANDARD"
+    ],
+    "timePresetId": "standard-v1",
+    "maintenance": false,
+    "retentionDays": 30,
+    "auth": {
+      "enabled": true,
+      "passwordLogin": true,
+      "registration": true,
+      "passwordReset": true,
+      "mailAvailable": true,
+      "previewRestricted": true,
+      "environment": "preview"
+    },
+    "profileEditing": true,
+    "sessionManagement": true,
+    "friends": true,
+    "friendInvitations": true,
+    "socialSchemaVersion": 1,
+    "limits": {
+      "friends": 200,
+      "pendingRequests": 50,
+      "pendingInvitations": 20,
+      "blocks": 500,
+      "profileWrites": 10,
+      "lookupMinute": 20,
+      "lookupDay": 200,
+      "lookupIpMinute": 100,
+      "requestHour": 10,
+      "requestDay": 30,
+      "inviteHour": 30,
+      "stateMinute": 60,
+      "passwordAccount": 5,
+      "passwordIp": 20
+    }
+  },
+  "networkInterface": "en0 per request",
+  "passed": true
+}

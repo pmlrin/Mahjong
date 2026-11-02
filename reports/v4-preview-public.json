@@ -1,0 +1,20 @@
+{
+  "at": "2026-11-01T12:15:54Z",
+  "preview": {
+    "ok": true,
+    "version": "0.4.0",
+    "buildId": "ce9de0c063808ab0e9858033325441dbe715697e4c6cf2ca91fd9817dbdf21e5",
+    "activeTables": 0
+  },
+  "formal": {
+    "ok": true,
+    "version": "0.3.0",
+    "buildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+    "activeTables": 0
+  },
+  "assets": [
+    "/preview/assets/index-DlFxIpvI.js",
+    "/preview/assets/index-CWMBFUy5.css"
+  ],
+  "passed": true
+}

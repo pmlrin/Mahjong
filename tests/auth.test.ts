@@ -669,7 +669,7 @@ test("V3 crypto: Unicode password lengths, no trimming, ASCII email rules, Argon
   assert(maxActive <= 2);
   assert(ticks > 0);
   writeFileSync(
-    "reports/v3-password-benchmark.json",
+    "reports/v4-password-benchmark.json",
     JSON.stringify(
       {
         at: new Date().toISOString(),

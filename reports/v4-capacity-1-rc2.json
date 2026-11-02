@@ -1,0 +1,105 @@
+{
+  "at": "2026-11-01T15:15:26.085Z",
+  "version": "0.4.0",
+  "protocol": "2.0",
+  "tables": 10,
+  "humanCount": 1,
+  "botCount": 3,
+  "queryRate": {
+    "history": 5,
+    "stats": 1,
+    "replay": 1
+  },
+  "clientAddressModel": "Distinct TEST-NET addresses, trusted loopback test proxy only",
+  "clientTransport": "loopback relay; verified upstream TLS on physical en0; system routes unchanged",
+  "syntheticSummaries": 10000,
+  "durationMs": 303354,
+  "measurementWindowMs": 300000,
+  "clientRunsOnServer": false,
+  "environment": {
+    "platform": "darwin",
+    "release": "27.0.0",
+    "node": "v24.22.1",
+    "cpus": 15,
+    "totalMemoryMiB": 24576
+  },
+  "serverCpuPercentP95": null,
+  "serverRssMiBMax": null,
+  "metrics": {
+    "rtt": {
+      "count": 598,
+      "p95Ms": 33.8737919999985,
+      "maxMs": 183.20387500000652
+    },
+    "receipt": {
+      "count": 421,
+      "p95Ms": 84.47541700000875,
+      "maxMs": 132.24704099999508
+    },
+    "restore": {
+      "count": 10,
+      "p95Ms": 268.68045900000016,
+      "maxMs": 268.68045900000016
+    },
+    "history": {
+      "count": 1490,
+      "p95Ms": 44.748625000000175,
+      "maxMs": 291.4421250000005
+    },
+    "stats": {
+      "count": 299,
+      "p95Ms": 63.55841700000019,
+      "maxMs": 296.50466700000015
+    },
+    "replay": {
+      "count": 299,
+      "p95Ms": 96.2366659999825,
+      "maxMs": 212.28916599998774
+    },
+    "authLogin": {
+      "count": 0,
+      "p95Ms": null,
+      "maxMs": null
+    },
+    "invalidGrant": {
+      "count": 0,
+      "p95Ms": null,
+      "maxMs": null
+    },
+    "socialRead": {
+      "count": 1266,
+      "p95Ms": 198.58237500000007,
+      "maxMs": 311.4755
+    },
+    "socialWrite": {
+      "count": 299,
+      "p95Ms": 127.95924999999988,
+      "maxMs": 210.64341699999932
+    },
+    "socialConvergence": {
+      "count": 598,
+      "p95Ms": 185.17625000001863,
+      "maxMs": 298.6622919999936
+    }
+  },
+  "failures": [],
+  "social": {
+    "enabled": true,
+    "accounts": 50,
+    "pollSeconds": 30,
+    "requestedValidOperationsPerSecond": 1,
+    "operations": 299,
+    "notifications": 718,
+    "rematches": 0,
+    "scriptedHumans": true
+  },
+  "authentication": {
+    "enabled": false,
+    "successfulLoginLogout": 0,
+    "invalidGrantRejections": 0,
+    "maxInFlight": 0,
+    "requestedPerSecond": 0,
+    "realSMTP": false
+  },
+  "passed": true
+}

@@ -1,3 +1,4 @@
+import { migrateSocial } from "../social/schema.ts";
 import type { Store } from "../store.ts";
 import { AUTH_SCHEMA } from "./schema.ts";
 import type { AuthConfig } from "./config.ts";
@@ -18,6 +19,7 @@ export async function migrateAuth(
       [config.environment],
     );
   });
+  await store.transaction((tx) => migrateSocial(tx, now));
   const done = await store.transaction((tx) =>
     tx.one("SELECT name FROM auth_migrations WHERE name='users-v3'"),
   );

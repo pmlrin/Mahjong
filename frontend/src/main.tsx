@@ -1,3 +1,7 @@
+import { useSocial } from "./use-social";
+import { SocialPage } from "./social-page";
+import { Avatar } from "./Avatar";
+import type { SocialCapabilities } from "../../shared/social";
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { io, type Socket } from "socket.io-client";
@@ -83,6 +87,7 @@ function App() {
       | "stats"
       | "settings"
       | "account"
+      | "social"
     >(() =>
       new URLSearchParams(location.search).has("replay") ? "replay" : "home",
     ),
@@ -112,10 +117,23 @@ function App() {
       botLevels: ("BASIC" | "STANDARD")[];
       maintenance: boolean;
       auth?: AuthCapabilities;
+      profileEditing?: boolean;
+      sessionManagement?: boolean;
+      friends?: boolean;
+      friendInvitations?: boolean;
     } | null>(null),
     [accountPage, setAccountPage] = useState<AccountPage>("profile"),
     [sessionEpoch, setSessionEpoch] = useState(0),
     [authPaused, setAuthPaused] = useState(false);
+  const social = useSocial(
+    me?.identityKind === "ACCOUNT" && !authPaused
+      ? me.userId + ":" + sessionEpoch
+      : null,
+    !!capabilities?.friends,
+    network,
+  );
+  const socialRefresh = useRef(social.refresh);
+  socialRefresh.current = social.refresh;
   const initialReplayIntent = useRef(
     new URLSearchParams(location.search).has("replay"),
   );
@@ -273,6 +291,9 @@ function App() {
       if (!valid()) return;
       setNetwork(false);
       setError(e.message);
+    });
+    s.on("social:changed", () => {
+      if (valid()) void socialRefresh.current();
     });
     s.on("room:view", (r: Room) => {
       if (!valid()) return;
@@ -596,6 +617,19 @@ function App() {
               <button onClick={() => setScreen("stats")}>我的统计</button>
             </>
           )}
+          {me?.identityKind === "ACCOUNT" && capabilities?.friends && (
+            <button
+              className={screen === "social" ? "active" : ""}
+              onClick={() => setScreen("social")}
+            >
+              好友{" "}
+              {social.snapshot?.counts.total ? (
+                <span className="social-badge">
+                  {social.snapshot.counts.total}
+                </span>
+              ) : null}
+            </button>
+          )}
           <button onClick={() => setScreen("settings")}>设置</button>
           <button onClick={showRules}>
             玩法说明 <span>↗</span>
@@ -608,6 +642,7 @@ function App() {
             aria-label="个人与账号"
             onClick={() => openAccount()}
           >
+            {me?.identityKind === "ACCOUNT" && <Avatar id={me.avatarId} />}
             <span className="identity-name">
               {me?.displayName ?? "欢迎来坐"}
             </span>
@@ -877,6 +912,13 @@ function App() {
               </button>
             </div>
           </div>
+          {me?.identityKind === "ACCOUNT" &&
+            capabilities?.friendInvitations &&
+            room.hostUserId === me.userId && (
+              <button className="secondary" onClick={() => setScreen("social")}>
+                邀请站内好友
+              </button>
+            )}
           <div className="room-meta">
             <span>四人立直 · {formatName(room.config.format)}</span>
             {room.hostUserId === me?.userId && room.status === "WAITING" && (
@@ -909,11 +951,15 @@ function App() {
               <section className={`seat-card ${m ? "occupied" : ""}`} key={i}>
                 <span className="seat-index">SEAT 0{i + 1}</span>
                 <div className="seat-avatar">
-                  {m
-                    ? m.participantKind === "BOT"
-                      ? "竹"
-                      : m.displayName[0]
-                    : "＋"}
+                  {m ? (
+                    m.participantKind === "BOT" ? (
+                      "竹"
+                    ) : (
+                      <Avatar id={m.avatarId} />
+                    )
+                  ) : (
+                    "＋"
+                  )}
                 </div>
                 <h2>{m?.displayName ?? "虚位以待"}</h2>
                 <p>
@@ -1059,9 +1105,45 @@ function App() {
         />
       ) : screen === "rules" ? (
         <Rules text={rules} onBack={() => setScreen(view ? "game" : "home")} />
+      ) : screen === "social" && me?.identityKind === "ACCOUNT" ? (
+        <SocialPage
+          key={me.userId + ":" + sessionEpoch}
+          snapshot={social.snapshot}
+          refresh={social.refresh}
+          stale={social.stale}
+          error={social.error}
+          room={
+            room?.status === "WAITING" && room.hostUserId === me.userId
+              ? room
+              : null
+          }
+          invitesEnabled={!!capabilities?.friendInvitations}
+          onBack={() => setScreen(frame ? "game" : "home")}
+          onJoined={async (roomId) => {
+            const generation = identityGeneration.current;
+            const current = await api<Me>("/me");
+            if (generation !== identityGeneration.current) return;
+            if (current.roomId !== roomId)
+              throw Error("房间状态已变化，请重新查看当前房间");
+            setMe(current);
+            const joined = await api<Room>("/rooms/" + roomId);
+            if (generation !== identityGeneration.current) return;
+            await watch(joined);
+          }}
+        />
       ) : screen === "account" ? (
         <AccountPanel
           key={accountPage}
+          socialCapabilities={capabilities ?? {}}
+          onFriends={() => setScreen("social")}
+          onProfileUpdated={async () => {
+            const generation = identityGeneration.current;
+            const updated = await api<Me>("/me");
+            if (generation === identityGeneration.current) {
+              setMe(updated);
+              await social.refresh();
+            }
+          }}
           page={accountPage}
           setPage={setAccountPage}
           me={me}
@@ -1571,7 +1653,7 @@ function Game({
                       0{v.matchResult!.ranks[p.seat]}
                     </span>
                     <span>
-                      {p.displayName}
+                      <Avatar id={p.avatarId} /> {p.displayName}
                       {p.seat === self ? " · 你" : ""}
                     </span>
                     <strong>{p.points.toLocaleString()}</strong>
@@ -1774,7 +1856,7 @@ interface ReplayData {
   format?: string;
   replayVersion?: string;
   matchId: string;
-  players: { seat: Seat; displayName: string }[];
+  players: { seat: Seat; displayName: string; avatarId?: string }[];
   events: any[];
   result: any;
 }
@@ -1970,7 +2052,8 @@ function Replay({
             {data.players.map((p) => (
               <section key={p.seat}>
                 <h3>
-                  {p.displayName} · {state.points[p.seat].toLocaleString()} 点
+                  <Avatar id={p.avatarId} /> {p.displayName} ·{" "}
+                  {state.points[p.seat].toLocaleString()} 点
                   <small>{p.seat === seat ? " · 当前视角" : ""}</small>
                 </h3>
                 <div className="replay-hand">

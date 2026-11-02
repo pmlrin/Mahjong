@@ -1,0 +1,7 @@
+{
+  "smtpTLS": true,
+  "authenticated": true,
+  "emailSent": false,
+  "environment": "production",
+  "note": "Authentication only; actual receipt and registration/reset still require end-to-end verification"
+}

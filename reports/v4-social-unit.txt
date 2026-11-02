@@ -1,0 +1,24 @@
+✔ V4 T02/T03/T11: exact friend codes, Unicode names and closed avatar catalog (0.873375ms)
+✔ V4 T01/T04/T05/T06: profile CAS, rename budget, avatar-only update, occupancy and immutable old records (25.92125ms)
+✔ V4 T11: random code unique conflict retries and repeat migration preserve all codes (21.460542ms)
+✔ V4 T12/T13/T14: minimal lookup, duplicate and crossed requests, explicit accept and replay (36.070667ms)
+✔ V4 T13/T15: exact expiration, refusal cooldown, account limits and durable rolling lookup rate (19.27125ms)
+✔ V4 T16/T17: blocks atomically remove reciprocal friendship and invitations, remain in room and unlock never restores (20.743042ms)
+✔ V4 T19/T20/T21/T22: last-seat race, idempotent join and existing target membership preserves readiness (20.362833ms)
+✔ V4 T21/T23: another room cannot be left implicitly; host transfer and rematch invalidate invites transactionally (21.037875ms)
+✔ V4 T07/T08/T09/T10: coarse session data, current-session protection, cross-account rejection, password failure and scoped revocation (77.030541ms)
+✔ V4 T18/T24: multiple passive connections, grace, revocation and friends-only presence (16.923959ms)
+✔ V4 T26: injected precommit rollback leaves no half-friendship, no memory room publish and retries commit once (17.558375ms)
+✔ V4 T31: bounded cleanup retains active relations, fresh receipts and current sessions (18.160209ms)
+✔ V4 T15/T22: incoming/friend limits and block-versus-accept have one legal outcome (17.735375ms)
+✔ V4 T20/T21: exact invite expiry and already-in-target full room do not reset ready or duplicate seats (18.196292ms)
+✔ V4 T26: unknown COMMIT reloads authoritative room; replay returns original join without duplicating (18.209666ms)
+✔ V4 T31: terminal data retention and bounded cleanup preserve friendship, revoked semantics and room snapshots (30.407292ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 527.709417

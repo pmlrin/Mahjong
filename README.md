@@ -2,9 +2,11 @@
 
 前后端分开的四人网页麻将。React + TypeScript 前端，Express + Socket.IO 后端；生产使用 PostgreSQL，本地可直接用 SQLite。规则基线在 `docs/`。
 
-当前源码为 **0.3.0 第三版**，实时协议仍为 2.0。新增游客升级账号、邮箱验证、密码登录／找回／修改、可撤销会话与异步发信；保留半庄、双档 AI、再战、历史与回放。
+当前源码为 **0.4.0 第四版**，实时协议仍为 2.0。新增昵称与 12 款预设头像、登录设备管理、好友码、双向好友、屏蔽、在线状态及站内入房邀请；保留第三版账号邮件功能和既有麻将玩法。
 
-第三版已于 2026-11-01 正式上线至 [mahjong.yangjm.cn](https://mahjong.yangjm.cn/)，101 项自动测试通过。正式库已备份并在副本验证迁移，旧游客身份与历史保留；邮箱注册、登录和找回已启用，正式公网完整比赛与牌谱验证通过。用户确认手机页面正常。预览账号需在正式站另行注册，既有 V2 未关闭的质量项继续追踪。详见 [第三版实现与验收记录](docs/第三版实现与验收记录-v3.0.md)、[账号配置与运维](docs/账号配置与运维-v3.0.md) 和 `reports/v3-production-deployment.json`。
+第四版已于 **2026-11-02 正式上线**至 [mahjong.yangjm.cn](https://mahjong.yangjm.cn/)。118 项自动测试、双库迁移恢复及两组十桌五分钟脚本负载通过；正式旧身份与历史保留，公网完整脚本比赛和牌谱通过，上线后 28 表一致快照备份恢复通过。用户要求直接上线，真实双账号与分项真机验收继续待补。见[第四版正式上线记录](docs/第四版正式上线记录-v4.0.md)、[实现与验收记录](docs/第四版实现与验收记录-v4.0.md)、[资料与好友接口](docs/账号资料与好友接口-v4.0.md)和[配置与迁移](docs/第四版配置与迁移-v4.0.md)。
+
+前版第三版于 2026-11-01 上线，原 101 项测试、真实账号邮件与发布证据保留在[第三版实现与验收记录](docs/第三版实现与验收记录-v3.0.md)。正式与预览账号不互通；既有 V2／V3 未关闭的质量项继续追踪。
 
 ## 本地运行
 
@@ -55,6 +57,7 @@ pnpm package
 - `backend/src/server.ts`：身份、房间、实时同步、串行事务、回执与恢复。
 - `backend/src/store.ts`：PostgreSQL 与本地 SQLite 存储。
 - `backend/src/auth/`：认证、迁移、会话、验证码、发信队列与限流。
+- `backend/src/social/`：资料、设备、好友、邀请、快照、事务与清理。
 - `backend/src/bot.ts`：仅接收座位可见视图的 BASIC／STANDARD 策略。
 - `backend/src/history.ts`、`migration.ts`、`lobby.ts`：摘要、迁移和准备轮次。
 - `shared/`：前后端协议类型及实体牌编码。
@@ -71,6 +74,6 @@ pnpm package
 
 素材与开源许可证见 `THIRD_PARTY_NOTICES.md`。
 
-独立预览（当前 V3）：https://mahjong.yangjm.cn/preview/ 。它使用独立游客 Cookie 与数据库，旧版成绩和身份不会被预览覆盖。
+独立预览（当前 V4）：[mahjong.yangjm.cn/preview/](https://mahjong.yangjm.cn/preview/)。它使用独立 Cookie 与数据库，账号、好友与成绩不跨环境同步。
 
 离线迁移：`node --import tsx backend/src/migrate.ts`；重建摘要添加 `--rebuild`。先在备份副本演练，生产切换按维护流程执行，不能让两个进程同时写同一个库。

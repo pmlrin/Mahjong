@@ -439,7 +439,7 @@ test("V03/V04/V09: indexed pagination, ties, filters, frozen membership, stats, 
     }
     const p95 = (x: number[]) => x.sort((a, b) => a - b)[94];
     writeFileSync(
-      "reports/v3-query-benchmark.json",
+      "reports/v4-query-benchmark.json",
       JSON.stringify(
         {
           at: new Date().toISOString(),

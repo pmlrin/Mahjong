@@ -133,7 +133,7 @@ test(
       assert(!messages[0].includes("test-smtp-password"));
       assert(messages[0].includes("multipart/alternative"));
       writeFileSync(
-        "reports/v3-smtp-protocol.json",
+        "reports/v4-smtp-protocol.json",
         JSON.stringify(
           {
             at: new Date().toISOString(),

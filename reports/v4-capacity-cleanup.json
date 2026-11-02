@@ -1,0 +1,21 @@
+{
+  "at": "2026-11-01T15:44:41.592612Z",
+  "privateProxyRemoved": true,
+  "testPortClosed": true,
+  "temporaryServerCredentialsRemoved": true,
+  "servicesHealthy": true,
+  "formal": {
+    "ok": true,
+    "version": "0.3.0",
+    "buildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+    "activeTables": 0
+  },
+  "preview": {
+    "ok": true,
+    "version": "0.4.0",
+    "buildId": "ac168f59b19d729398ac305026f90386957c62afdf658e5806f4412802632d4c",
+    "activeTables": 0
+  },
+  "temporaryLocalAccessCredentialsRemoved": true,
+  "localRelayClosed": true
+}

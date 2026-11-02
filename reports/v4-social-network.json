@@ -1,0 +1,14 @@
+{
+  "version": "0.4.0",
+  "profileFrozen": true,
+  "friendsAccepted": true,
+  "inviteJoined": true,
+  "normalMatchFinished": true,
+  "replayAuthorized": true,
+  "remoteSessionRevoked": true,
+  "privateResponsesNoStore": true,
+  "notificationsObserved": 14,
+  "scriptedClients": true,
+  "realSMTP": false,
+  "passed": true
+}

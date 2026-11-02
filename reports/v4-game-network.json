@@ -1,0 +1,44 @@
+{
+  "at": "2026-11-01T15:28:49.280Z",
+  "passed": true,
+  "version": "0.4.0",
+  "protocol": "2.0",
+  "rematches": 3,
+  "formats": [
+    "EAST_ONLY",
+    "HANCHAN"
+  ],
+  "combinations": [
+    "4+0",
+    "3+1",
+    "2+2",
+    "1+3"
+  ],
+  "restart": "SIGKILL",
+  "aiDiscardGapsMs": [
+    2003,
+    2002
+  ],
+  "serverLog": [
+    "Mahjong server http://127.0.0.1:3101",
+    "{\"event\":\"SERVER_BUILD\",\"version\":\"0.4.0\",\"protocol\":\"2.0\",\"sourceSha256\":\"development\"}",
+    "{\"event\":\"HISTORY_BACKFILL\",\"indexed\":0,\"issues\":0,\"alreadyApplied\":true}",
+    "{\"event\":\"AUTH_MIGRATION\",\"alreadyApplied\":true,\"users\":0,\"sessions\":0,\"conflicts\":0}",
+    "Mahjong server http://127.0.0.1:3101",
+    "{\"event\":\"SERVER_BUILD\",\"version\":\"0.4.0\",\"protocol\":\"2.0\",\"sourceSha256\":\"development\"}",
+    "{\"event\":\"HISTORY_BACKFILL\",\"indexed\":0,\"issues\":0,\"alreadyApplied\":true}",
+    "{\"event\":\"AUTH_MIGRATION\",\"alreadyApplied\":true,\"users\":0,\"sessions\":0,\"conflicts\":0}",
+    "Mahjong server http://127.0.0.1:3101",
+    "CLIENT_ERROR Error: socket has been disconnected",
+    "    at file:///Users/yangjm/Documents/Mahjong/node_modules/.pnpm/socket.io-client@4.8.4/node_modules/socket.io-client/build/esm-debug/socket.js:481:36",
+    "    at Array.forEach (<anonymous>)",
+    "    at Socket._clearAcks (file:///Users/yangjm/Documents/Mahjong/node_modules/.pnpm/socket.io-client@4.8.4/node_modules/socket.io-client/build/esm-debug/socket.js:474:32)",
+    "    at Socket.onclose (file:///Users/yangjm/Documents/Mahjong/node_modules/.pnpm/socket.io-client@4.8.4/node_modules/socket.io-client/build/esm-debug/socket.js:465:14)",
+    "    at Socket.disconnect (file:///Users/yangjm/Documents/Mahjong/node_modules/.pnpm/socket.io-client@4.8.4/node_modules/socket.io-client/build/esm-debug/socket.js:677:18)",
+    "    at Client.close (/Users/yangjm/Documents/Mahjong/tests/network.test.ts:173:18)",
+    "    at <anonymous> (/Users/yangjm/Documents/Mahjong/tests/network.test.ts:930:13)",
+    "    at async TestContext.<anonymous> (/Users/yangjm/Documents/Mahjong/tests/network.test.ts:244:11)",
+    "    at async Test.run (node:internal/test_runner/test:1409:7)",
+    "    at async TestContext.<anonymous> (/Users/yangjm/Documents/Mahjong/tests/network.test.ts:900:7)"
+  ]
+}

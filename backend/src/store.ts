@@ -21,6 +21,7 @@ function summaryRow(row: any, postgres: boolean): HistorySummary | null {
   return { ...s, replayAvailable: s.replayAvailable && !!row.has_replay };
 }
 export class Store {
+  roomWriteHook?: (tx: Sql, room: any) => Promise<void>;
   private writeTail: Promise<unknown> = Promise.resolve();
   private exclusive<T>(fn: () => Promise<T>): Promise<T> {
     const result = this.writeTail.then(fn);
@@ -297,6 +298,8 @@ export class Store {
       try {
         await c.query("BEGIN");
         for (const w of writes) {
+          if (w.kind === "room")
+            await this.roomWriteHook?.(new Sql(c, null), w.data);
           if (w.kind === "replay_position") {
             const d = w.data as any;
             await c.query(
@@ -328,6 +331,8 @@ export class Store {
           "INSERT INTO documents(kind,id,payload,updated_at) VALUES(?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET payload=excluded.payload,updated_at=excluded.updated_at",
         );
         for (const w of writes) {
+          if (w.kind === "room")
+            await this.roomWriteHook?.(new Sql(null, this.sqlite), w.data);
           if (w.kind === "replay_position") {
             const d = w.data as any;
             this.sqlite!.prepare(
@@ -391,6 +396,7 @@ export class Store {
   }
   async close() {
     this.sqlite?.close();
+    this.sqlite = null;
     if (this.lock) {
       await this.lock.query("SELECT pg_advisory_unlock(849273161)");
       this.lock.release();

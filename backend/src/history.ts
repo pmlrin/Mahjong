@@ -47,6 +47,7 @@ export function summarize(g: GameState): HistorySummary | null {
     seat: seat as 0 | 1 | 2 | 3,
     userId: p.userId,
     displayName: p.displayName,
+    ...(p.avatarId ? { avatarId: p.avatarId } : {}),
     participantKind: p.participantKind,
     botLevel:
       p.participantKind === "BOT"

@@ -1,0 +1,76 @@
+{
+  "at": "2026-11-02T05:44:24.668858Z",
+  "health": {
+    "8029": {
+      "ok": true,
+      "version": "0.4.0",
+      "buildId": "e995b39f3502eb52ae3dc110984bb34baf748fb5bc2ad63faed24659205d211d",
+      "activeTables": 0
+    },
+    "18031": {
+      "ok": true,
+      "version": "0.4.0",
+      "buildId": "ac168f59b19d729398ac305026f90386957c62afdf658e5806f4412802632d4c",
+      "activeTables": 0
+    }
+  },
+  "capabilities": {
+    "appVersion": "0.4.0",
+    "buildId": "e995b39f3502eb52ae3dc110984bb34baf748fb5bc2ad63faed24659205d211d",
+    "protocolVersion": "2.0",
+    "formats": [
+      "EAST_ONLY",
+      "HANCHAN"
+    ],
+    "botLevels": [
+      "BASIC",
+      "STANDARD"
+    ],
+    "timePresetId": "standard-v1",
+    "maintenance": false,
+    "retentionDays": 30,
+    "auth": {
+      "enabled": true,
+      "passwordLogin": true,
+      "registration": true,
+      "passwordReset": true,
+      "mailAvailable": true,
+      "previewRestricted": false,
+      "environment": "production"
+    },
+    "profileEditing": true,
+    "sessionManagement": true,
+    "friends": true,
+    "friendInvitations": true,
+    "socialSchemaVersion": 1,
+    "limits": {
+      "friends": 200,
+      "pendingRequests": 50,
+      "pendingInvitations": 20,
+      "blocks": 500,
+      "profileWrites": 10,
+      "lookupMinute": 20,
+      "lookupDay": 200,
+      "lookupIpMinute": 100,
+      "requestHour": 10,
+      "requestDay": 30,
+      "inviteHour": 30,
+      "stateMinute": 60,
+      "passwordAccount": 5,
+      "passwordIp": 20
+    }
+  },
+  "serviceStates": {
+    "mahjong": "active",
+    "mahjong-v2-preview": "active",
+    "astrbot": "active",
+    "napcat": "active"
+  },
+  "originalConfigFilesUnchanged": true,
+  "maintenanceMarkerRemoved": true,
+  "currentRelease": "/opt/mahjong/releases/20261102-v4-production",
+  "restartProperties": "NRestarts=0\nActiveState=active",
+  "dailyBackupTimerEnabled": "enabled",
+  "dailyBackupTimerActive": "active",
+  "passed": true
+}

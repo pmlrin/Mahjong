@@ -1,0 +1,165 @@
+{
+  "at": "2026-11-01T15:42:31.679Z",
+  "version": "0.4.0",
+  "protocol": "2.0",
+  "tables": 10,
+  "humanCount": 1,
+  "botCount": 3,
+  "queryRate": {
+    "history": 5,
+    "stats": 1,
+    "replay": 1
+  },
+  "clientAddressModel": "Distinct TEST-NET addresses, trusted loopback test proxy only",
+  "clientTransport": "loopback relay; verified upstream TLS on physical en0; system routes unchanged",
+  "syntheticSummaries": 10000,
+  "durationMs": 303218,
+  "measurementWindowMs": 300000,
+  "clientRunsOnServer": false,
+  "environment": {
+    "platform": "darwin",
+    "release": "27.0.0",
+    "node": "v24.22.1",
+    "cpus": 15,
+    "totalMemoryMiB": 24576
+  },
+  "serverCpuPercentP95": null,
+  "serverRssMiBMax": null,
+  "metrics": {
+    "rtt": {
+      "count": 598,
+      "p95Ms": 42.86108400000376,
+      "maxMs": 115.29416700000002
+    },
+    "receipt": {
+      "count": 419,
+      "p95Ms": 90.94949999998789,
+      "maxMs": 388.7443750000093
+    },
+    "restore": {
+      "count": 10,
+      "p95Ms": 320.6456659999999,
+      "maxMs": 320.6456659999999
+    },
+    "history": {
+      "count": 1491,
+      "p95Ms": 51.329375000001164,
+      "maxMs": 196.68358300000546
+    },
+    "stats": {
+      "count": 299,
+      "p95Ms": 87.22200000000885,
+      "maxMs": 212.6033330000064
+    },
+    "replay": {
+      "count": 299,
+      "p95Ms": 132.13937499999884,
+      "maxMs": 219.93879099999322
+    },
+    "authLogin": {
+      "count": 0,
+      "p95Ms": null,
+      "maxMs": null
+    },
+    "invalidGrant": {
+      "count": 0,
+      "p95Ms": null,
+      "maxMs": null
+    },
+    "socialRead": {
+      "count": 1097,
+      "p95Ms": 91.0556660000002,
+      "maxMs": 671.4660419999855
+    },
+    "socialWrite": {
+      "count": 299,
+      "p95Ms": 140.6980840000033,
+      "maxMs": 247.85066700000607
+    },
+    "socialConvergence": {
+      "count": 598,
+      "p95Ms": 211.60716700000194,
+      "maxMs": 895.1362920000101
+    }
+  },
+  "startup": {
+    "durationMs": 3213,
+    "metrics": {
+      "rtt": {
+        "count": 0,
+        "p95Ms": null,
+        "maxMs": null
+      },
+      "receipt": {
+        "count": 0,
+        "p95Ms": null,
+        "maxMs": null
+      },
+      "restore": {
+        "count": 10,
+        "p95Ms": 320.6456659999999,
+        "maxMs": 320.6456659999999
+      },
+      "history": {
+        "count": 0,
+        "p95Ms": null,
+        "maxMs": null
+      },
+      "stats": {
+        "count": 0,
+        "p95Ms": null,
+        "maxMs": null
+      },
+      "replay": {
+        "count": 0,
+        "p95Ms": null,
+        "maxMs": null
+      },
+      "authLogin": {
+        "count": 0,
+        "p95Ms": null,
+        "maxMs": null
+      },
+      "invalidGrant": {
+        "count": 0,
+        "p95Ms": null,
+        "maxMs": null
+      },
+      "socialRead": {
+        "count": 170,
+        "p95Ms": 306.7452909999997,
+        "maxMs": 356.35549999999967
+      },
+      "socialWrite": {
+        "count": 0,
+        "p95Ms": null,
+        "maxMs": null
+      },
+      "socialConvergence": {
+        "count": 0,
+        "p95Ms": null,
+        "maxMs": null
+      }
+    }
+  },
+  "failures": [],
+  "social": {
+    "enabled": true,
+    "accounts": 50,
+    "pollSeconds": 30,
+    "requestedValidOperationsPerSecond": 1,
+    "operations": 299,
+    "notifications": 718,
+    "rematches": 0,
+    "scriptedHumans": true
+  },
+  "authentication": {
+    "enabled": false,
+    "successfulLoginLogout": 0,
+    "invalidGrantRejections": 0,
+    "maxInFlight": 0,
+    "requestedPerSecond": 0,
+    "realSMTP": false
+  },
+  "passed": true
+}

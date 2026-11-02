@@ -30,6 +30,7 @@ export interface Identity extends AuthSession {
   maskedEmail: string | null;
 }
 export interface AuthContext {
+  device?: { browser: string; os: string };
   tokenHash: string | null;
   flowId: string;
   ip: string;

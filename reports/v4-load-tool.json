@@ -1,0 +1,11 @@
+{
+  "at": "2026-11-01",
+  "version": "0.4.0",
+  "applicationReleaseSourceSha256": "ac168f59b19d729398ac305026f90386957c62afdf658e5806f4412802632d4c",
+  "capacityGeneratorSha256": "cd7d98443b53fd5a676ffe934aedc7c7bafe1c945a83ec8b37110bc9b07c5036",
+  "capacityToolChangedAfterRelease": true,
+  "change": "Bounded initialization and teardown, plus optional public-origin header for a loopback transport relay; application semantics unchanged.",
+  "previousCase1GeneratorSha256": "ca0df6613e8234bf96d9388153e9ede9bea1a10772acd6e1cd517e378f8fb0e5",
+  "measurementCorrection": "Case 4 rerun explicitly records pre-ready samples in startup metrics and records the full subsequent 300000ms in steady metrics; restore retains startup timing; all errors retained.",
+  "bothFinalCasesUseSamePublishedApplicationBuild": true
+}

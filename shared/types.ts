@@ -2,7 +2,7 @@ export type MatchFormat = "EAST_ONLY" | "HANCHAN";
 export type BotLevel = "BASIC" | "STANDARD";
 export type MatchMode = "AI_PRACTICE" | "FRIENDS";
 export const BOT_POLICY_VERSION = "v2.0.0" as const;
-export const APP_VERSION = "0.3.0" as const;
+export const APP_VERSION = "0.4.0" as const;
 export type Seat = 0 | 1 | 2 | 3;
 export type Quad<T> = [T, T, T, T];
 export const SEATS: Seat[] = [0, 1, 2, 3];
@@ -59,6 +59,7 @@ export interface Member {
   memberId: string;
   userId: string | null;
   displayName: string;
+  avatarId?: string;
   participantKind: "HUMAN" | "BOT";
   ready: boolean;
   connected: boolean;
@@ -89,6 +90,7 @@ export interface Room {
 export interface PublicPlayer {
   seat: Seat;
   displayName: string;
+  avatarId?: string;
   participantKind: "HUMAN" | "BOT";
   connected: boolean;
   effectiveControl: "HUMAN" | "AI";
@@ -291,6 +293,7 @@ export interface HistoryMember {
   seat: Seat;
   userId: string | null;
   displayName: string;
+  avatarId?: string;
   participantKind: "HUMAN" | "BOT";
   botLevel: BotLevel | null;
   botPolicyVersion: string | null;
@@ -371,6 +374,7 @@ export interface AuthCapabilities {
 export interface CurrentUser {
   userId: string;
   displayName: string;
+  avatarId?: string;
   roomId: string | null;
   matchId: string | null;
   identityKind: "GUEST" | "ACCOUNT";

@@ -1,0 +1,10 @@
+{
+  "configuredSecretValuesChecked": 4,
+  "nonignoredFilesWithSecretValues": [],
+  "localAuthMode": "0o600",
+  "productionGuestProbeRemoved": true,
+  "productionVersion": "0.4.0",
+  "productionBuild": "e995b39f3502eb52ae3dc110984bb34baf748fb5bc2ad63faed24659205d211d",
+  "productionSmokePassed": true,
+  "productionBackupRestorePassed": true
+}

@@ -1,3 +1,4 @@
+import { Avatar } from "./Avatar";
 import React, { type CSSProperties } from "react";
 import { type MatchView, type Seat, tileName } from "../../shared/types";
 import { Tile } from "./Tile";
@@ -32,6 +33,7 @@ export function TableSurface({ view: v }: { view: MatchView }) {
         className={`opponent position-${relative} ${hand.activeSeat === s && hand.phase === "SELF_ACTION" ? "turn" : ""}`}
       >
         <div className="opponent-info">
+          <Avatar id={p.avatarId} />
           <span className="wind-badge">{wind(h.seatWind)}</span>
           <span>
             {p.displayName}
@@ -123,6 +125,7 @@ export function TableSurface({ view: v }: { view: MatchView }) {
         </div>
       </div>
       <div className="self-info">
+        <Avatar id={v.players[self].avatarId} />
         <span className="wind-badge">{wind(own.seatWind)}</span>
         <span>
           {v.players[self].displayName}

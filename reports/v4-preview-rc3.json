@@ -1,0 +1,37 @@
+{
+  "at": "2026-11-01T15:30:18.089759Z",
+  "manifest": {
+    "release": {
+      "version": "0.4.0",
+      "protocolVersion": "2.0",
+      "sourceSha256": "ac168f59b19d729398ac305026f90386957c62afdf658e5806f4412802632d4c",
+      "builtAt": "2026-11-01T15:19:22.792Z"
+    },
+    "archiveSha256": "9e7ae5093edcb69447d265489f0937d47e026196dfe20ab51d2ef9362bc73975",
+    "archiveBytes": 484584,
+    "parts": [
+      "/private/tmp/mahjong-v4-preview-rc3-20261102.tar.gz.part0",
+      "/private/tmp/mahjong-v4-preview-rc3-20261102.tar.gz.part1"
+    ],
+    "assets": [
+      "index-BiO12CB8.js",
+      "index-CWMBFUy5.css"
+    ]
+  },
+  "backup": "/opt/mahjong/v4-preview-before-rc3-20261102.dump",
+  "preview": {
+    "ok": true,
+    "version": "0.4.0",
+    "buildId": "ac168f59b19d729398ac305026f90386957c62afdf658e5806f4412802632d4c",
+    "activeTables": 0
+  },
+  "formal": {
+    "ok": true,
+    "version": "0.3.0",
+    "buildId": "4fb38bace55a1f291ba857a35d5f904a874a0b01413aa6c7f31ad8d754aa2dc2",
+    "activeTables": 0
+  },
+  "change": "Bounded serialized expiry cleanup and retention-safe migration; 118 final regression tests passed",
+  "credentialsReplaced": false,
+  "passed": true
+}

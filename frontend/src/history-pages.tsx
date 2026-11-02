@@ -1,3 +1,4 @@
+import { Avatar } from "./Avatar";
 import React, { useEffect, useState } from "react";
 import { api } from "./api";
 import type {
@@ -113,8 +114,8 @@ export function History({
       <div className="eyebrow">每一桌，都有来处</div>
       <h1>{detail ? "比赛详情" : "历史战绩"}</h1>
       <p className="muted">
-        战绩绑定当前游客身份。清除浏览器会话后无法凭昵称找回。牌谱至少保存 30
-        天。
+        正式账号登录后可读取本环境内本人战绩；游客会话丢失仍无法凭昵称找回。牌谱至少保存
+        30 天。
       </p>
       {err && <p role="alert">{err}</p>}
       {detail ? (
@@ -134,6 +135,7 @@ export function History({
                 <div key={p.seat}>
                   <span>{p.rank === null ? "—" : `第 ${p.rank} 名`}</span>
                   <b>
+                    <Avatar id={p.avatarId} />
                     {p.displayName}
                     {p.userId === userId ? "（你）" : ""}
                   </b>
