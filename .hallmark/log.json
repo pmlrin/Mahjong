@@ -1,0 +1,80 @@
+[
+ {
+  "mode": "redesign",
+  "depth": "restyle",
+  "scope": "app",
+  "shape": "app screen",
+  "theme": "custom",
+  "axes": "light/roman-serif/cool",
+  "hero": "none (app screen)",
+  "nav": "navy top bar, seal and text links, identity right",
+  "footer": "one line",
+  "imagery": "product: real tiles",
+  "photos": [],
+  "entry": "lounge stage on indigo",
+  "fingerprint": "app/indigo-stage/seat-table/navy-rail-hand",
+  "sections": [
+   "lounge",
+   "room table",
+   "game rail",
+   "ledgers",
+   "account"
+  ],
+  "signature": "bone tiles with apricot backs on an indigo table",
+  "waived": [],
+  "prompt": "harmonious low-glare palette chosen by the owner from three real-page candidates",
+  "date": "2026-11-09"
+ },
+ {
+  "mode": "redesign",
+  "depth": "restyle",
+  "scope": "app",
+  "shape": "app screen",
+  "theme": "sticker",
+  "axes": "light/roman-serif/chromatic-magenta",
+  "hero": "none (app screen)",
+  "nav": "black top bar, seal and text links, identity right",
+  "footer": "one line",
+  "imagery": "product: real tiles",
+  "photos": [],
+  "entry": "lounge stage on pink",
+  "fingerprint": "app/pink-stage/seat-table/black-rail-hand",
+  "sections": [
+   "lounge",
+   "room table",
+   "game rail",
+   "ledgers",
+   "account"
+  ],
+  "signature": "bone tiles on a hot pink table with a black rail",
+  "waived": [],
+  "prompt": "loud saturated mahjong parlour recolor",
+  "date": "2026-11-09"
+ },
+ {
+  "mode": "redesign",
+  "depth": "full",
+  "scope": "app",
+  "shape": "app screen",
+  "theme": "brand",
+  "axes": "light/roman-serif/cool",
+  "hero": "none (app screen)",
+  "nav": "slim top bar, seal and text links, identity right",
+  "footer": "one line",
+  "imagery": "product: real tiles",
+  "photos": [],
+  "entry": "lounge stage on felt",
+  "fingerprint": "app/felt-stage/seat-table/rail-hand",
+  "sections": [
+   "lounge",
+   "room table",
+   "game rail",
+   "ledgers",
+   "account"
+  ],
+  "signature": "the dealt hand of real tiles on the felt edge",
+  "waived": [],
+  "prompt": "a private four-player riichi mahjong table for friends",
+  "date": "2026-11-09"
+ }
+]

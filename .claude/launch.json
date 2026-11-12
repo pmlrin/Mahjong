@@ -1,0 +1,50 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "mahjong-backend-preview",
+      "runtimeExecutable": "/usr/bin/env",
+      "runtimeArgs": [
+        "NODE_ENV=development",
+        "DATABASE_URL=",
+        "SQLITE_PATH=data/ui-preview/mahjong.sqlite",
+        "SESSION_COOKIE_NAME=mj_ui_preview_session",
+        "PUBLIC_ORIGIN=http://127.0.0.1:5173",
+        "node",
+        "--import",
+        "tsx",
+        "backend/src/server.ts"
+      ],
+      "port": 3000
+    },
+    {
+      "name": "mahjong-backend-3d",
+      "runtimeExecutable": "/usr/bin/env",
+      "runtimeArgs": [
+        "NODE_ENV=development",
+        "DATABASE_URL=",
+        "SQLITE_PATH=data/3d-preview/mahjong.sqlite",
+        "SESSION_COOKIE_NAME=mj_3d_preview_session",
+        "PUBLIC_ORIGIN=http://127.0.0.1:5173",
+        "PORT=3013",
+        "node",
+        "--import",
+        "tsx",
+        "backend/src/server.ts"
+      ],
+      "port": 3013
+    },
+    {
+      "name": "mahjong-ui-3d",
+      "runtimeExecutable": "/usr/bin/env",
+      "runtimeArgs": ["MJ_API_PORT=3013", "node", "node_modules/vite/bin/vite.js", "--config", "frontend/vite.config.ts"],
+      "port": 5173
+    },
+    {
+      "name": "mahjong-ui-preview",
+      "runtimeExecutable": "/usr/bin/env",
+      "runtimeArgs": ["node", "node_modules/vite/bin/vite.js", "--config", "frontend/vite.config.ts"],
+      "port": 5173
+    }
+  ]
+}
