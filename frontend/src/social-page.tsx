@@ -123,7 +123,7 @@ export function SocialPage({
   return (
     <main className="social-page">
       <button className="text-button" onClick={onBack}>
-        ← 返回牌桌或首页
+        返回牌桌或首页
       </button>
       <h1>好友与组局</h1>
       <p>好友码用于添加好友，六位房间邀请码用于入房，两者不能混用。</p>
@@ -168,7 +168,7 @@ export function SocialPage({
         </button>
       </nav>
       {tab === "friends" && (
-        <>
+        <section>
           <form
             className="friend-lookup"
             onSubmit={(e) => {
@@ -321,7 +321,7 @@ export function SocialPage({
               邀请不占座、不自动准备。只有真实空槽可接收，AI占位请先由房主移除。
             </p>
           )}
-        </>
+        </section>
       )}
       {tab === "requests" && (
         <>
@@ -409,10 +409,10 @@ export function SocialPage({
               )?.map((i) => (
                 <article className="social-card" key={i.invitationId}>
                   {person(direction === "received" ? i.sender : i.recipient)}
-                  <p>
-                    {i.format === "HANCHAN" ? "半庄战" : "东风战"} · 当前{" "}
-                    {i.occupants}/4 人 · 截止{" "}
-                    {new Date(i.expiresAt).toLocaleTimeString()}
+                  <p className="meta-row">
+                    <span>{i.format === "HANCHAN" ? "半庄战" : "东风战"}</span>
+                    <span>当前 {i.occupants}/4 人</span>
+                    <span>截止 {new Date(i.expiresAt).toLocaleTimeString()}</span>
                   </p>
                   <div className="social-actions">
                     {direction === "received" ? (

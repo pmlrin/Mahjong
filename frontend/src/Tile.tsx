@@ -98,11 +98,11 @@ export function Tile({
               x="20"
               y="27"
               className="tile-number"
-              fill={red ? "#b4493e" : "#243831"}
+              fill={red ? "var(--tile-red)" : "var(--tile-ink)"}
             >
               {number}
             </text>
-            <text x="20" y="49" className="tile-suit" fill="#b4493e">
+            <text x="20" y="49" className="tile-suit" fill="var(--tile-red)">
               萬
             </text>
           </>
@@ -116,12 +116,12 @@ export function Tile({
                 fill="none"
                 stroke={
                   red
-                    ? "#bc5140"
+                    ? "var(--tile-red)"
                     : i % 3 === 0
-                      ? "#b54f44"
+                      ? "var(--tile-red)"
                       : i % 3 === 1
-                        ? "#1b6355"
-                        : "#33475f"
+                        ? "var(--tile-green)"
+                        : "var(--tile-blue)"
                 }
                 strokeWidth={n === 1 ? 2.8 : 1.8}
               />
@@ -131,12 +131,12 @@ export function Tile({
                 r={n === 1 ? 5 : 1.3}
                 fill={
                   red
-                    ? "#bc5140"
+                    ? "var(--tile-red)"
                     : i % 3 === 0
-                      ? "#b54f44"
+                      ? "var(--tile-red)"
                       : i % 3 === 1
-                        ? "#1b6355"
-                        : "#33475f"
+                        ? "var(--tile-green)"
+                        : "var(--tile-blue)"
                 }
               />
             </g>
@@ -145,7 +145,7 @@ export function Tile({
           positions[n].map(([x, y], i) => (
             <g
               key={i}
-              stroke={red ? "#b4493e" : "#226c55"}
+              stroke={red ? "var(--tile-red)" : "var(--tile-green)"}
               strokeWidth="2.6"
               strokeLinecap="round"
             >
@@ -159,7 +159,7 @@ export function Tile({
             x="20"
             y="39"
             className="tile-honor"
-            fill={k === 32 ? "#226c55" : k === 33 ? "#b4493e" : "#2d413a"}
+            fill={k === 32 ? "var(--tile-green)" : k === 33 ? "var(--tile-red)" : "var(--tile-ink)"}
           >
             {["東", "南", "西", "北", "白", "發", "中"][k - 27]}
           </text>

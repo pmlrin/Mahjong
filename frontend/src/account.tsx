@@ -223,10 +223,10 @@ export function AccountPanel({
   return (
     <main className="account-page">
       <button className="text-button" onClick={onCancel}>
-        ← 返回牌桌或首页
+        返回牌桌或首页
       </button>
-      <div className="eyebrow">把这一桌，留在自己名下</div>
       <h1>{title}</h1>
+      <p className="page-sub">把这一桌，留在自己名下</p>
       {capabilities?.environment === "preview" && (
         <p className="account-notice">
           当前为预览环境，账号和战绩与正式站分别保存。
@@ -266,7 +266,7 @@ export function AccountPanel({
           <h2>{me?.displayName ?? "欢迎入座"}</h2>
           {me?.identityKind === "ACCOUNT" ? (
             <>
-              <p>正式账号 · {me.maskedEmail}</p>
+              <p>正式账号：{me.maskedEmail}</p>
               <AccountTools
                 key={me.userId}
                 userId={me.userId}

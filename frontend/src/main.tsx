@@ -563,7 +563,7 @@ function App() {
         <button className="brand" onClick={() => setScreen("home")}>
           <span className="brand-seal">一</span>
           <span>
-            一桌<span className="brand-en">ICHITAKU</span>
+            一桌<span className="brand-en">Ichitaku</span>
           </span>
         </button>
         <nav>
@@ -574,14 +574,27 @@ function App() {
             会客厅
           </button>
           {room && (
-            <button onClick={() => setScreen(room.matchId ? "game" : "room")}>
+            <button
+              className={screen === "room" || screen === "game" ? "active" : ""}
+              onClick={() => setScreen(room.matchId ? "game" : "room")}
+            >
               我的牌桌
             </button>
           )}
           {me && (
             <>
-              <button onClick={() => setScreen("history")}>历史战绩</button>
-              <button onClick={() => setScreen("stats")}>我的统计</button>
+              <button
+                className={screen === "history" ? "active" : ""}
+                onClick={() => setScreen("history")}
+              >
+                历史战绩
+              </button>
+              <button
+                className={screen === "stats" ? "active" : ""}
+                onClick={() => setScreen("stats")}
+              >
+                我的统计
+              </button>
             </>
           )}
           {me?.identityKind === "ACCOUNT" && capabilities?.friends && (
@@ -597,13 +610,26 @@ function App() {
               ) : null}
             </button>
           )}
-          <button onClick={() => setScreen("settings")}>设置</button>
-          <button onClick={showRules}>
-            玩法说明 <span>↗</span>
+          <button
+            className={screen === "settings" ? "active" : ""}
+            onClick={() => setScreen("settings")}
+          >
+            设置
+          </button>
+          <button
+            className={screen === "rules" ? "active" : ""}
+            onClick={showRules}
+          >
+            玩法说明
           </button>
         </nav>
         <div className="user">
-          <span className={`status-dot ${network ? "on" : ""}`} />
+          <span
+            className={`status-dot ${network ? "on" : ""}`}
+            role="img"
+            aria-label={network ? "已连接" : "未连接"}
+            title={network ? "已连接" : "未连接"}
+          />
           <button
             className="account-entry"
             aria-label="个人与账号"
@@ -621,8 +647,16 @@ function App() {
             className="icon-button"
             onClick={toggleSound}
             aria-label={sound ? "关闭音效" : "开启音效"}
+            aria-pressed={sound}
           >
-            {sound ? "♫" : "♩"}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z" />
+              {sound ? (
+                <path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11" />
+              ) : (
+                <path d="m16 9.5 5 5m0-5-5 5" />
+              )}
+            </svg>
           </button>
         </div>
       </header>
@@ -652,25 +686,24 @@ function App() {
         <main className="loading">正在为你留座…</main>
       ) : screen === "home" ? (
         <main className="lounge">
-          <div className="eyebrow">
-            <span /> 好友相聚，随时开桌
-          </div>
-          <div className="hero">
-            <section className="hero-copy">
-              <h1>
-                好牌局，
-                <br />从<span>一桌</span>开始<span className="period">。</span>
-              </h1>
-              <p className="intro">
-                把朋友聚在一起，让好时光慢一点。
-                <br />
-                一场轻松的四人立直麻将，等你落座。
-              </p>
-              <div className="hero-tags">
-                <span>四人立直</span>
-                <i /> <span>好友邀请</span>
-                <i />
-                <span>AI 随时补位</span>
+          <section className="lounge-stage">
+            <div className="lounge-inner">
+              <div className="hero-copy">
+                <h1>
+                  好牌局，
+                  <br />
+                  从一桌开始。
+                </h1>
+                <p className="intro">
+                  把朋友聚在一起，让好时光慢一点。
+                  <br />
+                  一场轻松的四人立直麻将，等你落座。
+                </p>
+                <ul className="hero-tags">
+                  <li>四人立直</li>
+                  <li>好友邀请</li>
+                  <li>AI 随时补位</li>
+                </ul>
               </div>
               {!me ? (
                 <form
@@ -680,6 +713,7 @@ function App() {
                     login();
                   }}
                 >
+                  <h2>好友相聚，随时开桌</h2>
                   <label htmlFor="nickname">先认识一下你</label>
                   <div className="entry-row">
                     <input
@@ -691,7 +725,7 @@ function App() {
                       autoComplete="nickname"
                     />
                     <button className="primary" disabled={busy || !name.trim()}>
-                      入座 <span>→</span>
+                      入座
                     </button>
                   </div>
                   <small>以游客身份进入，刷新后仍会为你保留座位。</small>
@@ -716,9 +750,10 @@ function App() {
                 </form>
               ) : (
                 <div className="entry-card">
+                  <h2>好友相聚，随时开桌</h2>
                   <p className="guest-hint">
                     {me.identityKind === "ACCOUNT"
-                      ? `正式账号 · ${me.maskedEmail}`
+                      ? `正式账号：${me.maskedEmail}`
                       : "游客身份，注册后可在其他浏览器登录"}
                   </p>
                   <div className="account-shortcuts">
@@ -757,7 +792,7 @@ function App() {
                       capabilities.maintenance
                     }
                   >
-                    开一张好友桌 <span>＋</span>
+                    开一张好友桌
                   </button>
                   <div className="join-line">
                     <input
@@ -768,10 +803,11 @@ function App() {
                       onChange={(e) => setCode(e.target.value.toUpperCase())}
                     />
                     <button
+                      className="secondary"
                       onClick={join}
                       disabled={busy || code.length !== 6 || !network}
                     >
-                      加入 <span>↗</span>
+                      加入
                     </button>
                   </div>
                   {(me.roomId || room) && (
@@ -786,69 +822,42 @@ function App() {
                         })
                       }
                     >
-                      返回我的牌桌 →
+                      返回我的牌桌
                     </button>
                   )}
                 </div>
               )}
-            </section>
-            <div className="hero-art" aria-hidden="true">
-              <div className="art-circle" />
-              <span className="art-caption">一期一会 · 一局一心</span>
-              <div className="art-table">
-                <div className="art-line" />
-                <span className="art-east">東</span>
-                <div className="art-center">
-                  一桌<small>GOOD COMPANY. GOOD GAME.</small>
-                </div>
-                <div className="art-hand">
-                  {[0, 4, 8, 36, 40, 44, 72, 76, 80, 112, 113, 128, 129].map(
-                    (t) => (
-                      <Tile key={t} tile={t} />
-                    ),
-                  )}
-                </div>
-                <div className="art-top">
-                  {Array.from({ length: 13 }, (_, i) => (
-                    <Tile key={i} back />
-                  ))}
-                </div>
-                <div className="art-discards">
-                  {[120, 96, 24, 116, 64, 32].map((t) => (
-                    <Tile key={t} tile={t} small />
-                  ))}
-                </div>
-                <div className="art-sticks">
-                  <i />
-                  <i />
-                </div>
-              </div>
-              <div className="art-note">
-                <span className="note-dot" />
-                无需下载，打开即玩
-              </div>
-              <span className="art-year">EST. 2026</span>
             </div>
-          </div>
+            <div className="hero-art">
+              <div className="art-hand" aria-hidden="true">
+                {[0, 4, 8, 36, 40, 44, 72, 76, 80, 112, 113, 128, 129].map(
+                  (t) => (
+                    <Tile key={t} tile={t} />
+                  ),
+                )}
+              </div>
+            </div>
+          </section>
           <div className="lounge-bottom">
-            <span className="section-caption">把时间留给牌局</span>
-            <div>
-              <span className="feature-num">01</span>
+            <div className="lounge-note">
+              <h2>把时间留给牌局</h2>
               <p>
-                邀朋友，开一桌<small>分享邀请码，熟悉的人围坐一起。</small>
+                一期一会，一局一心。
+                <br />
+                无需下载，打开即玩。
               </p>
             </div>
-            <div>
-              <span className="feature-num">02</span>
-              <p>
-                少个人，也尽兴<small>AI 补齐空位，一个人也能练习。</small>
-              </p>
+            <div className="lounge-feature">
+              <h3>邀朋友，开一桌</h3>
+              <p>分享邀请码，熟悉的人围坐一起。</p>
             </div>
-            <div>
-              <span className="feature-num">03</span>
-              <p>
-                一局之后，再回味<small>留存牌谱，回看每一次选择。</small>
-              </p>
+            <div className="lounge-feature">
+              <h3>少个人，也尽兴</h3>
+              <p>AI 补齐空位，一个人也能练习。</p>
+            </div>
+            <div className="lounge-feature">
+              <h3>一局之后，再回味</h3>
+              <p>留存牌谱，回看每一次选择。</p>
             </div>
           </div>
         </main>
@@ -856,67 +865,74 @@ function App() {
         <main className="room-page">
           <div className="page-title">
             <div>
-              <div className="eyebrow">等朋友的时间，也很好</div>
               <h1>这一桌，等你到齐。</h1>
-            </div>
-            <div className="room-invite">
-              <small>房间邀请码</small>
-              <strong>{room.inviteCode}</strong>
-              <button
-                onClick={() =>
-                  run(async () => {
-                    await navigator.clipboard.writeText(
-                      location.origin +
-                        import.meta.env.BASE_URL +
-                        "?invite=" +
-                        room.inviteCode,
-                    );
-                    setError("邀请链接已复制，发给朋友就能入桌");
-                  })
-                }
-              >
-                复制邀请链接 ↗
-              </button>
+              <p className="page-sub">等朋友的时间，也很好</p>
             </div>
           </div>
-          {me?.identityKind === "ACCOUNT" &&
-            capabilities?.friendInvitations &&
-            room.hostUserId === me.userId && (
-              <button className="secondary" onClick={() => setScreen("social")}>
-                邀请站内好友
-              </button>
-            )}
-          <div className="room-meta">
-            <span>四人立直 · {formatName(room.config.format)}</span>
-            {room.hostUserId === me?.userId && room.status === "WAITING" && (
-              <label>
-                赛制{" "}
-                <select
-                  aria-label="房间赛制"
-                  value={room.config.format}
-                  disabled={busy}
-                  onChange={(e) =>
-                    roomAction("/config", "PUT", {
-                      format: e.target.value,
-                      expectedRoomVersion: room.roomVersion,
+          <div className="seats">
+            <div className="room-center">
+              <div className="room-invite">
+                <small>房间邀请码</small>
+                <strong>{room.inviteCode}</strong>
+                <button
+                  className="secondary"
+                  onClick={() =>
+                    run(async () => {
+                      await navigator.clipboard.writeText(
+                        location.origin +
+                          import.meta.env.BASE_URL +
+                          "?invite=" +
+                          room.inviteCode,
+                      );
+                      setError("邀请链接已复制，发给朋友就能入桌");
                     })
                   }
                 >
-                  {capabilities?.formats.map((f) => (
-                    <option key={f} value={f}>
-                      {formatName(f)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
-            <span>25,000 点起始 · 赤宝牌 · 食断</span>
-            <span>行动 15 秒 / 响应 8 秒</span>
-          </div>
-          <div className="seats">
+                  复制邀请链接
+                </button>
+              </div>
+              {me?.identityKind === "ACCOUNT" &&
+                capabilities?.friendInvitations &&
+                room.hostUserId === me.userId && (
+                  <button
+                    className="secondary"
+                    onClick={() => setScreen("social")}
+                  >
+                    邀请站内好友
+                  </button>
+                )}
+              <div className="room-meta">
+                <span>四人立直，{formatName(room.config.format)}</span>
+                {room.hostUserId === me?.userId &&
+                  room.status === "WAITING" && (
+                    <label>
+                      赛制{" "}
+                      <select
+                        aria-label="房间赛制"
+                        value={room.config.format}
+                        disabled={busy}
+                        onChange={(e) =>
+                          roomAction("/config", "PUT", {
+                            format: e.target.value,
+                            expectedRoomVersion: room.roomVersion,
+                          })
+                        }
+                      >
+                        {capabilities?.formats.map((f) => (
+                          <option key={f} value={f}>
+                            {formatName(f)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                <span>25,000 点起始，赤宝牌，食断</span>
+                <span>行动 15 秒 / 响应 8 秒</span>
+              </div>
+            </div>
             {room.slots.map((m, i) => (
               <section className={`seat-card ${m ? "occupied" : ""}`} key={i}>
-                <span className="seat-index">SEAT 0{i + 1}</span>
+                <span className="seat-index">{i + 1} 号位</span>
                 <div className="seat-avatar">
                   {m ? (
                     m.participantKind === "BOT" ? (
@@ -936,62 +952,64 @@ function App() {
                       : `${m.userId === room.hostUserId ? "房主 · " : ""}${m.userId === me?.userId ? "你" : m.connected ? "在线" : "暂时离线"}`
                     : "邀请一位朋友，或让 AI 来陪你"}
                 </p>
-                {m ? (
-                  <>
-                    <span className={`ready ${m.ready ? "yes" : ""}`}>
-                      {m.ready ? "已准备" : "等待准备"}
-                    </span>
-                    {m.participantKind === "BOT" &&
-                      room.hostUserId === me?.userId && (
-                        <>
-                          <label>
-                            难度{" "}
-                            <select
-                              aria-label={`座位 ${i + 1} AI 难度`}
-                              value={m.botLevel ?? "STANDARD"}
+                <div className="seat-controls">
+                  {m ? (
+                    <>
+                      <span className={`ready ${m.ready ? "yes" : ""}`}>
+                        {m.ready ? "已准备" : "等待准备"}
+                      </span>
+                      {m.participantKind === "BOT" &&
+                        room.hostUserId === me?.userId && (
+                          <>
+                            <label>
+                              难度{" "}
+                              <select
+                                aria-label={`座位 ${i + 1} AI 难度`}
+                                value={m.botLevel ?? "STANDARD"}
+                                disabled={busy}
+                                onChange={(e) =>
+                                  roomAction("/slots/" + i + "/bot", "PUT", {
+                                    botLevel: e.target.value,
+                                    expectedRoomVersion: room.roomVersion,
+                                  })
+                                }
+                              >
+                                {capabilities?.botLevels.map((level) => (
+                                  <option key={level} value={level}>
+                                    {level === "BASIC" ? "基础" : "标准"}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <button
+                              className="text-button"
                               disabled={busy}
-                              onChange={(e) =>
-                                roomAction("/slots/" + i + "/bot", "PUT", {
-                                  botLevel: e.target.value,
-                                  expectedRoomVersion: room.roomVersion,
-                                })
+                              onClick={() =>
+                                roomAction("/slots/" + i + "/bot", "DELETE")
                               }
                             >
-                              {capabilities?.botLevels.map((level) => (
-                                <option key={level} value={level}>
-                                  {level === "BASIC" ? "基础" : "标准"}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
-                          <button
-                            className="text-button"
-                            disabled={busy}
-                            onClick={() =>
-                              roomAction("/slots/" + i + "/bot", "DELETE")
-                            }
-                          >
-                            移除 AI
-                          </button>
-                        </>
-                      )}
-                  </>
-                ) : room.hostUserId === me?.userId ? (
-                  <button
-                    className="secondary"
-                    disabled={busy}
-                    onClick={() =>
-                      roomAction("/slots/" + i + "/bot", "PUT", {
-                        botLevel: "STANDARD",
-                        expectedRoomVersion: room.roomVersion,
-                      })
-                    }
-                  >
-                    ＋ 邀请 AI
-                  </button>
-                ) : (
-                  <span className="muted">等待朋友加入</span>
-                )}
+                              移除 AI
+                            </button>
+                          </>
+                        )}
+                    </>
+                  ) : room.hostUserId === me?.userId ? (
+                    <button
+                      className="secondary"
+                      disabled={busy}
+                      onClick={() =>
+                        roomAction("/slots/" + i + "/bot", "PUT", {
+                          botLevel: "STANDARD",
+                          expectedRoomVersion: room.roomVersion,
+                        })
+                      }
+                    >
+                      ＋ 邀请 AI
+                    </button>
+                  ) : (
+                    <span className="muted">等待朋友加入</span>
+                  )}
+                </div>
               </section>
             ))}
           </div>
@@ -1009,7 +1027,7 @@ function App() {
                 })
               }
             >
-              ← 离开房间
+              离开房间
             </button>
             <span>座位将在开始时随机分配</span>
             <button
@@ -1049,7 +1067,7 @@ function App() {
                   })
                 }
               >
-                开始对局 →
+                开始对局
               </button>
             )}
           </div>
@@ -1203,9 +1221,9 @@ function App() {
       )}
       {screen !== "game" && (
         <footer>
-          <span>一桌 · 与好朋友，打好时光。</span>
+          <span>一桌，与好朋友，打好时光。</span>
           <span>
-            四人立直麻将 <i> / </i> ICHITAKU
+            四人立直麻将 <i> / </i> Ichitaku
           </span>
         </footer>
       )}
@@ -1364,21 +1382,21 @@ function Replay({
   return (
     <main className="replay-page">
       <button className="text-button" onClick={onBack}>
-        ← 返回成绩
+        返回成绩
       </button>
       <div className="page-title">
         <div>
-          <div className="eyebrow">再看一次，那时的选择</div>
           <h1>本场牌谱</h1>
+          <p className="page-sub">再看一次，那时的选择</p>
         </div>
         <button className="secondary" disabled={!data} onClick={download}>
-          导出 JSON ↓
+          导出 JSON
         </button>
       </div>
       {data && (
-        <p className="muted">
-          {formatName(data.format ?? "EAST_ONLY")} · 牌谱版本{" "}
-          {data.replayVersion ?? "1.0"}
+        <p className="muted meta-row">
+          <span>{formatName(data.format ?? "EAST_ONLY")}</span>
+          <span>牌谱版本 {data.replayVersion ?? "1.0"}</span>
         </p>
       )}
       {err && <p role="alert">{err}</p>}
@@ -1430,9 +1448,9 @@ function Replay({
             {data.players.map((p) => (
               <section key={p.seat}>
                 <h3>
-                  <Avatar id={p.avatarId} /> {p.displayName} ·{" "}
-                  {state.points[p.seat].toLocaleString()} 点
-                  <small>{p.seat === seat ? " · 当前视角" : ""}</small>
+                  <Avatar id={p.avatarId} /> {p.displayName}
+                  <span>{state.points[p.seat].toLocaleString()} 点</span>
+                  <small>{p.seat === seat ? "当前视角" : ""}</small>
                 </h3>
                 <div className="replay-hand">
                   {state.tiles[p.seat].map((t) => (
@@ -1471,7 +1489,7 @@ function Replay({
                 setStep(0);
               }}
             >
-              ↶ 局首
+              局首
             </button>
             <button
               className="secondary"
@@ -1481,10 +1499,10 @@ function Replay({
                 setStep((s) => Math.max(0, s - 1));
               }}
             >
-              ← 上一步
+              上一步
             </button>
             <button className="primary" onClick={() => setPlay(!play)}>
-              {play ? "暂停 Ⅱ" : "播放 ▷"}
+              {play ? "暂停" : "播放"}
             </button>
             <button
               className="secondary"
@@ -1494,7 +1512,7 @@ function Replay({
                 setStep((s) => Math.min(events.length - 1, s + 1));
               }}
             >
-              下一步 →
+              下一步
             </button>
             <span>
               {step + 1} / {events.length}
@@ -1513,7 +1531,7 @@ function Replay({
             }}
           />
           <p className="replay-event">
-            事件 #{data.events.indexOf(current) + 1} ·{" "}
+            第 {data.events.indexOf(current) + 1} 步：
             {current ? eventLabel(current, data) : ""}
           </p>
           <details className="key-events" open>
@@ -1528,7 +1546,7 @@ function Replay({
                     setStep(index);
                   }}
                 >
-                  #{data.events.indexOf(e) + 1} · {eventLabel(e, data)}
+                  第 {data.events.indexOf(e) + 1} 步：{eventLabel(e, data)}
                 </button>
               ))}
             </div>

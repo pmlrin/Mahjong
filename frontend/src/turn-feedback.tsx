@@ -39,7 +39,7 @@ export function LatestDiscard({ view }: { view: MatchView }) {
         <p>
           {source.source === "KAN" ? "声明杠：" : "打出："}
           <b>{tileName(source.tile)}</b>
-          {called && <em> · 已被鸣走</em>}
+          {called && <em>，已被鸣走</em>}
         </p>
       </div>
     </aside>
@@ -135,7 +135,7 @@ export function CallChoices({
                 </span>
               </span>
             </div>
-            <span className="confirm-call">确认{names[type]} →</span>
+            <span className="confirm-call">确认{names[type]}</span>
           </button>
         ))}
       </div>

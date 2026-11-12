@@ -7,7 +7,10 @@ import { TableSurface } from "../frontend/src/TableSurface";
 import type { Meld, Seat } from "../shared/types";
 const directory = "data/table-layout";
 mkdirSync(directory, { recursive: true });
-const css = readFileSync("frontend/src/style.css", "utf8");
+const css = ["tokens", "base", "style"]
+  .map((name) => readFileSync(`frontend/src/${name}.css`, "utf8"))
+  .join("\n")
+  .replace(/@import[^;]+;/g, "");
 for (const stress of [false, true]) {
   const game = createGame(
     "layout-fixture",

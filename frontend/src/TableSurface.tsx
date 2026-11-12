@@ -45,7 +45,7 @@ export function TableSurface({ view: v }: { view: MatchView }) {
                 : p.participantKind === "BOT"
                   ? "AI 牌友"
                   : !p.connected
-                    ? "离线 · 托管"
+                    ? "离线，托管中"
                     : p.effectiveControl === "AI"
                       ? "AI 托管"
                       : "在线"}
@@ -124,12 +124,12 @@ export function TableSurface({ view: v }: { view: MatchView }) {
           })}
         </div>
       </div>
-      <div className="self-info">
+      <div className={`self-info ${hand.activeSeat === self && hand.phase === "SELF_ACTION" ? "turn" : ""}`}>
         <Avatar id={v.players[self].avatarId} />
         <span className="wind-badge">{wind(own.seatWind)}</span>
         <span>
           {v.players[self].displayName}
-          <small>你{own.riichi !== "NONE" ? " · 已立直" : ""}</small>
+          <small>你{own.riichi !== "NONE" ? "，已立直" : ""}</small>
         </span>
         <strong>{v.players[self].points.toLocaleString()}</strong>
         <Melds melds={own.melds} />

@@ -143,12 +143,13 @@ export function Game({
     <main className="play-page">
       <div className="game-topline" inert={!!modal}>
         <span>
-          <span className={`status-dot ${network ? "on" : ""}`} />
+          <span
+            className={`status-dot ${network ? "on" : ""}`}
+            aria-hidden="true"
+          />
           {network ? "牌桌已连接" : "正在重连，当前操作时间仍会继续"}
         </span>
-        <span>
-          {formatName(v.format)} <i>·</i> 四人立直
-        </span>
+        <span>{formatName(v.format)}，四人立直</span>
         <button
           className="text-button"
           onClick={() => {
@@ -162,10 +163,10 @@ export function Game({
               .finally(() => a.resume());
           }}
         >
-          {v.self.desiredControl === "AI" ? "恢复人工" : "交给 AI 托管"} ↗
+          {v.self.desiredControl === "AI" ? "恢复人工" : "交给 AI 托管"}
         </button>
       </div>
-      <div className="portrait-hint">转为横屏，牌桌看得更清楚 ↻</div>
+      <div className="portrait-hint">转为横屏，牌桌看得更清楚</div>
       {v.status === "ABORTED" && (
         <div className="takeover">
           <p>本场因技术原因中止，不计入有效战绩。请另开一桌继续。</p>
@@ -185,6 +186,153 @@ export function Game({
         aria-label="牌桌操作区域"
         onKeyDownCapture={controls.keydown}
       >
+        <div className="hand-rack">
+          <div className="action-row">
+            <div className="action-hint">
+              {target && d ? (
+                <ResponseSource source={target} prompt={actionPrompt} />
+              ) : (
+                actionPrompt
+              )}
+              {Object.values(v.self.furiten).some(Boolean) && (
+                <span className="furiten">振听：不可荣和，可有役自摸</span>
+              )}
+            </div>
+            <div className="action-buttons">
+              {time !== null && (
+                <span className={`countdown ${time <= 5 ? "urgent" : ""}`}>
+                  {time}
+                  <small>秒</small>
+                </span>
+              )}
+              {options.some((o) => o.type === "RIICHI_DISCARD") && (
+                <button
+                  className={`secondary ${riichi ? "chosen" : ""}`}
+                  disabled={!can}
+                  onClick={() => a.toggleRiichi()}
+                >
+                  立直
+                </button>
+              )}
+              {unique.map((type) => (
+                <button
+                  key={type}
+                  className={
+                    type === "RON" || type === "TSUMO"
+                      ? "primary win-button"
+                      : "secondary"
+                  }
+                  disabled={
+                    !can ||
+                    (a.noCall && ["CHI", "PON", "DAIMINKAN"].includes(type))
+                  }
+                  title={
+                    a.noCall && ["CHI", "PON", "DAIMINKAN"].includes(type)
+                      ? "请先关闭不鸣牌"
+                      : undefined
+                  }
+                  onClick={() => (type === "PASS" ? a.pass() : a.open([type]))}
+                >
+                  {actionNames[type]}
+                </button>
+              ))}
+              {options.some((o) => o.type === "DISCARD") && (
+                <button
+                  className="primary discard-button"
+                  disabled={!can || !selectedOption}
+                  onClick={() => a.confirm()}
+                >
+                  {riichi ? "立直并打出" : "打出"}
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="own-hand">
+            {tiles.map((t) => (
+              <Tile
+                key={t}
+                tile={t}
+                selected={selected === t}
+                disabled={
+                  !can ||
+                  !options.some(
+                    (o) =>
+                      o.type === (riichi ? "RIICHI_DISCARD" : "DISCARD") &&
+                      o.tile === t,
+                  )
+                }
+                onPointerDown={(e) => controls.tilePointerDown(e, t)}
+                onClick={(e) => controls.tileClick(e, t)}
+              />
+            ))}
+            {v.self.drawnTile !== null && (
+              <Tile
+                tile={v.self.drawnTile}
+                selected={selected === v.self.drawnTile}
+                disabled={
+                  !can ||
+                  !options.some(
+                    (o) =>
+                      o.type === (riichi ? "RIICHI_DISCARD" : "DISCARD") &&
+                      o.tile === v.self.drawnTile,
+                  )
+                }
+                onPointerDown={(e) =>
+                  controls.tilePointerDown(e, v.self.drawnTile!)
+                }
+                onClick={(e) => controls.tileClick(e, v.self.drawnTile!)}
+                mark
+              />
+            )}
+          </div>
+          <div className="hand-footer">
+            <span>
+              {own.riichi === "ESTABLISHED"
+                ? "立直后只能摸切，或选择合法和牌与暗杠"
+                : a.quick
+                  ? "单击即出牌，立直选牌后确认"
+                  : "点选手牌，点击打出"}
+            </span>
+            <span>
+              {wind(own.seatWind)}家 / {hand.handIndex} 次配牌
+            </span>
+          </div>
+        </div>
+        <div
+          className={`auto-status ${a.autoDiscard || a.noCall ? "enabled" : ""}`}
+        >
+          <span role="status" aria-live="polite">
+            {a.autoStatus}
+          </span>
+          {(a.autoDiscard || a.noCall) && (
+            <>
+              <button
+                className="secondary"
+                onClick={() => a.intervene()}
+                disabled={!can}
+              >
+                本次手动
+              </button>
+              <button className="text-button" onClick={() => a.stopAutomatic()}>
+                停止自动操作
+              </button>
+            </>
+          )}
+          {a.lock?.status === "unknown" && (
+            <button
+              className="secondary"
+              disabled={!network || !a.fresh}
+              onClick={() => a.recover(true)}
+            >
+              查询／恢复原动作
+            </button>
+          )}
+          {!a.fresh && network && (
+            <button className="text-button" onClick={() => a.synchronize(true)}>
+              重新同步
+            </button>
+          )}
+        </div>
         <div className="table-controls" aria-label="牌桌操作设置">
           <label>
             <input
@@ -276,151 +424,6 @@ export function Game({
         {controls.storageWarning && (
           <p role="status">{controls.storageWarning}</p>
         )}
-        <div
-          className={`auto-status ${a.autoDiscard || a.noCall ? "enabled" : ""}`}
-        >
-          <span role="status" aria-live="polite">
-            {a.autoStatus}
-          </span>
-          {(a.autoDiscard || a.noCall) && (
-            <>
-              <button
-                className="secondary"
-                onClick={() => a.intervene()}
-                disabled={!can}
-              >
-                本次手动
-              </button>
-              <button className="text-button" onClick={() => a.stopAutomatic()}>
-                停止自动操作
-              </button>
-            </>
-          )}
-          {a.lock?.status === "unknown" && (
-            <button
-              className="secondary"
-              disabled={!network || !a.fresh}
-              onClick={() => a.recover(true)}
-            >
-              查询／恢复原动作
-            </button>
-          )}
-          {!a.fresh && network && (
-            <button className="text-button" onClick={() => a.synchronize(true)}>
-              重新同步
-            </button>
-          )}
-        </div>
-        <div className="action-row">
-          <div className="action-hint">
-            {target && d ? (
-              <ResponseSource source={target} prompt={actionPrompt} />
-            ) : (
-              actionPrompt
-            )}
-            {Object.values(v.self.furiten).some(Boolean) && (
-              <span className="furiten">振听：不可荣和，可有役自摸</span>
-            )}
-          </div>
-          <div className="action-buttons">
-            {time !== null && (
-              <span className={`countdown ${time <= 5 ? "urgent" : ""}`}>
-                {time}
-                <small>秒</small>
-              </span>
-            )}
-            {options.some((o) => o.type === "RIICHI_DISCARD") && (
-              <button
-                className={`secondary ${riichi ? "chosen" : ""}`}
-                disabled={!can}
-                onClick={() => a.toggleRiichi()}
-              >
-                立直
-              </button>
-            )}
-            {unique.map((type) => (
-              <button
-                key={type}
-                className={
-                  type === "RON" || type === "TSUMO"
-                    ? "primary win-button"
-                    : "secondary"
-                }
-                disabled={
-                  !can ||
-                  (a.noCall && ["CHI", "PON", "DAIMINKAN"].includes(type))
-                }
-                title={
-                  a.noCall && ["CHI", "PON", "DAIMINKAN"].includes(type)
-                    ? "请先关闭不鸣牌"
-                    : undefined
-                }
-                onClick={() => (type === "PASS" ? a.pass() : a.open([type]))}
-              >
-                {actionNames[type]}
-              </button>
-            ))}
-            {options.some((o) => o.type === "DISCARD") && (
-              <button
-                className="primary discard-button"
-                disabled={!can || !selectedOption}
-                onClick={() => a.confirm()}
-              >
-                {riichi ? "立直并打出" : "打出"} <span>↑</span>
-              </button>
-            )}
-          </div>
-        </div>
-        <div className="own-hand">
-          {tiles.map((t) => (
-            <Tile
-              key={t}
-              tile={t}
-              selected={selected === t}
-              disabled={
-                !can ||
-                !options.some(
-                  (o) =>
-                    o.type === (riichi ? "RIICHI_DISCARD" : "DISCARD") &&
-                    o.tile === t,
-                )
-              }
-              onPointerDown={(e) => controls.tilePointerDown(e, t)}
-              onClick={(e) => controls.tileClick(e, t)}
-            />
-          ))}
-          {v.self.drawnTile !== null && (
-            <Tile
-              tile={v.self.drawnTile}
-              selected={selected === v.self.drawnTile}
-              disabled={
-                !can ||
-                !options.some(
-                  (o) =>
-                    o.type === (riichi ? "RIICHI_DISCARD" : "DISCARD") &&
-                    o.tile === v.self.drawnTile,
-                )
-              }
-              onPointerDown={(e) =>
-                controls.tilePointerDown(e, v.self.drawnTile!)
-              }
-              onClick={(e) => controls.tileClick(e, v.self.drawnTile!)}
-              mark
-            />
-          )}
-        </div>
-        <div className="hand-footer">
-          <span>
-            {own.riichi === "ESTABLISHED"
-              ? "立直后只能摸切，或选择合法和牌与暗杠"
-              : a.quick
-                ? "单击即出牌 · 立直选牌后确认"
-                : "点选手牌 · 点击打出"}
-          </span>
-          <span>
-            {wind(own.seatWind)}家 / {hand.handIndex} 次配牌
-          </span>
-        </div>
       </section>
       {modal && (
         <div className="modal-shade action-modal-shade">
@@ -550,10 +553,10 @@ export function Game({
       {hand.phase === "HAND_RESULT" && v.lastHandResult && (
         <div className="modal-shade result-shade">
           <section className="modal result-modal">
-            <div className="eyebrow">这一局，落定</div>
             <h2>
               {resultNames[v.lastHandResult.reason] ?? v.lastHandResult.reason}
             </h2>
+            <p className="modal-sub">这一局，落定</p>
             <HandResult
               result={v.lastHandResult}
               view={v}
@@ -561,7 +564,7 @@ export function Game({
               setDetails={setDetails}
             />
             <p className="auto-next">
-              {v.matchResult ? "即将显示整场成绩" : "下一局即将开始"} ·{" "}
+              {v.matchResult ? "即将显示整场成绩" : "下一局即将开始"}，{" "}
               {Math.max(
                 0,
                 Math.ceil(
@@ -576,8 +579,8 @@ export function Game({
       {finished && v.matchResult && (
         <div className="modal-shade">
           <section className="modal final-modal">
-            <div className="eyebrow">一场好时光，感谢同桌</div>
             <h2>本场结算</h2>
+            <p className="modal-sub">一场好时光，感谢同桌</p>
             <p className="muted">{endNames[v.matchResult.reason]}</p>
             <div className="rankings">
               {[...v.players]
@@ -595,7 +598,7 @@ export function Game({
                     </span>
                     <span>
                       <Avatar id={p.avatarId} /> {p.displayName}
-                      {p.seat === self ? " · 你" : ""}
+                      {p.seat === self ? "（你）" : ""}
                     </span>
                     <strong>{p.points.toLocaleString()}</strong>
                     <small>
@@ -607,17 +610,17 @@ export function Game({
             </div>
             <div className="final-actions">
               <button className="secondary" onClick={onReplay}>
-                回看本场牌谱 ↗
+                回看本场牌谱
               </button>
               {onRematch ? (
                 <button className="primary" onClick={onRematch}>
-                  同桌再战 →
+                  同桌再战
                 </button>
               ) : (
                 <p>等待房主发起同桌再战</p>
               )}
               <button className="text-button" onClick={onNew}>
-                另开一桌 ＋
+                另开一桌
               </button>
             </div>
           </section>
@@ -647,7 +650,7 @@ function HandResult({
               {w.method === "TSUMO"
                 ? "自摸"
                 : w.method === "RON"
-                  ? `荣和 · ${v.players[w.sourceSeat!].displayName} 放铳`
+                  ? `荣和，${v.players[w.sourceSeat!].displayName} 放铳`
                   : "流局满贯"}
             </small>
           </h3>
@@ -678,7 +681,9 @@ function HandResult({
                 ? "满贯"
                 : `${w.han} 番 ${w.fu} 符`}{" "}
             <small>
-              宝牌 {w.dora.omote} · 赤 {w.dora.aka} · 里 {w.dora.ura}
+              <span>宝牌 {w.dora.omote}</span>
+              <span>赤 {w.dora.aka}</span>
+              <span>里 {w.dora.ura}</span>
             </small>
           </div>
         </div>

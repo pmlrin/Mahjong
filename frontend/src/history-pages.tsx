@@ -111,8 +111,8 @@ export function History({
   }
   return (
     <main className="history-page">
-      <div className="eyebrow">每一桌，都有来处</div>
       <h1>{detail ? "比赛详情" : "历史战绩"}</h1>
+      <p className="page-sub">每一桌，都有来处</p>
       <p className="muted">
         正式账号登录后可读取本环境内本人战绩；游客会话丢失仍无法凭昵称找回。牌谱至少保存
         30 天。
@@ -121,19 +121,22 @@ export function History({
       {detail ? (
         <>
           <button className="text-button" onClick={() => setDetail(null)}>
-            ← 返回战绩
+            返回战绩
           </button>
-          <p>
-            {new Date(detail.finishedAt).toLocaleString()} ·{" "}
-            {formatName(detail.format)} · {modeName(detail.mode)} ·{" "}
-            {detail.status === "ABORTED" ? "技术中止，不计入统计" : "已结束"}
+          <p className="meta-row">
+            <span>{new Date(detail.finishedAt).toLocaleString()}</span>
+            <span>{formatName(detail.format)}</span>
+            <span>{modeName(detail.mode)}</span>
+            <span>
+              {detail.status === "ABORTED" ? "技术中止，不计入统计" : "已结束"}
+            </span>
           </p>
           <div className="score-table">
             {[...detail.members]
               .sort((a, b) => (a.rank ?? 9) - (b.rank ?? 9))
               .map((p) => (
                 <div key={p.seat}>
-                  <span>{p.rank === null ? "—" : `第 ${p.rank} 名`}</span>
+                  <span>{p.rank === null ? "无名次" : `第 ${p.rank} 名`}</span>
                   <b>
                     <Avatar id={p.avatarId} />
                     {p.displayName}
@@ -141,7 +144,7 @@ export function History({
                   </b>
                   <span>
                     {p.participantKind === "BOT"
-                      ? `${p.botLevel === "BASIC" ? "基础" : "标准"} AI · ${p.botPolicyVersion}`
+                      ? `${p.botLevel === "BASIC" ? "基础" : "标准"} AI（${p.botPolicyVersion}）`
                       : "真人"}
                   </span>
                   <strong>{p.points.toLocaleString()}</strong>
@@ -158,7 +161,7 @@ export function History({
               className="primary"
               onClick={() => onReplay(detail.matchId)}
             >
-              查看完整牌谱 →
+              查看完整牌谱
             </button>
           ) : (
             <p className="muted">
@@ -180,7 +183,7 @@ export function History({
                       >
                     )[h.roundWind]
                   }
-                  {h.roundNumber}局 · {h.honba}本场
+                  {h.roundNumber}局，{h.honba}本场
                 </strong>
                 <p>
                   {h.pointsAfter
@@ -195,7 +198,7 @@ export function History({
                     className="text-button"
                     onClick={() => onReplay(detail.matchId, h.handId)}
                   >
-                    回看这一局 →
+                    回看这一局
                   </button>
                 )}
               </article>
@@ -219,14 +222,15 @@ export function History({
                   key={s.matchId}
                   onClick={() => open(s.matchId)}
                 >
-                  <small>
-                    {new Date(s.finishedAt).toLocaleString()} ·{" "}
-                    {formatName(s.format)} · {modeName(s.mode)}
+                  <small className="meta-row">
+                    <span>{new Date(s.finishedAt).toLocaleString()}</span>
+                    <span>{formatName(s.format)}</span>
+                    <span>{modeName(s.mode)}</span>
                   </small>
                   <strong>
                     {s.status === "ABORTED"
                       ? "技术中止"
-                      : `第 ${self?.rank} 名 · ${self?.points.toLocaleString()} 点（${signed(self?.netPoints ?? 0)}）`}
+                      : `第 ${self?.rank} 名，${self?.points.toLocaleString()} 点（${signed(self?.netPoints ?? 0)}）`}
                   </strong>
                   <span>
                     {s.members
@@ -235,12 +239,12 @@ export function History({
                         (p) =>
                           p.displayName +
                           (p.participantKind === "BOT"
-                            ? ` · ${p.botLevel === "BASIC" ? "基础" : "标准"} AI`
+                            ? `（${p.botLevel === "BASIC" ? "基础" : "标准"} AI）`
                             : ""),
                       )
                       .join(" / ")}
                   </span>
-                  <span>查看详情 →</span>
+                  <span>查看详情</span>
                 </button>
               );
             })}
@@ -287,8 +291,8 @@ export function Stats() {
     x === null ? "暂无数据" : `${(x * 100).toFixed(1)}%`;
   return (
     <main className="history-page">
-      <div className="eyebrow">看见自己的步调</div>
       <h1>我的统计</h1>
+      <p className="page-sub">看见自己的步调</p>
       <Filters
         format={format}
         mode={mode}
@@ -299,9 +303,13 @@ export function Stats() {
       {err && <p role="alert">{err}</p>}
       {data ? (
         <>
-          <p>
-            最近 30 天 · {new Date(data.from).toLocaleDateString()} —{" "}
-            {new Date(data.to).toLocaleDateString()} · 样本 {data.count} 场
+          <p className="meta-row">
+            <span>最近 30 天</span>
+            <span>
+              {new Date(data.from).toLocaleDateString()} 至{" "}
+              {new Date(data.to).toLocaleDateString()}
+            </span>
+            <span>样本 {data.count} 场</span>
           </p>
           <div className="stats-grid">
             {[
@@ -333,7 +341,7 @@ export function Stats() {
                 <span>第 {d.rank} 名</span>
                 <progress max="1" value={d.rate ?? 0} />
                 <span>
-                  {d.count} 场 · {rate(d.rate)}
+                  {d.count} 场，{rate(d.rate)}
                 </span>
               </div>
             ))}

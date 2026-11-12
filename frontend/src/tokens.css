@@ -1,0 +1,46 @@
+:root {
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px; --space-4xl: 144px;
+  --text-2xs: 0.6875rem; --text-xs: 0.75rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.2rem; --text-xl: 1.44rem; --text-2xl: 1.728rem; --text-3xl: 2.074rem;
+  --text-display-s: 1.44rem; --text-display: clamp(1.875rem, 1.5rem + 1.4vw, 2.5rem); --text-section: 1.44rem; --text-title: 1.2rem; --text-lead: 1rem;
+  --text-hero: clamp(2.75rem, 1.8rem + 3.6vw, 4.75rem);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
+  --color-error: oklch(48% 0.16 30); --color-success: oklch(44% 0.09 160);
+  --container: 1360px; --gutter: 64px; --gap-columns: 32px; --section-gap-s: 120px; --section-gap: 144px; --section-gap-l: 176px;
+  --z-base: 1; --z-raised: 10; --z-dropdown: 100; --z-sticky: 200; --z-sticky-nav: 300; --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
+
+  /* Paper: warm cream carrying information, inked in navy. */
+  --color-paper: oklch(96.5% 0.012 80); --color-paper-2: oklch(93.5% 0.016 80); --color-paper-3: oklch(89.5% 0.02 80);
+  --color-ink: oklch(26% 0.04 262); --color-ink-2: oklch(37% 0.045 260); --color-muted: oklch(48% 0.035 255);
+  --color-rule: oklch(87% 0.018 85);
+  --color-accent: oklch(40% 0.1 262); --color-accent-hover: oklch(34% 0.09 262); --color-accent-ink: oklch(97% 0.012 85); --color-focus: oklch(50% 0.13 55); --color-focus-paper: oklch(50% 0.13 55);
+  --color-link: oklch(37% 0.1 262);
+
+  /* The table is indigo; its rail, the nav and the centre plate are deep navy. */
+  --color-felt: oklch(37% 0.085 258); --color-felt-deep: oklch(26% 0.06 262); --color-felt-raised: oklch(44% 0.08 258); --color-felt-rule: oklch(65% 0.07 255);
+  --color-felt-ink: oklch(96% 0.012 85); --color-felt-ink-2: oklch(87% 0.03 250);
+  --color-focus-felt: oklch(96% 0.02 85);
+  --color-nav-ink-2: oklch(87% 0.03 250);
+
+  /* Signals: apricot marks yours or chosen; persimmon is riichi, the win and the last seconds. */
+  --color-signal: oklch(80% 0.125 68); --color-signal-hover: oklch(85% 0.11 70); --color-signal-ink: oklch(26% 0.06 262); --color-signal-wash: oklch(93% 0.045 75); --color-signal-deep: oklch(52% 0.12 55);
+  --color-seal: oklch(54% 0.17 35); --color-seal-hover: oklch(59% 0.17 35); --color-seal-ink: oklch(98% 0.01 80);
+  --color-riichi: oklch(54% 0.17 35); --color-riichi-ink: oklch(98% 0.01 80);
+  --color-warn-wash: oklch(93% 0.045 75); --color-warn-ink: oklch(36% 0.07 55);
+  --color-error-wash: oklch(94% 0.03 35); --color-success-wash: oklch(93% 0.04 160);
+  --color-scrim: oklch(18% 0.04 262 / 0.66);
+  --color-shadow: oklch(22% 0.04 262 / 0.18);
+
+  /* Tiles: bone face over an apricot bamboo layer, suits in muted lacquer inks. */
+  --tile-face: oklch(97.5% 0.012 85); --tile-face-dim: oklch(89% 0.014 85); --tile-edge: oklch(84% 0.018 85); --tile-side: oklch(72% 0.09 70);
+  --tile-back: oklch(72% 0.1 68); --tile-back-edge: oklch(60% 0.1 65); --tile-back-side: oklch(50% 0.09 60); --tile-back-ink: oklch(52% 0.09 60);
+  --tile-ink: oklch(28% 0.03 262); --tile-red: oklch(52% 0.16 30); --tile-green: oklch(46% 0.09 165); --tile-blue: oklch(38% 0.09 258);
+
+  --font-display: "Songti SC", "STSong", "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", ui-serif, serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC", ui-sans-serif, system-ui, sans-serif;
+  --font-outlier: var(--font-body);
+  --display-weight: 600;
+  --radius-card: 8px; --radius-control: 6px; --radius-tile: 4px; --radius-table: 16px; --radius-pill: 999px; --rule-hair: 1px; --shadow-card: 0 var(--space-3xs) var(--space-xs) var(--color-shadow);
+  --control-h: 40px;
+  --tracking-display: 0;
+}

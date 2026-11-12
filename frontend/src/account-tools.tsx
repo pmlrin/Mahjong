@@ -245,10 +245,12 @@ export function AccountTools({
           {devices.map((d) => (
             <article key={d.sessionId}>
               <strong>
-                {d.browser} / {d.os} {d.current ? "· 当前会话" : ""}
+                {d.browser} / {d.os} {d.current ? "（当前会话）" : ""}
               </strong>
               <small>
-                创建：{time(d.createdAt)} · 到期：{time(d.expiresAt)}
+                创建：{time(d.createdAt)}
+                <br />
+                到期：{time(d.expiresAt)}
                 <br />
                 最近活动：{time(d.lastSeenAt)}
               </small>

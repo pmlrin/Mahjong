@@ -78,6 +78,8 @@ pnpm package
 
 素材与开源许可证见 `THIRD_PARTY_NOTICES.md`。
 
+后续页面视觉改造见 [Claude 页面美化交接文档](docs/Claude页面美化交接.md)，包含源码入口、操作约束、本地预览与验收步骤。
+
 独立预览（当前 V4.1）：[mahjong.yangjm.cn/preview/](https://mahjong.yangjm.cn/preview/)。它使用独立 Cookie 与数据库，账号、好友与成绩不跨环境同步。
 
 离线迁移：`node --import tsx backend/src/migrate.ts`；重建摘要添加 `--rebuild`。先在备份副本演练，生产切换按维护流程执行，不能让两个进程同时写同一个库。
