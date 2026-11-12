@@ -1,5 +1,10 @@
-import type { MouseEventHandler, PointerEventHandler } from "react";
+import type {
+  CSSProperties,
+  MouseEventHandler,
+  PointerEventHandler,
+} from "react";
 import { kind, isRed, tileName } from "../../shared/types";
+import { NUMERALS, PIP_POSITIONS } from "./tile-glyphs";
 export function Tile({
   tile,
   back = false,
@@ -9,6 +14,7 @@ export function Tile({
   onClick,
   onPointerDown,
   mark = false,
+  style,
 }: {
   tile?: number;
   back?: boolean;
@@ -18,75 +24,15 @@ export function Tile({
   onClick?: MouseEventHandler<HTMLButtonElement>;
   onPointerDown?: PointerEventHandler<HTMLButtonElement>;
   mark?: boolean;
+  /** Placement over the 3D table, for the transparent hand buttons. */
+  style?: CSSProperties;
 }) {
   const k = tile === undefined ? 0 : kind(tile),
     n = (k % 9) + 1,
     suit = Math.floor(k / 9),
     red = tile !== undefined && isRed(tile);
-  const number = ["一", "二", "三", "四", "五", "六", "七", "八", "九"][n - 1];
-  const positions: Record<number, [number, number][]> = {
-    1: [[20, 29]],
-    2: [
-      [20, 18],
-      [20, 40],
-    ],
-    3: [
-      [12, 15],
-      [20, 29],
-      [28, 43],
-    ],
-    4: [
-      [12, 18],
-      [28, 18],
-      [12, 40],
-      [28, 40],
-    ],
-    5: [
-      [12, 15],
-      [28, 15],
-      [20, 29],
-      [12, 43],
-      [28, 43],
-    ],
-    6: [
-      [12, 14],
-      [28, 14],
-      [12, 29],
-      [28, 29],
-      [12, 44],
-      [28, 44],
-    ],
-    7: [
-      [12, 13],
-      [20, 13],
-      [28, 13],
-      [12, 29],
-      [28, 29],
-      [12, 44],
-      [28, 44],
-    ],
-    8: [
-      [12, 11],
-      [28, 11],
-      [12, 23],
-      [28, 23],
-      [12, 35],
-      [28, 35],
-      [12, 47],
-      [28, 47],
-    ],
-    9: [
-      [10, 12],
-      [20, 12],
-      [30, 12],
-      [10, 29],
-      [20, 29],
-      [30, 29],
-      [10, 46],
-      [20, 46],
-      [30, 46],
-    ],
-  };
+  const number = NUMERALS[n - 1];
+  const positions = PIP_POSITIONS;
   const body = back ? (
     <span className="tile-back-mark">竹</span>
   ) : (
@@ -179,6 +125,7 @@ export function Tile({
       data-hand-tile={onPointerDown ? tile : undefined}
       aria-label={tileName(tile!)}
       aria-pressed={selected}
+      style={style}
     >
       {body}
     </button>

@@ -16,12 +16,20 @@ export function writeLocalPreference(key: string, value: string) {
     return false;
   }
 }
+export type TableMode = "3d" | "flat";
+/** Stored beside, not inside, the v4.2 quick/keyboard preferences so their writers keep working. */
+export const viewPreferenceKey = (userId: string) =>
+  preferenceKey(location.origin + import.meta.env.BASE_URL, userId) + ":view";
+export function readTableMode(userId: string): TableMode {
+  return readLocalPreference(viewPreferenceKey(userId)) === "flat" ? "flat" : "3d";
+}
 export function TablePreferenceSettings({ userId }: { userId: string }) {
   const key = preferenceKey(location.origin + import.meta.env.BASE_URL, userId);
   const [value, setValue] = useState(() =>
     parsePreferences(readLocalPreference(key)),
   );
   const [warning, setWarning] = useState("");
+  const [mode, setMode] = useState(() => readTableMode(userId));
   function change(mode: "quick" | "keyboard", enabled: boolean) {
     const next = { ...value, [mode]: enabled };
     setValue(next);
@@ -30,6 +38,19 @@ export function TablePreferenceSettings({ userId }: { userId: string }) {
   }
   return (
     <>
+      <label>
+        <input
+          type="checkbox"
+          checked={mode === "3d"}
+          onChange={(e) => {
+            const next = e.target.checked ? "3d" : "flat";
+            setMode(next);
+            if (!writeLocalPreference(viewPreferenceKey(userId), next))
+              setWarning("设置无法保存，本页仍可使用");
+          }}
+        />
+        3D 牌桌（横屏时；设备不支持时自动改用平面）
+      </label>
       <label>
         <input
           type="checkbox"

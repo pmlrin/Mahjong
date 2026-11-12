@@ -4,6 +4,7 @@ import { type MatchView, type Seat, tileName } from "../../shared/types";
 import { Tile } from "./Tile";
 import { Melds } from "./Melds";
 import { LatestDiscard } from "./turn-feedback";
+import { seatStatus } from "./PlayerPlate";
 const wind = (w: string) =>
   ({ EAST: "东", SOUTH: "南", WEST: "西", NORTH: "北" })[w] ?? w;
 export function TableSurface({ view: v }: { view: MatchView }) {
@@ -37,19 +38,7 @@ export function TableSurface({ view: v }: { view: MatchView }) {
           <span className="wind-badge">{wind(h.seatWind)}</span>
           <span>
             {p.displayName}
-            <small>
-              {hand.phase === "SELF_ACTION" &&
-              hand.activeSeat === s &&
-              p.effectiveControl === "AI"
-                ? "AI 思考中…"
-                : p.participantKind === "BOT"
-                  ? "AI 牌友"
-                  : !p.connected
-                    ? "离线，托管中"
-                    : p.effectiveControl === "AI"
-                      ? "AI 托管"
-                      : "在线"}
-            </small>
+            <small>{seatStatus(v, s)}</small>
           </span>
           <strong>{p.points.toLocaleString()}</strong>
           {h.riichi !== "NONE" && <b className="riichi-label">立直</b>}

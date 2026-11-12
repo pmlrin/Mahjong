@@ -1027,3 +1027,6 @@ input[type="range"] { accent-color: var(--color-accent); }
   .yaku-list { gap: var(--space-2xs); margin-block: var(--space-xs); }
   .auto-next { margin-top: var(--space-xs); }
 }
+
+/* 3D table could not start; the flat table is shown instead. */
+.table-fallback-note { padding: var(--space-2xs) var(--space-xs); margin-bottom: var(--space-2xs); border-radius: var(--radius-control); background: var(--color-warn-wash); color: var(--color-warn-ink); font-size: var(--text-xs); }

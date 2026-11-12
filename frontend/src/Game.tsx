@@ -1,4 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+} from "react";
 import {
   tileName,
   type MatchView,
@@ -7,7 +12,8 @@ import {
 } from "../../shared/types";
 import { Avatar } from "./Avatar";
 import { Tile } from "./Tile";
-import { TableSurface } from "./TableSurface";
+import { TableView, useTableMode } from "./TableView";
+import { createAnchorStore, handTop } from "./hand-anchors";
 import { CallChoices, ResponseSource } from "./turn-feedback";
 import { responseTarget } from "../../shared/game-feedback";
 import { formatName } from "./history-pages";
@@ -85,6 +91,7 @@ export function Game({
     setError,
   });
   const a = controls.actions;
+  const table = useTableMode(userId);
   const { selected, riichi, modal, pending } = a;
   const can = a.can,
     d = v.self.decision,
@@ -102,6 +109,28 @@ export function Game({
     finished = hand.phase === "MATCH_RESULT";
   const own = hand.seats[self];
   const tiles = v.self.concealedTiles;
+  // 3D own hand: the scene draws it and publishes where each tile sits; the
+  // same hand buttons are then laid transparently over those tiles.
+  const [anchorStore] = useState(createAnchorStore);
+  const anchors = useSyncExternalStore(anchorStore.subscribe, anchorStore.get);
+  const overlay = table.active === "3d" && anchors.size > 0;
+  const playable = new Set(
+    options
+      .filter((o) => o.type === (riichi ? "RIICHI_DISCARD" : "DISCARD"))
+      .map((o) => o.tile),
+  );
+  const ownTiles =
+    v.self.drawnTile === null ? tiles : [...tiles, v.self.drawnTile];
+  const hand3d = {
+    selected,
+    dim: can ? ownTiles.filter((t) => !playable.has(t)).join(",") : "",
+    anchors: anchorStore,
+  };
+  const place = (t: number): CSSProperties | undefined => {
+    const r = overlay ? anchors.get(t) : undefined;
+    return r && { left: r.x, top: r.y, width: r.width, height: r.height };
+  };
+  const stageTop = overlay ? handTop(anchors) : null;
   const unique = [
     ...new Set(
       options
@@ -150,6 +179,14 @@ export function Game({
           {network ? "牌桌已连接" : "正在重连，当前操作时间仍会继续"}
         </span>
         <span>{formatName(v.format)}，四人立直</span>
+        {table.supported && !table.portrait && (
+          <button
+            className="text-button"
+            onClick={() => table.choose(table.active === "3d" ? "flat" : "3d")}
+          >
+            {table.active === "3d" ? "改用平面牌桌" : "改用 3D 牌桌"}
+          </button>
+        )}
         <button
           className="text-button"
           onClick={() => {
@@ -175,256 +212,282 @@ export function Game({
           </button>
         </div>
       )}
-      <div inert={!!modal}>
-        <TableSurface view={v} />
-      </div>
-      <section
-        className="hand-panel"
-        inert={!!modal}
-        ref={controls.region}
-        tabIndex={-1}
-        aria-label="牌桌操作区域"
-        onKeyDownCapture={controls.keydown}
+      {table.failure && (
+        <p className="table-fallback-note" role="status">
+          {table.failure === "slow"
+            ? "3D 牌桌在这台设备上运行较慢，已改用平面牌桌；可在上方改回 3D。"
+            : "3D 牌桌无法显示，已改用平面牌桌。"}
+        </p>
+      )}
+      <div
+        className={`play-stage ${overlay ? "stage-3d" : ""}`}
+        style={
+          stageTop === null
+            ? undefined
+            : ({ "--hand-top": `${stageTop}px` } as CSSProperties)
+        }
       >
-        <div className="hand-rack">
-          <div className="action-row">
-            <div className="action-hint">
-              {target && d ? (
-                <ResponseSource source={target} prompt={actionPrompt} />
-              ) : (
-                actionPrompt
-              )}
-              {Object.values(v.self.furiten).some(Boolean) && (
-                <span className="furiten">振听：不可荣和，可有役自摸</span>
-              )}
+        <div inert={!!modal}>
+          <TableView view={v} table={table} hand={hand3d} />
+        </div>
+        <section
+          className="hand-panel"
+          inert={!!modal}
+          ref={controls.region}
+          tabIndex={-1}
+          aria-label="牌桌操作区域"
+          onKeyDownCapture={controls.keydown}
+        >
+          <div className="hand-rack">
+            <div className="action-row">
+              <div className="action-hint">
+                {target && d ? (
+                  <ResponseSource source={target} prompt={actionPrompt} />
+                ) : (
+                  actionPrompt
+                )}
+                {Object.values(v.self.furiten).some(Boolean) && (
+                  <span className="furiten">振听：不可荣和，可有役自摸</span>
+                )}
+              </div>
+              <div className="action-buttons">
+                {time !== null && (
+                  <span className={`countdown ${time <= 5 ? "urgent" : ""}`}>
+                    {time}
+                    <small>秒</small>
+                  </span>
+                )}
+                {options.some((o) => o.type === "RIICHI_DISCARD") && (
+                  <button
+                    className={`secondary ${riichi ? "chosen" : ""}`}
+                    disabled={!can}
+                    onClick={() => a.toggleRiichi()}
+                  >
+                    立直
+                  </button>
+                )}
+                {unique.map((type) => (
+                  <button
+                    key={type}
+                    className={
+                      type === "RON" || type === "TSUMO"
+                        ? "primary win-button"
+                        : "secondary"
+                    }
+                    disabled={
+                      !can ||
+                      (a.noCall && ["CHI", "PON", "DAIMINKAN"].includes(type))
+                    }
+                    title={
+                      a.noCall && ["CHI", "PON", "DAIMINKAN"].includes(type)
+                        ? "请先关闭不鸣牌"
+                        : undefined
+                    }
+                    onClick={() =>
+                      type === "PASS" ? a.pass() : a.open([type])
+                    }
+                  >
+                    {actionNames[type]}
+                  </button>
+                ))}
+                {options.some((o) => o.type === "DISCARD") && (
+                  <button
+                    className="primary discard-button"
+                    disabled={!can || !selectedOption}
+                    onClick={() => a.confirm()}
+                  >
+                    {riichi ? "立直并打出" : "打出"}
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="action-buttons">
-              {time !== null && (
-                <span className={`countdown ${time <= 5 ? "urgent" : ""}`}>
-                  {time}
-                  <small>秒</small>
-                </span>
-              )}
-              {options.some((o) => o.type === "RIICHI_DISCARD") && (
-                <button
-                  className={`secondary ${riichi ? "chosen" : ""}`}
-                  disabled={!can}
-                  onClick={() => a.toggleRiichi()}
-                >
-                  立直
-                </button>
-              )}
-              {unique.map((type) => (
-                <button
-                  key={type}
-                  className={
-                    type === "RON" || type === "TSUMO"
-                      ? "primary win-button"
-                      : "secondary"
-                  }
+            <div className="own-hand">
+              {tiles.map((t) => (
+                <Tile
+                  key={t}
+                  tile={t}
+                  selected={selected === t}
                   disabled={
                     !can ||
-                    (a.noCall && ["CHI", "PON", "DAIMINKAN"].includes(type))
+                    !options.some(
+                      (o) =>
+                        o.type === (riichi ? "RIICHI_DISCARD" : "DISCARD") &&
+                        o.tile === t,
+                    )
                   }
-                  title={
-                    a.noCall && ["CHI", "PON", "DAIMINKAN"].includes(type)
-                      ? "请先关闭不鸣牌"
-                      : undefined
-                  }
-                  onClick={() => (type === "PASS" ? a.pass() : a.open([type]))}
-                >
-                  {actionNames[type]}
-                </button>
+                  onPointerDown={(e) => controls.tilePointerDown(e, t)}
+                  onClick={(e) => controls.tileClick(e, t)}
+                  style={place(t)}
+                />
               ))}
-              {options.some((o) => o.type === "DISCARD") && (
-                <button
-                  className="primary discard-button"
-                  disabled={!can || !selectedOption}
-                  onClick={() => a.confirm()}
-                >
-                  {riichi ? "立直并打出" : "打出"}
-                </button>
+              {v.self.drawnTile !== null && (
+                <Tile
+                  tile={v.self.drawnTile}
+                  selected={selected === v.self.drawnTile}
+                  disabled={
+                    !can ||
+                    !options.some(
+                      (o) =>
+                        o.type === (riichi ? "RIICHI_DISCARD" : "DISCARD") &&
+                        o.tile === v.self.drawnTile,
+                    )
+                  }
+                  onPointerDown={(e) =>
+                    controls.tilePointerDown(e, v.self.drawnTile!)
+                  }
+                  onClick={(e) => controls.tileClick(e, v.self.drawnTile!)}
+                  style={place(v.self.drawnTile)}
+                  mark
+                />
               )}
             </div>
+            <div className="hand-footer">
+              <span>
+                {own.riichi === "ESTABLISHED"
+                  ? "立直后只能摸切，或选择合法和牌与暗杠"
+                  : a.quick
+                    ? "单击即出牌，立直选牌后确认"
+                    : "点选手牌，点击打出"}
+              </span>
+              <span>
+                {wind(own.seatWind)}家 / {hand.handIndex} 次配牌
+              </span>
+            </div>
           </div>
-          <div className="own-hand">
-            {tiles.map((t) => (
-              <Tile
-                key={t}
-                tile={t}
-                selected={selected === t}
-                disabled={
-                  !can ||
-                  !options.some(
-                    (o) =>
-                      o.type === (riichi ? "RIICHI_DISCARD" : "DISCARD") &&
-                      o.tile === t,
-                  )
-                }
-                onPointerDown={(e) => controls.tilePointerDown(e, t)}
-                onClick={(e) => controls.tileClick(e, t)}
-              />
-            ))}
-            {v.self.drawnTile !== null && (
-              <Tile
-                tile={v.self.drawnTile}
-                selected={selected === v.self.drawnTile}
-                disabled={
-                  !can ||
-                  !options.some(
-                    (o) =>
-                      o.type === (riichi ? "RIICHI_DISCARD" : "DISCARD") &&
-                      o.tile === v.self.drawnTile,
-                  )
-                }
-                onPointerDown={(e) =>
-                  controls.tilePointerDown(e, v.self.drawnTile!)
-                }
-                onClick={(e) => controls.tileClick(e, v.self.drawnTile!)}
-                mark
-              />
+          <div
+            className={`auto-status ${a.autoDiscard || a.noCall ? "enabled" : ""}`}
+          >
+            <span role="status" aria-live="polite">
+              {a.autoStatus}
+            </span>
+            {(a.autoDiscard || a.noCall) && (
+              <>
+                <button
+                  className="secondary"
+                  onClick={() => a.intervene()}
+                  disabled={!can}
+                >
+                  本次手动
+                </button>
+                <button
+                  className="text-button"
+                  onClick={() => a.stopAutomatic()}
+                >
+                  停止自动操作
+                </button>
+              </>
             )}
-          </div>
-          <div className="hand-footer">
-            <span>
-              {own.riichi === "ESTABLISHED"
-                ? "立直后只能摸切，或选择合法和牌与暗杠"
-                : a.quick
-                  ? "单击即出牌，立直选牌后确认"
-                  : "点选手牌，点击打出"}
-            </span>
-            <span>
-              {wind(own.seatWind)}家 / {hand.handIndex} 次配牌
-            </span>
-          </div>
-        </div>
-        <div
-          className={`auto-status ${a.autoDiscard || a.noCall ? "enabled" : ""}`}
-        >
-          <span role="status" aria-live="polite">
-            {a.autoStatus}
-          </span>
-          {(a.autoDiscard || a.noCall) && (
-            <>
+            {a.lock?.status === "unknown" && (
               <button
                 className="secondary"
-                onClick={() => a.intervene()}
-                disabled={!can}
+                disabled={!network || !a.fresh}
+                onClick={() => a.recover(true)}
               >
-                本次手动
+                查询／恢复原动作
               </button>
-              <button className="text-button" onClick={() => a.stopAutomatic()}>
-                停止自动操作
+            )}
+            {!a.fresh && network && (
+              <button
+                className="text-button"
+                onClick={() => a.synchronize(true)}
+              >
+                重新同步
               </button>
-            </>
-          )}
-          {a.lock?.status === "unknown" && (
-            <button
-              className="secondary"
-              disabled={!network || !a.fresh}
-              onClick={() => a.recover(true)}
-            >
-              查询／恢复原动作
-            </button>
-          )}
-          {!a.fresh && network && (
-            <button className="text-button" onClick={() => a.synchronize(true)}>
-              重新同步
-            </button>
-          )}
-        </div>
-        <div className="table-controls" aria-label="牌桌操作设置">
-          <label>
-            <input
-              type="checkbox"
-              checked={a.quick}
-              onChange={(e) => controls.preference("quick", e.target.checked)}
-            />
-            快速出牌 {a.quick && <small>单击即出牌</small>}
-          </label>
-          <label title="立即对本次行动生效，等待 500 毫秒。可能放弃本次立直机会；和牌、杠等选择暂停。">
-            <input
-              type="checkbox"
-              checked={a.autoDiscard}
-              disabled={
-                !a.autoDiscard &&
-                (!a.fresh ||
-                  !network ||
-                  !binding ||
-                  v.self.desiredControl !== "HUMAN" ||
-                  v.players[self].effectiveControl !== "HUMAN" ||
-                  d?.owner === "AI" ||
-                  d?.disabledReason === "CONTROL_PENDING" ||
-                  v.status !== "RUNNING" ||
-                  pending)
-              }
-              onChange={(e) => a.setAutomatic("discard", e.target.checked)}
-            />
-            自动摸切
-          </label>
-          <label title="立即对本次响应生效，等待 500 毫秒；不吃、不碰、不明杠；仍提示荣和。">
-            <input
-              type="checkbox"
-              checked={a.noCall}
-              disabled={
-                !a.noCall &&
-                (!a.fresh ||
-                  !network ||
-                  !binding ||
-                  v.self.desiredControl !== "HUMAN" ||
-                  v.players[self].effectiveControl !== "HUMAN" ||
-                  d?.owner === "AI" ||
-                  d?.disabledReason === "CONTROL_PENDING" ||
-                  v.status !== "RUNNING" ||
-                  pending)
-              }
-              onChange={(e) => a.setAutomatic("noCall", e.target.checked)}
-            />
-            不鸣牌 <small>仍提示荣和</small>
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={a.keyboard}
-              onChange={(e) =>
-                controls.preference("keyboard", e.target.checked)
-              }
-            />
-            启用键盘操作
-          </label>
-          <button
-            className="text-button"
-            onClick={() => controls.region.current?.focus()}
-          >
-            聚焦牌桌
-          </button>
-        </div>
-        {controls.quickHelp && (
-          <div className="operation-help" role="status">
-            快速出牌：单击或轻触即提交普通弃牌，已提交不能撤销；立直仍需选牌后确认。
+            )}
+          </div>
+          <div className="table-controls" aria-label="牌桌操作设置">
+            <label>
+              <input
+                type="checkbox"
+                checked={a.quick}
+                onChange={(e) => controls.preference("quick", e.target.checked)}
+              />
+              快速出牌 {a.quick && <small>单击即出牌</small>}
+            </label>
+            <label title="立即对本次行动生效，等待 500 毫秒。可能放弃本次立直机会；和牌、杠等选择暂停。">
+              <input
+                type="checkbox"
+                checked={a.autoDiscard}
+                disabled={
+                  !a.autoDiscard &&
+                  (!a.fresh ||
+                    !network ||
+                    !binding ||
+                    v.self.desiredControl !== "HUMAN" ||
+                    v.players[self].effectiveControl !== "HUMAN" ||
+                    d?.owner === "AI" ||
+                    d?.disabledReason === "CONTROL_PENDING" ||
+                    v.status !== "RUNNING" ||
+                    pending)
+                }
+                onChange={(e) => a.setAutomatic("discard", e.target.checked)}
+              />
+              自动摸切
+            </label>
+            <label title="立即对本次响应生效，等待 500 毫秒；不吃、不碰、不明杠；仍提示荣和。">
+              <input
+                type="checkbox"
+                checked={a.noCall}
+                disabled={
+                  !a.noCall &&
+                  (!a.fresh ||
+                    !network ||
+                    !binding ||
+                    v.self.desiredControl !== "HUMAN" ||
+                    v.players[self].effectiveControl !== "HUMAN" ||
+                    d?.owner === "AI" ||
+                    d?.disabledReason === "CONTROL_PENDING" ||
+                    v.status !== "RUNNING" ||
+                    pending)
+                }
+                onChange={(e) => a.setAutomatic("noCall", e.target.checked)}
+              />
+              不鸣牌 <small>仍提示荣和</small>
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={a.keyboard}
+                onChange={(e) =>
+                  controls.preference("keyboard", e.target.checked)
+                }
+              />
+              启用键盘操作
+            </label>
             <button
               className="text-button"
-              onClick={controls.closeQuickHelp}
-              aria-label="关闭快速出牌说明"
+              onClick={() => controls.region.current?.focus()}
             >
-              知道了
+              聚焦牌桌
             </button>
           </div>
-        )}
-        <p className="operation-help">
-          自动摸切：立即对本次行动生效，等待 500
-          毫秒；可能放弃立直机会。和牌、杠等选择暂停。不鸣牌：不吃、不碰、不明杠，仍提示荣和。
-        </p>
-        {a.keyboard && (
+          {controls.quickHelp && (
+            <div className="operation-help" role="status">
+              快速出牌：单击或轻触即提交普通弃牌，已提交不能撤销；立直仍需选牌后确认。
+              <button
+                className="text-button"
+                onClick={controls.closeQuickHelp}
+                aria-label="关闭快速出牌说明"
+              >
+                知道了
+              </button>
+            </div>
+          )}
           <p className="operation-help">
-            聚焦后：← → / Home End 选牌，Enter 确认；R 立直，C 吃，P 碰，K 杠，W
-            和牌，Space 过，Esc 取消。键盘始终选牌后确认。
+            自动摸切：立即对本次行动生效，等待 500
+            毫秒；可能放弃立直机会。和牌、杠等选择暂停。不鸣牌：不吃、不碰、不明杠，仍提示荣和。
           </p>
-        )}
-        {controls.storageWarning && (
-          <p role="status">{controls.storageWarning}</p>
-        )}
-      </section>
+          {a.keyboard && (
+            <p className="operation-help">
+              聚焦后：← → / Home End 选牌，Enter 确认；R 立直，C 吃，P 碰，K
+              杠，W 和牌，Space 过，Esc 取消。键盘始终选牌后确认。
+            </p>
+          )}
+          {controls.storageWarning && (
+            <p role="status">{controls.storageWarning}</p>
+          )}
+        </section>
+      </div>
       {modal && (
         <div className="modal-shade action-modal-shade">
           <section

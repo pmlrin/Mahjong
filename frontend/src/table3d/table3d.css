@@ -1,0 +1,286 @@
+/* 3D table: WebGL canvas with the readable HUD laid over it. */
+/* The hand now lives in the scene, so the table takes the viewport below the
+   header, but never gets much squarer than 1.45:1: a taller canvas than that
+   only adds dead space under the hand. */
+.play-stage {
+  container-type: inline-size;
+  --table-3d-h: min(
+    clamp(420px, calc(100dvh - 112px), 940px),
+    calc(100cqw / 1.45)
+  );
+}
+.game-table.table-3d {
+  position: relative;
+  height: var(--table-3d-h);
+  overflow: hidden;
+  border-radius: var(--radius-table) var(--radius-table) 0 0;
+  background: var(--color-felt-deep);
+  color: var(--color-felt-ink);
+}
+.table-3d-canvas {
+  position: absolute !important;
+  inset: 0;
+}
+.table-3d-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.player-plate {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  max-width: 260px;
+  padding: var(--space-2xs) var(--space-sm) var(--space-2xs) var(--space-2xs);
+  border-radius: var(--radius-card);
+  background: color-mix(in oklab, var(--color-felt-deep) 86%, transparent);
+  font-size: var(--text-sm);
+}
+.player-plate .profile-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+.player-plate-name {
+  min-width: 0;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.player-plate-name small {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-felt-ink-2);
+}
+.player-plate strong {
+  margin-left: var(--space-2xs);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.player-plate.turn {
+  box-shadow: inset 0 calc(-1 * var(--space-3xs)) 0 var(--color-signal);
+}
+.player-plate.turn .wind-badge {
+  background: var(--color-signal);
+  color: var(--color-signal-ink);
+  box-shadow: none;
+}
+
+.hud-top {
+  top: var(--space-xs);
+  left: 50%;
+  transform: translateX(-50%);
+}
+.hud-left {
+  top: 38%;
+  left: var(--space-xs);
+}
+.hud-right {
+  top: 38%;
+  right: var(--space-xs);
+}
+.hud-self {
+  bottom: var(--space-xs);
+  left: var(--space-xs);
+}
+
+.hud-round {
+  position: absolute;
+  top: var(--space-xs);
+  left: var(--space-xs);
+  display: grid;
+  gap: var(--space-3xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-card);
+  background: color-mix(in oklab, var(--color-felt-deep) 86%, transparent);
+  font-size: var(--text-xs);
+  color: var(--color-felt-ink-2);
+}
+.hud-round strong {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-felt-ink);
+}
+.hud-round b {
+  font-size: var(--text-sm);
+  color: var(--color-felt-ink);
+  font-variant-numeric: tabular-nums;
+}
+.hud-dora {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3xs);
+  margin-top: var(--space-3xs);
+}
+.hud-dora small {
+  margin-right: var(--space-2xs);
+  font-size: var(--text-xs);
+}
+.hud-dora .tile {
+  width: 18px;
+  min-width: 18px;
+  height: 26px;
+  border-bottom-width: 2px;
+  border-radius: var(--space-3xs);
+}
+.table-3d .latest-discard-display {
+  position: absolute;
+  top: var(--space-xs);
+  right: var(--space-xs);
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .play-stage {
+    --table-3d-h: max(240px, calc(100dvh - 76px));
+  }
+  .player-plate {
+    gap: var(--space-2xs);
+    padding: var(--space-3xs) var(--space-xs) var(--space-3xs) var(--space-3xs);
+    font-size: var(--text-2xs);
+  }
+  .player-plate .profile-avatar {
+    width: 20px;
+    height: 20px;
+  }
+  .player-plate .wind-badge {
+    width: 20px;
+    height: 20px;
+    font-size: var(--text-xs);
+  }
+  .player-plate-name small {
+    font-size: var(--text-2xs);
+  }
+  .player-plate strong {
+    font-size: var(--text-xs);
+  }
+  .hud-round {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-xs);
+    max-width: 190px;
+    padding: var(--space-2xs) var(--space-xs);
+    font-size: var(--text-2xs);
+  }
+  .hud-round strong {
+    font-size: var(--text-sm);
+  }
+  .hud-dora {
+    margin-top: 0;
+  }
+  .hud-dora small {
+    display: none;
+  }
+  .hud-left,
+  .hud-right {
+    top: 58%;
+  }
+  .hud-dora .tile {
+    width: 13px;
+    min-width: 13px;
+    height: 19px;
+  }
+}
+
+/* Own hand over the 3D table: the same hand buttons, transparent, placed on
+   the projected tiles (inline left/top/width/height from the scene). */
+.stage-3d {
+  position: relative;
+}
+.stage-3d .hand-rack {
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--table-3d-h);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  pointer-events: none;
+}
+.stage-3d .own-hand {
+  position: absolute;
+  inset: 0;
+  display: block;
+  min-height: 0;
+  padding: 0;
+  overflow: visible;
+}
+.stage-3d .own-hand .tile,
+.stage-3d .own-hand .tile:disabled {
+  position: absolute;
+  margin: 0;
+  min-width: 0;
+  border: 0;
+  border-radius: var(--radius-tile);
+  background: transparent;
+  transform: none;
+  pointer-events: auto;
+}
+.stage-3d .own-hand .tile > * {
+  visibility: hidden;
+}
+.stage-3d .own-hand .tile:hover:not(:disabled) {
+  transform: none;
+  background: color-mix(in oklab, var(--color-signal) 16%, transparent);
+}
+.stage-3d .own-hand .tile.selected {
+  transform: none;
+}
+.stage-3d .own-hand .tile:focus-visible {
+  outline: 3px solid var(--color-focus-felt);
+  outline-offset: var(--space-3xs);
+}
+.stage-3d .action-row {
+  position: absolute;
+  top: calc(var(--hand-top) - 52px);
+  left: 290px;
+  right: var(--space-sm);
+  min-height: 44px;
+  pointer-events: auto;
+}
+.stage-3d .action-hint {
+  padding: var(--space-2xs) var(--space-sm);
+  border-radius: var(--radius-card);
+  background: color-mix(in oklab, var(--color-felt-deep) 86%, transparent);
+}
+/* Outlined controls and the timer sit over tiles; give them the felt to read on. */
+.stage-3d .action-buttons .secondary:not(.chosen):not(:disabled):not(:hover),
+.stage-3d .countdown:not(.urgent) {
+  background: color-mix(in oklab, var(--color-felt-deep) 90%, transparent);
+}
+.stage-3d .countdown {
+  padding-inline: var(--space-xs);
+  border-radius: var(--radius-control);
+}
+.stage-3d .action-hint:empty {
+  display: none;
+}
+/* The focusable table region now spans the canvas visually; ring the table, not
+   the controls left below it. */
+.stage-3d .hand-panel:focus-visible {
+  outline: none;
+}
+.stage-3d:has(.hand-panel:focus-visible) .table-3d {
+  outline: 3px solid var(--color-focus);
+  outline-offset: var(--space-2xs);
+}
+.stage-3d .hand-footer {
+  display: none;
+}
+.stage-3d .hud-self {
+  top: calc(var(--hand-top) - 48px);
+  bottom: auto;
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  .stage-3d .action-row {
+    top: calc(var(--hand-top) - 40px);
+    left: 200px;
+    min-height: 36px;
+  }
+  .stage-3d .hud-self {
+    top: calc(var(--hand-top) - 34px);
+  }
+}
