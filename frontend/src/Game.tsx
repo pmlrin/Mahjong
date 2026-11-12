@@ -18,7 +18,7 @@ import { createAnchorStore, handTop } from "./hand-anchors";
 import { frameEvents } from "./match-events";
 import { useReducedMotion } from "./motion";
 import { CallStamps, type PlayStep } from "./CallStamps";
-import { playEvents } from "./sounds";
+import { playEvents, playSound } from "./sounds";
 import { DISCARD_LANDS_AFTER, RESULT_HOLD } from "./table3d/timing";
 import { CallChoices, ResponseSource } from "./turn-feedback";
 import { responseTarget } from "../../shared/game-feedback";
@@ -115,6 +115,13 @@ export function Game({
     heard.current = frame;
     if (before === frame) return;
     const events = frameEvents(before, frame);
+    // A new hand gives no events (its deal is just shown), but it is heard.
+    if (
+      sound &&
+      events?.length === 0 &&
+      before.state.hand.handId !== frame.state.hand.handId
+    )
+      playSound("deal");
     if (!events?.length) return;
     setStep((s) => ({ id: (s?.id ?? 0) + 1, events }));
     const left = (v.hand.resultDisplayUntil ?? 0) - frame.serverTime;

@@ -27,7 +27,7 @@ import { AccountPanel, type AccountPage } from "./account";
 import { History, formatName } from "./history-pages";
 import { Tile } from "./Tile";
 import { Melds } from "./Melds";
-import { playSound } from "./sounds";
+import { loadSounds, playSound } from "./sounds";
 const uuid = () => crypto.randomUUID();
 type Me = CurrentUser;
 const wind = (w: string) =>
@@ -432,10 +432,13 @@ function App() {
   function toggleSound() {
     setSound((v) => {
       writeLocalPreference("mj_sound", String(!v));
-      if (!v) playSound("discard");
+      if (!v) void loadSounds().then(() => playSound("discard"));
       return !v;
     });
   }
+  useEffect(() => {
+    if (sound) void loadSounds();
+  }, [sound]);
   function openReplay(id: string, handId?: string) {
     setReplayTarget({ id, handId });
     setScreen("replay");
