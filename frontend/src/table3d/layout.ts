@@ -49,6 +49,8 @@ export interface TilePlacement {
   quaternion: [number, number, number, number];
   tsumogiri?: boolean;
   latest?: boolean;
+  /** The tile a finished hand was won on (raised and marked). */
+  winning?: boolean;
   /** Uniform scale; the viewer's own hand is enlarged. */
   scale?: number;
 }
@@ -256,7 +258,23 @@ export function layoutTable(
     }
   }
   layoutWall(view, out);
+  const result = handResult(view);
+  if (result) {
+    const won = new Set(result.wins.map((w) => w.winningTile));
+    for (const p of out)
+      if (p.tile !== null && won.has(p.tile)) p.winning = true;
+  }
   return out;
+}
+
+/** This hand's result, while it is being shown. */
+function handResult(view: MatchView) {
+  const result = view.lastHandResult;
+  return view.hand.phase === "HAND_RESULT" &&
+    result &&
+    result.handId === view.hand.handId
+    ? result
+    : null;
 }
 
 /**
@@ -264,13 +282,8 @@ export function layoutTable(
  * (tsumo) tile last. A ron tile stays where it lies, in the discarder's river.
  */
 function revealed(view: MatchView, seat: Seat) {
-  const result = view.lastHandResult;
-  if (
-    view.hand.phase !== "HAND_RESULT" ||
-    !result ||
-    result.handId !== view.hand.handId
-  )
-    return null;
+  const result = handResult(view);
+  if (!result) return null;
   const hand = result.revealedHands.find((r) => r.seat === seat);
   if (!hand) return null;
   const tiles = [...hand.concealedTiles] as number[] & { drawn?: boolean };
@@ -411,4 +424,18 @@ function layoutWall(view: MatchView, out: TilePlacement[]) {
       );
     }
   }
+  // A riichi win turns over the ura dora: laid face up just inside the dead
+  // wall, in front of the indicator each one sits under.
+  const ura = handResult(view)?.revealedUraIndicators ?? [];
+  ura.forEach((tile, i) => {
+    const slot = wallSlot(breakSlot + 6 - (i + 2));
+    place(
+      out,
+      slot.rel,
+      seatOf(slot.rel),
+      [slot.x, lying, SCENE.wallDistance - TILE.height - 0.15],
+      "up",
+      { key: `t${tile}`, tile, faceUp: true, group: "dead" },
+    );
+  });
 }

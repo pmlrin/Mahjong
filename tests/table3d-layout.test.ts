@@ -268,6 +268,8 @@ test("revealed hands lie face up only at that hand's result", () => {
   const uniqueTiles = [...new Set(tiles)].slice(0, Math.min(shown, 13));
   view.lastHandResult = {
     handId: view.hand.handId,
+    wins: [],
+    revealedUraIndicators: [],
     revealedHands: [
       {
         seat: 2,
@@ -303,6 +305,53 @@ test("revealed hands lie face up only at that hand's result", () => {
       .filter((p) => p.seat === 2 && p.group === "hand")
       .every((p) => p.tile === null),
   );
+});
+
+test("a win raises its tile and a riichi win turns over its ura dora", () => {
+  const view = baseView(0);
+  const used = new Set([
+    ...view.self.concealedTiles,
+    ...(view.self.drawnTile === null ? [] : [view.self.drawnTile]),
+    ...view.hand.doraIndicators,
+  ]);
+  const free = Array.from({ length: 136 }, (_, i) => i).filter(
+    (t) => !used.has(t),
+  );
+  const [won, ura] = [free[13], free[14]];
+  view.lastHandResult = {
+    handId: view.hand.handId,
+    reason: "TSUMO",
+    wins: [
+      { winnerSeat: 2, sourceSeat: null, winningTile: won, method: "TSUMO" },
+    ],
+    revealedHands: [
+      {
+        seat: 2,
+        concealedTiles: free.slice(0, 13),
+        drawnTile: won,
+        winningTile: won,
+      },
+    ],
+    revealedUraIndicators: [ura],
+  } as unknown as MatchView["lastHandResult"];
+  const playing = layoutTable(view, { selfHand: true });
+  assert.ok(!playing.some((p) => p.winning || p.tile === ura));
+  view.hand.phase = "HAND_RESULT";
+  const all = layoutTable(view, { selfHand: true });
+  assert.equal(new Set(all.map((p) => p.key)).size, all.length);
+  const winning = all.filter((p) => p.winning);
+  assert.deepEqual(
+    winning.map((p) => [p.tile, p.group, p.seat, p.faceUp]),
+    [[won, "hand", 2, true]],
+  );
+  const shown = all.find((p) => p.tile === ura)!;
+  assert.ok(shown.faceUp && shown.group === "dead");
+  for (let i = 0; i < all.length; i++)
+    for (let j = i + 1; j < all.length; j++)
+      assert.ok(
+        !overlaps(all[i], all[j]),
+        `${all[i].key} overlaps ${all[j].key}`,
+      );
 });
 
 test("one action animates; a resync of several actions is placed at once", () => {
