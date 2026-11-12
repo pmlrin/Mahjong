@@ -126,13 +126,13 @@ export class SocialService {
   }
   private enabled(name: keyof SocialCapabilities) {
     if (!this.capabilities()[name])
-      error("FEATURE_DISABLED", "该功能暂不可用", 503);
+      error("FEATURE_DISABLED", "暂不可用", 503);
   }
   private async actor(tx: Sql, ctx: Pick<SocialContext, "tokenHash">) {
     const identity = this.auth.resolveHash(ctx.tokenHash);
     if (!identity) error("UNAUTHENTICATED", "登录状态已失效，请重新登录", 401);
     if (identity.kind !== "ACCOUNT")
-      error("ACCOUNT_REQUIRED", "请先注册或登录正式账号", 403);
+      error("ACCOUNT_REQUIRED", "请先注册或登录账号", 403);
     const row = await tx.one(
       "SELECT s.user_id FROM auth_sessions s JOIN auth_accounts a ON a.user_id=s.user_id WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>? AND s.auth_version=a.auth_version AND s.environment=?",
       [ctx.tokenHash, this.now(), this.auth.config.environment],
@@ -200,7 +200,7 @@ export class SocialService {
         (() => {
           const parsed = friendCodeSchema.safeParse(code);
           if (!parsed.success)
-            error("INVALID_FRIEND_CODE", "请输入完整12位好友码", 400);
+            error("INVALID_FRIEND_CODE", "请输入完整的 12 位好友码", 400);
           return parsed.data;
         })(),
       ],
@@ -281,7 +281,7 @@ export class SocialService {
       [key],
     );
     if (r && Number(r.until_at) > this.now())
-      error("SOCIAL_COOLDOWN", "请在冷却时间结束后重试");
+      error("SOCIAL_COOLDOWN", "请过一会儿再试");
   }
   private async finish(
     tx: Sql,
@@ -422,7 +422,7 @@ export class SocialService {
               return this.failure(
                 new AuthError(
                   "REQUEST_ID_CONFLICT",
-                  "同一请求编号的内容不能改变",
+                  "这项操作已经提交过了",
                   409,
                 ),
               );
@@ -557,7 +557,7 @@ export class SocialService {
         if (await this.occupied(tx, s.userId))
           error(
             "PROFILE_CHANGE_IN_ROOM",
-            "请先自行处理等待厅或进行中的对局，再修改头像",
+            "在房间或对局中时，暂不能换头像",
           );
         const old = await tx.one(
           "SELECT p.profile_version,u.display_name FROM social_profiles p JOIN auth_users u ON u.user_id=p.user_id WHERE p.user_id=?",
@@ -640,7 +640,7 @@ export class SocialService {
     if (await this.occupied(tx, s.userId))
       error(
         "PROFILE_CHANGE_IN_ROOM",
-        "请先自行处理等待厅或进行中的对局，再修改资料",
+        "在房间或对局中时，暂不能改资料",
       );
     const old = await tx.one(
       "SELECT p.*,u.display_name FROM social_profiles p JOIN auth_users u ON u.user_id=p.user_id WHERE p.user_id=?",
@@ -664,7 +664,7 @@ export class SocialService {
       old!.last_nickname_changed_at !== null &&
       this.now() - Number(old!.last_nickname_changed_at) < DAY
     )
-      error("NICKNAME_COOLDOWN", "昵称每24小时只能实际修改一次");
+      error("NICKNAME_COOLDOWN", "名字每 24 小时只能改一次");
     await tx.query("UPDATE auth_users SET display_name=? WHERE user_id=?", [
       p.displayName,
       s.userId,
@@ -1382,7 +1382,7 @@ export class SocialService {
       );
       if (prior) {
         if (prior.payload_hmac !== this.hash(name, payload))
-          error("REQUEST_ID_CONFLICT", "同一请求编号的内容不能改变");
+          error("REQUEST_ID_CONFLICT", "这项操作已经提交过了");
         return { prior: parseJSON(prior.result) };
       }
       await this.limit(

@@ -164,13 +164,13 @@ export class AuthService {
     if (!s)
       throw new AuthError(
         "UNAUTHENTICATED",
-        "身份已失效，请重新登录或选择游客试玩",
+        "登录已失效，请重新登录，或以游客入座",
         401,
       );
     if (kind && s.kind !== kind)
       throw new AuthError(
         "IDENTITY_MISMATCH",
-        kind === "GUEST" ? "当前身份已是正式账号" : "请先登录正式账号",
+        kind === "GUEST" ? "你已经是注册账号了" : "请先登录账号",
         403,
       );
     return s;
@@ -179,7 +179,7 @@ export class AuthService {
     if (!mailConfigured(this.config) || !this.mailHealthy)
       throw new AuthError(
         "MAIL_UNAVAILABLE",
-        "邮箱验证暂不可用，请稍后重试；游客试玩和密码登录仍可使用",
+        "邮箱验证暂不可用，请稍后再试；游客和账号登录照常",
         503,
       );
   }
@@ -301,7 +301,7 @@ export class AuthService {
           if (row && row.payload_hmac !== hash)
             return failed(
               "REQUEST_ID_CONFLICT",
-              "同一请求编号的内容不能改变",
+              "这项操作已经提交过了",
               409,
             );
           const prior = row ? (JSON.parse(row.result) as AuthReply) : null;
@@ -415,7 +415,7 @@ export class AuthService {
       if (this.sessions.has(hash))
         throw new AuthError(
           "GUEST_RETRY_EXPIRED",
-          "这次入座请求已结束，请重新点击游客试玩",
+          "请重新入座",
           409,
         );
       const userId = randomUUID();
@@ -576,8 +576,8 @@ export class AuthService {
             message:
               purpose === "REGISTER"
                 ? this.config.environment === "preview"
-                  ? "申请已受理，请查看邮箱；预览仅向已确认的测试邮箱发信"
-                  : "申请已受理，请查看邮箱"
+                  ? "已发出，请查收邮件；预览站只给登记过的测试邮箱发信"
+                  : "已发出，请查收邮件"
                 : "若该邮箱已注册，将收到验证码",
           },
         };
@@ -601,7 +601,7 @@ export class AuthService {
           [challengeId],
         );
         const invalid = () =>
-          failed("CODE_INVALID", "验证码不正确、已失效或不属于当前页面");
+          failed("CODE_INVALID", "验证码不对或已过期");
         if (
           !c ||
           c.environment !== this.config.environment ||
@@ -758,7 +758,7 @@ export class AuthService {
   ) {
     validatePassword(password, confirmation);
     if (!this.config.enabled)
-      throw new AuthError("AUTH_UNAVAILABLE", "注册与找回入口暂时关闭", 503);
+      throw new AuthError("AUTH_UNAVAILABLE", "注册与找回密码暂未开放", 503);
     const name =
         purpose === "REGISTER" ? "REGISTER_COMPLETE" : "RESET_COMPLETE",
       payload = { grant, password, confirmation, flow: ctx.flowId };
@@ -933,7 +933,7 @@ export class AuthService {
     if (current && !confirmSwitchGuest)
       throw new AuthError(
         "GUEST_SWITCH_CONFIRM",
-        "本次登录不会合并当前游客记录，请确认或先注册这个游客",
+        "登录后当前游客的战绩不会带过去，请先确认，或先注册这个游客",
         409,
       );
     const prepared = await this.store.transaction(async (tx) => {

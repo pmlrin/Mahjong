@@ -46,7 +46,7 @@ export function useTableActions(props: TableProps) {
   const helpSeen = useRef(false);
   const [actions] = useState(() => {
     let saved = null,
-      preferences = { quick: false, keyboard: false };
+      preferences = { quick: false };
     try {
       preferences = parsePreferences(localStorage.getItem(prefKey));
       helpSeen.current =
@@ -84,7 +84,9 @@ export function useTableActions(props: TableProps) {
       saved,
     );
     a.quick = preferences.quick;
-    a.keyboard = preferences.keyboard;
+    // Keys always work: on the hand region, or anywhere on the page that is
+    // not a field or control (see the document listener below).
+    a.keyboard = true;
     a.active = document.visibilityState === "visible" && document.hasFocus();
     return a;
   });
@@ -206,15 +208,12 @@ export function useTableActions(props: TableProps) {
       else region.current?.focus();
     }
   }, [!!modal]);
-  function preference(mode: "quick" | "keyboard", value: boolean) {
+  function preference(mode: "quick", value: boolean) {
     actions.setPreference(mode, value);
     try {
-      localStorage.setItem(
-        prefKey,
-        JSON.stringify({ quick: actions.quick, keyboard: actions.keyboard }),
-      );
+      localStorage.setItem(prefKey, JSON.stringify({ quick: actions.quick }));
     } catch {
-      setStorageWarning("设置无法保存，本页仍可使用");
+      setStorageWarning("这台设备记不住设置，本次照常可用");
     }
     if (mode === "quick" && value && !helpSeen.current) {
       helpSeen.current = true;
@@ -225,7 +224,16 @@ export function useTableActions(props: TableProps) {
     }
     gesture.current.cancel();
   }
-  function keydown(e: ReactKeyboardEvent) {
+  interface KeyInput {
+    key: string;
+    repeat: boolean;
+    composing: boolean;
+    modified: boolean;
+    prevented: boolean;
+    target: HTMLElement;
+    consume: () => void;
+  }
+  function handleKey(e: KeyInput) {
     if (
       !actions.keyboard ||
       !actions.active ||
@@ -234,15 +242,12 @@ export function useTableActions(props: TableProps) {
       document.visibilityState !== "visible"
     )
       return;
-    const target = e.target as HTMLElement;
+    const target = e.target;
     if (e.key === "Tab") return; // Native navigation (the dialog traps Tab separately below).
     if (
-      e.isDefaultPrevented() ||
-      e.nativeEvent.isComposing ||
-      e.keyCode === 229 ||
-      e.ctrlKey ||
-      e.metaKey ||
-      e.altKey ||
+      e.prevented ||
+      e.composing ||
+      e.modified ||
       target.closest(
         "input, textarea, select, [contenteditable]:not([contenteditable=false])",
       )
@@ -268,15 +273,13 @@ export function useTableActions(props: TableProps) {
       return;
     // Capture also guards native button repeats without adding a second activation path.
     if (e.repeat || held.current.has(key)) {
-      e.preventDefault();
-      e.stopPropagation();
+      e.consume();
       return;
     }
     held.current.add(key);
     if (target.closest("button, a, [role=switch]")) return;
     if (!actions.can) return;
-    e.preventDefault();
-    e.stopPropagation();
+    e.consume();
     if (actions.modal) {
       if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key))
         actions.move(e.key);
@@ -295,6 +298,58 @@ export function useTableActions(props: TableProps) {
     else if (key === " ") actions.pass();
     else if (key === "escape") actions.escape();
   }
+  function keydown(e: ReactKeyboardEvent) {
+    handleKey({
+      key: e.key,
+      repeat: e.repeat,
+      composing: e.nativeEvent.isComposing || e.keyCode === 229,
+      modified: e.ctrlKey || e.metaKey || e.altKey,
+      prevented: e.isDefaultPrevented(),
+      target: e.target as HTMLElement,
+      consume: () => {
+        e.preventDefault();
+        e.stopPropagation();
+      },
+    });
+  }
+  // Keys pressed with nothing in particular focused (the page body, or the
+  // table picture) act on the hand too, so no one has to click into it first.
+  const handleKeyRef = useRef(handleKey);
+  handleKeyRef.current = handleKey;
+  useEffect(() => {
+    const loose = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        region.current?.contains(target) ||
+        dialog.current?.contains(target) ||
+        target.closest(
+          "button, a, input, textarea, select, [role=switch], [role=dialog], [contenteditable]:not([contenteditable=false])",
+        )
+      )
+        return;
+      handleKeyRef.current({
+        key: e.key,
+        repeat: e.repeat,
+        composing: e.isComposing || e.keyCode === 229,
+        modified: e.ctrlKey || e.metaKey || e.altKey,
+        prevented: e.defaultPrevented,
+        target: region.current ?? target,
+        consume: () => e.preventDefault(),
+      });
+    };
+    document.addEventListener("keydown", loose);
+    return () => document.removeEventListener("keydown", loose);
+  }, []);
+  // A choice whose answer never came back, or a table that fell out of step,
+  // is checked again on its own every few seconds while connected.
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (!latest.current.network || !actions.active) return;
+      if (actions.lock?.status === "unknown") void actions.recover(true);
+      else if (!actions.fresh) void actions.synchronize();
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [actions]);
   function dialogKeydown(e: ReactKeyboardEvent) {
     // Escape and Tab retain their dialog semantics even on a native button.
     if (

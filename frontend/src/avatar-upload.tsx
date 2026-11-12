@@ -74,7 +74,7 @@ export function AvatarUpload({
         !img.naturalWidth ||
         !img.naturalHeight
       )
-        throw Error("图片尺寸过大，请先缩小至1600万像素以内");
+        throw Error("图片太大了，请先缩小一些");
       setZoom(1);
       setX(50);
       setY(50);
@@ -96,7 +96,7 @@ export function AvatarUpload({
       if (!pending.current || pending.current.version !== version) {
         const blob = await new Promise<Blob>((resolve, reject) =>
           canvas.current!.toBlob(
-            (b) => (b ? resolve(b) : reject(Error("图片转换失败"))),
+            (b) => (b ? resolve(b) : reject(Error("图片处理失败，请换一张"))),
             "image/png",
           ),
         );
@@ -138,11 +138,8 @@ export function AvatarUpload({
   }
   return (
     <section className="avatar-upload">
-      <h3>上传个人头像</h3>
-      <p>
-        支持 PNG、JPEG、WebP，原图不超过
-        5MB。头像会展示给其他玩家；旧比赛保留当时的头像。
-      </p>
+      <h3>上传照片做头像</h3>
+      <p>PNG、JPEG 或 WebP，不超过 5MB。同桌的人都看得到。</p>
       <input
         aria-label="选择头像图片"
         type="file"
@@ -160,13 +157,13 @@ export function AvatarUpload({
             ref={canvas}
             width={AVATAR_SIZE}
             height={AVATAR_SIZE}
-            aria-label="头像裁剪预览"
+            aria-label="头像预览"
           />
           <div className="avatar-adjustments">
             {[
               ["缩放", zoom, setZoom, 1, 3, 0.05],
-              ["水平位置", x, setX, 0, 100, 1],
-              ["垂直位置", y, setY, 0, 100, 1],
+              ["左右", x, setX, 0, 100, 1],
+              ["上下", y, setY, 0, 100, 1],
             ].map(([label, value, change, min, max, step]) => (
               <label key={String(label)}>
                 {String(label)}

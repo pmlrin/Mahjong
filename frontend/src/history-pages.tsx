@@ -10,41 +10,94 @@ import type {
 } from "../../shared/types";
 export const formatName = (f: string) =>
   f === "HANCHAN" ? "半庄战" : "东风战";
-const modeName = (m: string) =>
-  m === "AI_PRACTICE" ? "AI 练习" : "多人好友场";
+const modeName = (m: string) => (m === "AI_PRACTICE" ? "AI 练习" : "好友场");
+const botName = (level: string | null | undefined) =>
+  `${level === "BASIC" ? "基础" : "标准"} AI`;
 const signed = (n: number) => `${n > 0 ? "+" : ""}${n.toLocaleString()}`;
 function Filters({
   format,
   mode,
   onFormat,
   onMode,
-  all = true,
 }: {
   format: string;
   mode: string;
   onFormat: (s: string) => void;
   onMode: (s: string) => void;
-  all?: boolean;
 }) {
   return (
     <div className="history-filters">
-      <label>
-        赛制{" "}
-        <select value={format} onChange={(e) => onFormat(e.target.value)}>
-          <option value="">全部赛制</option>
-          <option value="EAST_ONLY">东风战</option>
-          <option value="HANCHAN">半庄战</option>
-        </select>
-      </label>
-      <label>
-        模式{" "}
-        <select value={mode} onChange={(e) => onMode(e.target.value)}>
-          {all && <option value="">全部模式</option>}
-          <option value="AI_PRACTICE">AI 练习</option>
-          <option value="FRIENDS">多人好友场</option>
-        </select>
-      </label>
+      <select
+        aria-label="赛制"
+        value={format}
+        onChange={(e) => onFormat(e.target.value)}
+      >
+        <option value="">全部赛制</option>
+        <option value="EAST_ONLY">东风战</option>
+        <option value="HANCHAN">半庄战</option>
+      </select>
+      <select
+        aria-label="场次"
+        value={mode}
+        onChange={(e) => onMode(e.target.value)}
+      >
+        <option value="">全部场次</option>
+        <option value="FRIENDS">好友场</option>
+        <option value="AI_PRACTICE">AI 练习</option>
+      </select>
     </div>
+  );
+}
+function Summary({ format, mode }: { format: string; mode: string }) {
+  const [data, setData] = useState<MatchStats | null>(null);
+  useEffect(() => {
+    let valid = true;
+    setData(null);
+    api<MatchStats>(
+      "/stats?" +
+        new URLSearchParams({
+          ...(mode ? { mode } : {}),
+          ...(format ? { format } : {}),
+        }),
+    )
+      .then((d) => valid && setData(d))
+      .catch(() => {});
+    return () => {
+      valid = false;
+    };
+  }, [format, mode]);
+  if (!data || !data.count) return null;
+  const rate = (x: number | null) =>
+    x === null ? "—" : `${(x * 100).toFixed(1)}%`;
+  return (
+    <section className="history-summary" aria-label="近 30 天">
+      <div className="stats-grid">
+        {[
+          ["近 30 天", `${data.count} 场`],
+          ["一位率", rate(data.firstPlaceRate)],
+          [
+            "平均顺位",
+            data.averageRank === null ? "—" : data.averageRank.toFixed(2),
+          ],
+          [
+            "平均得失",
+            data.averageNetPoints === null
+              ? "—"
+              : signed(Math.round(data.averageNetPoints)),
+          ],
+        ].map(([label, value]) => (
+          <article key={label}>
+            <small>{label}</small>
+            <strong>{value}</strong>
+          </article>
+        ))}
+      </div>
+      <p className="muted">
+        {data.distribution
+          .map((d) => `${["一", "二", "三", "四"][d.rank - 1]}位 ${d.count} 场`)
+          .join("，")}
+      </p>
+    </section>
   );
 }
 export function History({
@@ -111,12 +164,8 @@ export function History({
   }
   return (
     <main className="history-page">
-      <h1>{detail ? "比赛详情" : "历史战绩"}</h1>
+      <h1>{detail ? "这一场" : "战绩"}</h1>
       <p className="page-sub">每一桌，都有来处</p>
-      <p className="muted">
-        正式账号登录后可读取本环境内本人战绩；游客会话丢失仍无法凭昵称找回。牌谱至少保存
-        30 天。
-      </p>
       {err && <p role="alert">{err}</p>}
       {detail ? (
         <>
@@ -128,7 +177,7 @@ export function History({
             <span>{formatName(detail.format)}</span>
             <span>{modeName(detail.mode)}</span>
             <span>
-              {detail.status === "ABORTED" ? "技术中止，不计入统计" : "已结束"}
+              {detail.status === "ABORTED" ? "意外中止，不计入战绩" : "已终了"}
             </span>
           </p>
           <div className="score-table">
@@ -136,22 +185,24 @@ export function History({
               .sort((a, b) => (a.rank ?? 9) - (b.rank ?? 9))
               .map((p) => (
                 <div key={p.seat}>
-                  <span>{p.rank === null ? "无名次" : `第 ${p.rank} 名`}</span>
+                  <span>
+                    {p.rank === null
+                      ? "—"
+                      : `${["一", "二", "三", "四"][p.rank - 1]}位`}
+                  </span>
                   <b>
                     <Avatar id={p.avatarId} />
                     {p.displayName}
                     {p.userId === userId ? "（你）" : ""}
                   </b>
                   <span>
-                    {p.participantKind === "BOT"
-                      ? `${p.botLevel === "BASIC" ? "基础" : "标准"} AI（${p.botPolicyVersion}）`
-                      : "真人"}
+                    {p.participantKind === "BOT" ? botName(p.botLevel) : ""}
                   </span>
                   <strong>{p.points.toLocaleString()}</strong>
                   <span>
                     {detail.status === "FINISHED"
                       ? signed(p.netPoints)
-                      : "中止时点数"}
+                      : "中止时"}
                   </span>
                 </div>
               ))}
@@ -161,16 +212,16 @@ export function History({
               className="primary"
               onClick={() => onReplay(detail.matchId)}
             >
-              查看完整牌谱
+              看牌谱
             </button>
           ) : (
             <p className="muted">
               {detail.status === "ABORTED"
-                ? "技术中止场不提供完整回放"
-                : "牌谱已过保存期"}
+                ? "意外中止的对局没有牌谱"
+                : "牌谱已过保存期（30 天）"}
             </p>
           )}
-          <h2>逐局结果</h2>
+          <h2>每一局</h2>
           <div className="history-list">
             {detail.hands.map((h) => (
               <article key={h.handId}>
@@ -191,14 +242,14 @@ export function History({
                       (p, i) =>
                         `${detail.members[i].displayName} ${p.toLocaleString()}（${signed(h.delta[i])}）`,
                     )
-                    .join(" / ")}
+                    .join("，")}
                 </p>
                 {detail.replayAvailable && (
                   <button
                     className="text-button"
                     onClick={() => onReplay(detail.matchId, h.handId)}
                   >
-                    回看这一局
+                    看这一局
                   </button>
                 )}
               </article>
@@ -213,6 +264,7 @@ export function History({
             onFormat={setFormat}
             onMode={setMode}
           />
+          <Summary format={format} mode={mode} />
           <div className="history-list">
             {items.map((s) => {
               const self = s.members.find((m) => m.userId === userId);
@@ -229,8 +281,8 @@ export function History({
                   </small>
                   <strong>
                     {s.status === "ABORTED"
-                      ? "技术中止"
-                      : `第 ${self?.rank} 名，${self?.points.toLocaleString()} 点（${signed(self?.netPoints ?? 0)}）`}
+                      ? "意外中止"
+                      : `${["一", "二", "三", "四"][(self?.rank ?? 1) - 1]}位，${self?.points.toLocaleString()} 点（${signed(self?.netPoints ?? 0)}）`}
                   </strong>
                   <span>
                     {s.members
@@ -239,119 +291,25 @@ export function History({
                         (p) =>
                           p.displayName +
                           (p.participantKind === "BOT"
-                            ? `（${p.botLevel === "BASIC" ? "基础" : "标准"} AI）`
+                            ? `（${botName(p.botLevel)}）`
                             : ""),
                       )
-                      .join(" / ")}
+                      .join("、")}
                   </span>
-                  <span>查看详情</span>
                 </button>
               );
             })}
           </div>
           {!loading && !items.length && (
-            <p>还没有符合条件的比赛。完成一场后，这里会留下记录。</p>
+            <p>这里还空着。打完一场，就会留下记录。</p>
           )}
           {cursor && (
             <button className="secondary" disabled={loading} onClick={next}>
-              继续加载 20 场
+              更早的
             </button>
           )}
-          {loading && <p aria-live="polite">正在读取战绩…</p>}
+          {loading && <p aria-live="polite">正在载入…</p>}
         </>
-      )}
-    </main>
-  );
-}
-export function Stats() {
-  const [format, setFormat] = useState(""),
-    [mode, setMode] = useState("FRIENDS"),
-    [data, setData] = useState<MatchStats | null>(null),
-    [err, setErr] = useState("");
-  useEffect(() => {
-    let valid = true;
-    setData(null);
-    api<MatchStats>(
-      "/stats?" + new URLSearchParams({ mode, ...(format ? { format } : {}) }),
-    )
-      .then((d) => {
-        if (valid) {
-          setData(d);
-          setErr("");
-        }
-      })
-      .catch((e) => {
-        if (valid) setErr(e.message);
-      });
-    return () => {
-      valid = false;
-    };
-  }, [format, mode]);
-  const rate = (x: number | null) =>
-    x === null ? "暂无数据" : `${(x * 100).toFixed(1)}%`;
-  return (
-    <main className="history-page">
-      <h1>我的统计</h1>
-      <p className="page-sub">看见自己的步调</p>
-      <Filters
-        format={format}
-        mode={mode}
-        onFormat={setFormat}
-        onMode={setMode}
-        all={false}
-      />
-      {err && <p role="alert">{err}</p>}
-      {data ? (
-        <>
-          <p className="meta-row">
-            <span>最近 30 天</span>
-            <span>
-              {new Date(data.from).toLocaleDateString()} 至{" "}
-              {new Date(data.to).toLocaleDateString()}
-            </span>
-            <span>样本 {data.count} 场</span>
-          </p>
-          <div className="stats-grid">
-            {[
-              ["有效场数", data.count],
-              ["一位率", rate(data.firstPlaceRate)],
-              [
-                "平均顺位",
-                data.averageRank === null
-                  ? "暂无数据"
-                  : data.averageRank.toFixed(2),
-              ],
-              [
-                "平均净得失",
-                data.averageNetPoints === null
-                  ? "暂无数据"
-                  : signed(Math.round(data.averageNetPoints)),
-              ],
-            ].map(([label, value]) => (
-              <article key={label}>
-                <small>{label}</small>
-                <strong>{value}</strong>
-              </article>
-            ))}
-          </div>
-          <h2>名次分布</h2>
-          <div className="rank-bars">
-            {data.distribution.map((d) => (
-              <div key={d.rank}>
-                <span>第 {d.rank} 名</span>
-                <progress max="1" value={d.rate ?? 0} />
-                <span>
-                  {d.count} 场，{rate(d.rate)}
-                </span>
-              </div>
-            ))}
-          </div>
-          <p className="muted">
-            仅计入正常结束的比赛；技术中止、进行中和内部模拟不计入。掉线托管仍按开场时的模式统计。
-          </p>
-        </>
-      ) : (
-        <p>正在读取统计…</p>
       )}
     </main>
   );

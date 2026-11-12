@@ -79,13 +79,14 @@ try {
         { kind, preserve },
       );
       await page.waitForFunction((generation: number) => {
-        const b = [...document.querySelectorAll("button")].find(
-          (b) => b.textContent?.trim() === "重新同步",
+        const panel = document.querySelector(
+          `[data-browser-generation="${generation}"] .hand-panel`,
         );
         return (
-          document.querySelector(
-            `[data-browser-generation="${generation}"] .hand-panel`,
-          ) && !b
+          panel &&
+          !panel
+            .querySelector(".auto-status")
+            ?.textContent?.includes("正在与牌桌同步")
         );
       }, generation);
     };
@@ -111,16 +112,15 @@ try {
     };
     const quick = () =>
       page.getByRole("checkbox", { name: /快速出牌/ }).check();
-    const keyboard = async () => {
-      await page.getByRole("checkbox", { name: "启用键盘操作" }).check();
-      await page.getByRole("button", { name: "聚焦牌桌" }).click();
-    };
+    // Keys are always on; focusing the hand region stands in for a player
+    // whose focus is on the table.
+    const keyboard = () => page.locator(".hand-panel").focus();
     const tile = (id: number) => page.locator(`[data-hand-tile="${id}"]`);
     const eventOption = () =>
       page.evaluate(() => (window as any).v42.events.at(-1)?.payload.optionId);
     await check("defaults and normal select-confirm", async () => {
       await reset();
-      assert.equal(await page.getByRole("checkbox").count(), 4);
+      assert.equal(await page.getByRole("checkbox").count(), 3);
       for (const x of await page.getByRole("checkbox").all())
         assert.equal(await x.isChecked(), false);
       await tile(16).click();
@@ -173,6 +173,19 @@ try {
       },
     );
     await check(
+      "keys work with nothing focused, without a click first",
+      async () => {
+        await reset();
+        await page.evaluate(() =>
+          (document.activeElement as HTMLElement)?.blur(),
+        );
+        await page.keyboard.press("End");
+        assert.equal(await count(), 0);
+        await page.keyboard.press("Enter");
+        assert.equal(await eventOption(), "discard-18");
+      },
+    );
+    await check(
       "keyboard native tile activation selects without quick discard or dual activation",
       async () => {
         await reset();
@@ -215,12 +228,12 @@ try {
         await page.waitForTimeout(10);
         assert.match(
           await page.evaluate(() => document.activeElement?.textContent),
-          /取消/,
+          /留着荣和/,
         );
         await page.keyboard.press("Enter");
         assert.equal(await count(), 0);
         await page.getByRole("button", { name: "过", exact: true }).click();
-        await page.getByRole("button", { name: "确认放弃荣和并过牌" }).click();
+        await page.getByRole("button", { name: "确定过" }).click();
         assert.equal(await eventOption(), "pass");
       },
     );
@@ -233,7 +246,7 @@ try {
         await page.keyboard.press("r");
         await page.keyboard.press("Enter");
         assert.equal(await count(), 0);
-        await page.getByRole("button", { name: "聚焦牌桌" }).click();
+        await keyboard();
         await page.keyboard.press("Meta+ArrowRight");
         await page
           .locator(".hand-panel")
@@ -402,7 +415,7 @@ try {
       },
     );
     await check(
-      "quick and keyboard preferences survive remount while automatic modes reset",
+      "quick preference survives remount while automatic modes reset",
       async () => {
         await reset();
         await quick();
@@ -411,12 +424,6 @@ try {
         await reset("draw", true);
         assert.equal(
           await page.getByRole("checkbox", { name: /快速出牌/ }).isChecked(),
-          true,
-        );
-        assert.equal(
-          await page
-            .getByRole("checkbox", { name: "启用键盘操作" })
-            .isChecked(),
           true,
         );
         assert.equal(
@@ -448,7 +455,7 @@ try {
         await quick();
         assert.equal(
           await page
-            .getByText("设置无法保存，本页仍可使用", { exact: true })
+            .getByText("这台设备记不住设置，本次照常可用", { exact: true })
             .isVisible(),
           true,
         );

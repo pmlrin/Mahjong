@@ -16,11 +16,9 @@ export function AccountPanel({
   onCancel,
   socialCapabilities,
   onProfileUpdated,
-  onFriends,
 }: {
   socialCapabilities?: Partial<SocialCapabilities>;
   onProfileUpdated?: () => Promise<void>;
-  onFriends?: () => void;
   page: AccountPage;
   setPage: (p: AccountPage) => void;
   me: CurrentUser | null;
@@ -128,14 +126,13 @@ export function AccountPanel({
       setGrant(result.grant);
       setExpiresAt(result.expiresAt);
       setStage("password");
-      setMessage("邮箱已验证，请在五分钟内设置密码");
+      setMessage("邮箱已验证，请在五分钟内设好密码");
     });
   }
   function passwordsValid() {
     const length = Array.from(password).length;
-    if (length < 12 || length > 128)
-      throw Error("密码须为 12～128 个字符；空格不会自动删除");
-    if (password !== confirmation) throw Error("两次输入的密码不一致");
+    if (length < 12 || length > 128) throw Error("密码需要 12 到 128 个字符");
+    if (password !== confirmation) throw Error("两次输入的密码不一样");
   }
   async function complete() {
     await run(async () => {
@@ -199,9 +196,9 @@ export function AccountPanel({
           maxLength={256}
         />
       </label>
-      <small>12～128 个字符，支持粘贴密码，空格会按原值保留。</small>
+      <small>至少 12 个字符。</small>
       <label>
-        确认新密码{" "}
+        再输一次{" "}
         <input
           type="password"
           autoComplete="new-password"
@@ -214,22 +211,21 @@ export function AccountPanel({
     </>
   );
   const title = {
-    profile: "个人与账号",
-    register: "注册账号",
-    login: "邮箱密码登录",
+    profile: "我的账号",
+    register: "注册",
+    login: "登录",
     reset: "找回密码",
     change: "修改密码",
   }[page];
   return (
     <main className="account-page">
       <button className="text-button" onClick={onCancel}>
-        返回牌桌或首页
+        返回
       </button>
       <h1>{title}</h1>
-      <p className="page-sub">把这一桌，留在自己名下</p>
       {capabilities?.environment === "preview" && (
         <p className="account-notice">
-          当前为预览环境，账号和战绩与正式站分别保存。
+          这里是预览站，账号和战绩与正式站互不相通。
         </p>
       )}
       {error && (
@@ -244,39 +240,35 @@ export function AccountPanel({
       )}
       {locked && (
         <section className="account-release">
-          <h2>先退出当前牌桌控制</h2>
+          <h2>先离开牌桌</h2>
           <p>
-            进行中的比赛会交给
-            AI，座位、点数和已经提交的选择都会保留。若还在准备厅，会离开该准备位置。
+            进行中的对局会交给 AI
+            托管，座位和点数都保留；还没开局的话，会先离开房间。
           </p>
           <button
             className="secondary"
             disabled={busy}
             onClick={() => run(onRelease)}
           >
-            托管／离开准备厅并继续
+            离开牌桌，继续
           </button>
           <button className="text-button" onClick={onCancel}>
-            取消，回到牌桌
+            回到牌桌
           </button>
         </section>
       )}
       {page === "profile" ? (
         <section className="account-card">
-          <h2>{me?.displayName ?? "欢迎入座"}</h2>
+          <h2>{me?.displayName ?? "尚未入座"}</h2>
           {me?.identityKind === "ACCOUNT" ? (
             <>
-              <p>正式账号：{me.maskedEmail}</p>
+              <p>{me.maskedEmail}</p>
               <AccountTools
                 key={me.userId}
                 userId={me.userId}
                 capabilities={socialCapabilities ?? {}}
                 onUpdated={onProfileUpdated ?? (async () => {})}
-                onFriends={onFriends ?? (() => {})}
               />
-              <p>
-                登录同一环境即可读取仍在保存期内的战绩；注册不会把牌谱延长为永久保存。
-              </p>
               <button className="secondary" onClick={() => setPage("change")}>
                 修改密码
               </button>
@@ -290,23 +282,22 @@ export function AccountPanel({
             </>
           ) : (
             <>
-              <p>游客身份，注册后可在其他浏览器登录。</p>
               <p>
-                注册新账号将保留当前游客原来的比赛归属；登录已有账号不会合并游客记录。
+                你现在是游客。注册后，换台设备也能接着打，已有战绩一并保留。
               </p>
               <button
                 className="primary"
                 disabled={!capabilities?.registration}
                 onClick={() => setPage("register")}
               >
-                注册当前游客
+                注册
               </button>
               <button
                 className="secondary"
                 disabled={!capabilities?.passwordLogin}
                 onClick={() => setPage("login")}
               >
-                登录已有账号
+                已有账号，登录
               </button>
               {me &&
                 (!confirmGuestLogout ? (
@@ -314,25 +305,23 @@ export function AccountPanel({
                     className="text-button"
                     onClick={() => setConfirmGuestLogout(true)}
                   >
-                    退出游客身份
+                    退出游客
                   </button>
                 ) : (
                   <div className="account-notice">
-                    <p>
-                      退出后，不承诺找回这个未注册游客的身份。可以先注册，或取消退出。
-                    </p>
+                    <p>游客退出后就找不回来了，连同战绩。不如先注册？</p>
                     <button
                       className="secondary"
                       disabled={busy || locked}
                       onClick={logout}
                     >
-                      确认退出当前游客
+                      仍要退出
                     </button>
                     <button
                       className="text-button"
                       onClick={() => setConfirmGuestLogout(false)}
                     >
-                      取消退出
+                      算了
                     </button>
                   </div>
                 ))}
@@ -340,7 +329,7 @@ export function AccountPanel({
           )}
           {!capabilities?.mailAvailable && (
             <p className="muted">
-              邮箱验证暂未开放。游客试玩仍可使用，已有账号的密码登录独立保留。
+              注册暂未开放。游客照常可玩，已有账号也能登录。
             </p>
           )}
         </section>
@@ -382,7 +371,7 @@ export function AccountPanel({
                   checked={confirmSwitch}
                   onChange={(e) => setConfirmSwitch(e.target.checked)}
                 />
-                我知道：当前游客记录不会合并，切换后可能无法找回。
+                我知道：登录后，当前游客和它的战绩就找不回来了。
               </label>
               <button
                 type="button"
@@ -390,7 +379,7 @@ export function AccountPanel({
                 disabled={!capabilities?.registration}
                 onClick={() => setPage("register")}
               >
-                先注册当前游客，保留这份战绩
+                先把这个游客注册成账号
               </button>
             </div>
           )}
@@ -414,7 +403,7 @@ export function AccountPanel({
             忘记密码
           </button>
           <button type="button" className="text-button" onClick={onCancel}>
-            取消身份切换
+            取消
           </button>
         </form>
       ) : page === "change" ? (
@@ -425,7 +414,7 @@ export function AccountPanel({
             change();
           }}
         >
-          <p>修改成功后，其他设备需要重新登录；本页将使用一个新的登录会话。</p>
+          <p>改好后，其他设备需要重新登录。</p>
           <label>
             当前密码{" "}
             <input
@@ -442,7 +431,7 @@ export function AccountPanel({
             className="primary"
             disabled={busy || locked || me?.identityKind !== "ACCOUNT"}
           >
-            确认修改密码
+            修改密码
           </button>
         </form>
       ) : (
@@ -450,19 +439,18 @@ export function AccountPanel({
           {!mailAllowed ? (
             <section className="account-card">
               <p>
-                邮件验证尚未配置或暂时不可用，当前不能完成
                 {page === "reset" ? "找回密码" : "注册"}
-                。不会创建未经验证的账号。
+                暂未开放，请稍后再来。
               </p>
               <button className="secondary" onClick={onCancel}>
-                返回游客试玩
+                返回
               </button>
               {capabilities?.passwordLogin && (
                 <button
                   className="text-button"
                   onClick={() => setPage("login")}
                 >
-                  使用已有账号密码登录
+                  已有账号，登录
                 </button>
               )}
             </section>
@@ -479,7 +467,7 @@ export function AccountPanel({
                 });
               }}
             >
-              <p>先为你建立游客身份，再验证邮箱。升级后保留同一个玩家 ID。</p>
+              <p>先起个名字入座，再用邮箱完成注册。</p>
               <label>
                 昵称{" "}
                 <input
@@ -491,7 +479,7 @@ export function AccountPanel({
                 />
               </label>
               <button className="primary" disabled={busy || !name.trim()}>
-                先以游客入座
+                入座
               </button>
             </form>
           ) : (
@@ -510,9 +498,7 @@ export function AccountPanel({
                     />
                   </label>
                   {capabilities?.previewRestricted && (
-                    <p className="muted">
-                      预览仅向已确认的测试邮箱发送邮件。申请受理不等于邮件已经投递。
-                    </p>
+                    <p className="muted">预览站只给登记过的测试邮箱发信。</p>
                   )}
                   {existingAccount && (
                     <div className="account-shortcuts">
@@ -520,7 +506,7 @@ export function AccountPanel({
                         className="secondary"
                         onClick={() => setPage("login")}
                       >
-                        登录已有账号
+                        已有账号，登录
                       </button>
                       <button
                         className="text-button"
@@ -544,7 +530,7 @@ export function AccountPanel({
                   {stage === "code" && (
                     <>
                       <label>
-                        六位验证码{" "}
+                        验证码{" "}
                         <input
                           inputMode="numeric"
                           autoComplete="one-time-code"
@@ -559,8 +545,8 @@ export function AccountPanel({
                       </label>
                       <p className="muted">
                         {remaining > 0
-                          ? `本次验证码剩余 ${Math.ceil(remaining / 60)} 分钟`
-                          : "验证码已过期，请重新申请"}
+                          ? `验证码 ${Math.ceil(remaining / 60)} 分钟内有效`
+                          : "验证码过期了，请重新获取"}
                       </p>
                       <button
                         className="primary"
@@ -577,7 +563,7 @@ export function AccountPanel({
                           setGrant("");
                         }}
                       >
-                        修改邮箱
+                        换个邮箱
                       </button>
                     </>
                   )}
@@ -585,22 +571,18 @@ export function AccountPanel({
               ) : (
                 <>
                   <p>
-                    邮箱已验证。新密码设置完成后
                     {page === "register"
-                      ? "才创建正式账号，并保留当前游客战绩"
-                      : "会退出全部旧会话，随后请重新登录"}
-                    。
+                      ? "邮箱已验证。设好密码，账号就建好了，游客战绩一并带上。"
+                      : "邮箱已验证。设好新密码后，请重新登录。"}
                   </p>
                   {pwdFields}
-                  <p className="muted">本次设置授权剩余 {remaining} 秒</p>
+                  <p className="muted">还剩 {remaining} 秒</p>
                   <button
                     className="primary"
                     disabled={busy || locked || remaining === 0}
                     onClick={complete}
                   >
-                    {page === "register"
-                      ? "完成注册并保留游客战绩"
-                      : "重设密码"}
+                    {page === "register" ? "完成注册" : "设好新密码"}
                   </button>
                   {remaining === 0 && (
                     <button
@@ -613,7 +595,7 @@ export function AccountPanel({
                         setConfirmation("");
                       }}
                     >
-                      授权已过期，重新验证邮箱
+                      超时了，重新验证邮箱
                     </button>
                   )}
                 </>
@@ -622,9 +604,6 @@ export function AccountPanel({
           )}
         </>
       )}
-      <p className="account-footnote">
-        验证码、完成凭据和密码不会出现在诊断信息或牌谱中。清除未注册游客的会话后，不能凭昵称找回。
-      </p>
     </main>
   );
 }

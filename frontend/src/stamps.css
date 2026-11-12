@@ -92,7 +92,7 @@
     opacity: 0;
   }
 }
-/* With either reduce-motion setting the app's global rules drop all
+/* With the system's reduce-motion setting the app's global rules drop all
    animation: the stamp then simply shows, still, until it is removed. */
 @media (orientation: landscape) and (max-height: 600px), (max-width: 640px) {
   .table-frame {

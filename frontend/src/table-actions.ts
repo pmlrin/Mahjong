@@ -69,14 +69,14 @@ export function automaticOption(
     !w ||
     w.windowId !== d.windowId
   )
-    return { reason: "无操作权" };
+    return { reason: "还没轮到你" };
   if (discard && w.kind === "SELF_ACTION" && w.actorSeat === v.viewerSeat) {
     if (
       d.options.some((o) =>
         ["TSUMO", "ANKAN", "KAKAN", "ABORT_KYUUSHU"].includes(o.type),
       )
     )
-      return { reason: "当前需手动：和牌、杠或九种九牌" };
+      return { reason: "能和、能杠或九种九牌，等你决定" };
     const option =
       w.selfActionMode === "AFTER_DRAW" && v.self.drawnTile !== null
         ? d.options.find(
@@ -84,18 +84,18 @@ export function automaticOption(
           )
         : undefined;
     return option
-      ? { option, source: "auto-discard", reason: "即将自动摸切" }
-      : { reason: "当前需手动：没有合法摸切牌" };
+      ? { option, source: "auto-discard", reason: "即将摸切" }
+      : { reason: "这一手摸切不了，等你决定" };
   }
   if (noCall && ["CALL_RESPONSE", "KAN_RESPONSE"].includes(w.kind)) {
     if (d.options.some((o) => o.type === "RON"))
-      return { reason: "当前需手动：仍可荣和" };
+      return { reason: "能荣和，等你决定" };
     const option = d.options.find((o) => o.type === "PASS");
     return option
-      ? { option, source: "auto-pass", reason: "即将自动过牌（不鸣牌）" }
-      : { reason: "当前需手动：没有合法过牌" };
+      ? { option, source: "auto-pass", reason: "即将过（不鸣牌）" }
+      : { reason: "这一手过不了，等你决定" };
   }
-  return { reason: "开启，等待合适的行动" };
+  return { reason: "已开启，静候时机" };
 }
 
 /** A single decision gate shared by pointer, keyboard and cancellable automatic input. */
@@ -204,18 +204,18 @@ export class TableActions {
   get autoStatus() {
     if (this.pending)
       return this.lock?.status === "unknown"
-        ? "结果不确定，正在恢复；自动操作已关闭"
-        : "已提交，等待裁决";
-    if (!this.active || !this.fresh || !this.context?.network)
-      return "无操作权，等待前台权威状态";
-    if (!this.autoDiscard && !this.noCall) return this.notice || "自动操作关闭";
-    if (!this.can) return "开启，等待操作权";
+        ? "这一手还没有回音，正在确认"
+        : "已出手，静候结果";
+    if (!this.active) return "回到这个页面，即可继续操作";
+    if (!this.fresh || !this.context?.network) return "正在与牌桌同步…";
+    if (!this.autoDiscard && !this.noCall) return this.notice;
+    if (!this.can) return "已开启，等你的回合";
     if (this.manual || this.riichi || this.modal)
-      return "当前需手动，下一次行动继续自动";
+      return "这一手由你，下一手照旧自动";
     return this.scheduled
       ? this.scheduled.source === "auto-discard"
-        ? "即将自动摸切（500 毫秒取消等待）"
-        : "即将自动过牌（500 毫秒取消等待）"
+        ? "即将摸切…"
+        : "即将过…"
       : this.notice ||
           automaticOption(this.frame, this.autoDiscard, this.noCall).reason;
   }
@@ -260,7 +260,7 @@ export class TableActions {
             d?.owner === "AI" ||
             d?.disabledReason === "CONTROL_PENDING")))
     ) {
-      this.stopAutomatic("操作资格变化，自动操作已关闭，请重新开启");
+      this.stopAutomatic("牌桌有变，自动操作已关闭");
       this.fresh = false;
       this.wantedSync = null;
     }
@@ -269,7 +269,7 @@ export class TableActions {
       v.status === "ABORTED" ||
       (old && old.frame.matchId !== c.frame.matchId)
     )
-      this.stopAutomatic("本场已结束，自动操作已关闭");
+      this.stopAutomatic("本场已终了，自动操作已关闭");
     this.permission = permission;
     if (
       this.wantedSync &&
@@ -332,7 +332,7 @@ export class TableActions {
     try {
       this.deps.save(action);
     } catch {
-      this.notice = "恢复记录无法保存，请保持当前页面打开";
+      this.notice = "这台设备记不住出牌记录，请别关闭本页";
     }
   }
   private cancelWait() {
@@ -340,14 +340,14 @@ export class TableActions {
     this.timer = undefined;
     this.scheduled = undefined;
   }
-  stopAutomatic(message = "自动操作关闭") {
+  stopAutomatic(message = "") {
     this.cancelWait();
     this.autoDiscard = false;
     this.noCall = false;
     this.notice = message;
     this.deps.changed();
   }
-  suspend(message = "页面失活，自动操作已关闭；返回后请重新开启") {
+  suspend(message = "离开了页面，自动操作已关闭") {
     this.active = false;
     this.fresh = false;
     this.wantedSync = null;
@@ -380,7 +380,7 @@ export class TableActions {
       if (this.alive && this.wantedSync === id) {
         this.wantedSync = null;
         this.fresh = false;
-        this.stopAutomatic("同步失败，请重试同步");
+        this.stopAutomatic("同步没成功，稍后自动重试");
       }
     }
   }
@@ -414,7 +414,7 @@ export class TableActions {
   intervene() {
     this.manual = true;
     this.cancelWait();
-    this.notice = "当前需手动，下一次行动继续自动";
+    this.notice = "这一手由你，下一手照旧自动";
     this.deps.changed();
   }
   select(tile: number, fast = false) {
@@ -530,7 +530,7 @@ export class TableActions {
     if (this.attempted) return;
     if (this.remaining() <= AUTO_WAIT_MS) {
       this.manual = true;
-      this.notice = "时间不足 500 毫秒，请手动操作";
+      this.notice = "时间太紧，这一手请自己来";
       return;
     }
     const scheduled = {
@@ -638,8 +638,8 @@ export class TableActions {
       if (!this.alive || this.lock !== action) return;
       action.status = "unknown";
       this.persist(action);
-      this.stopAutomatic("回执未明，自动操作已关闭");
-      this.deps.error("操作回执尚未收到，正在恢复；请勿重复提交");
+      this.stopAutomatic("这一手还没有回音，自动操作已关闭");
+      this.deps.error("这一手还没有回音，正在确认，不必重复出牌");
       void this.synchronize();
       void this.recover();
     }
@@ -657,7 +657,7 @@ export class TableActions {
     if (action.status === "rejected") {
       this.manual = true;
       this.fresh = false;
-      this.deps.error(receipt.error?.message ?? "动作被拒绝，请同步后手动操作");
+      this.deps.error(receipt.error?.message ?? "这一手没有成功，请重新选择");
       void this.synchronize(true);
     } else if (action.key !== this.key) this.finishOld();
     this.deps.changed();

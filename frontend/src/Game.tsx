@@ -50,12 +50,12 @@ export const resultNames: Record<string, string> = {
   ABORT_TRIPLE_RON: "三家和",
 };
 const endNames: Record<string, string> = {
-  BANKRUPTCY: "飞人终局",
-  DEALER_AGARI_YAME: "庄家和了止",
-  DEALER_TENPAI_YAME: "庄家听牌止",
-  SCHEDULE_COMPLETE: "计划赛程结束",
-  EXTENSION_TARGET_REACHED: "延长达到目标点数",
-  EXTENSION_HARD_LIMIT: "延长场结束",
+  BANKRUPTCY: "有人被击飞",
+  DEALER_AGARI_YAME: "庄家和牌后收场",
+  DEALER_TENPAI_YAME: "庄家听牌后收场",
+  SCHEDULE_COMPLETE: "赛程走完",
+  EXTENSION_TARGET_REACHED: "延长战有人达到 30,000 点",
+  EXTENSION_HARD_LIMIT: "延长战走完",
 };
 const wind = (w: string) =>
   ({ EAST: "东", SOUTH: "南", WEST: "西", NORTH: "北" })[w] ?? w;
@@ -191,26 +191,26 @@ export function Game({
   ];
   const actionPrompt =
     v.status === "ABORTED"
-      ? "本场因技术原因中止"
+      ? "本场意外中止"
       : pending || d?.submittedRequestId
-        ? "已提交，等待裁决"
+        ? "已出手，静候结果"
         : d?.owner === "AI"
-          ? "AI 正在思考…"
+          ? "AI 代你思考…"
           : d?.disabledReason === "CONTROL_PENDING"
-            ? "将在下个操作窗口恢复人工"
+            ? "下一手起由你接手"
             : can
               ? hand.phase === "SELF_ACTION"
                 ? riichi
-                  ? "选择立直弃牌"
+                  ? "选一张牌，立直打出"
                   : a.quick
-                    ? "单击即出牌；键盘选择后按 Enter"
-                    : "选择一张牌，再点击打出"
-                : `你可以${availableResponses.join("、")}，或选择过牌`
+                    ? "轮到你，点一张牌即打出"
+                    : "轮到你，选一张牌打出"
+                : `你可以${availableResponses.join("、")}，或者过`
               : hand.phase === "HAND_RESULT"
-                ? "本局已结束"
+                ? "这一局，落定"
                 : hand.phase === "SELF_ACTION" && hand.activeSeat !== null
-                  ? `${v.players[hand.activeSeat].displayName}${v.players[hand.activeSeat].effectiveControl === "AI" ? "正在思考…" : "正在选择出牌…"}`
-                  : "等待其他玩家响应…";
+                  ? `${v.players[hand.activeSeat].displayName}${v.players[hand.activeSeat].effectiveControl === "AI" ? "（AI）" : ""}思考中…`
+                  : "静候他家应答…";
   return (
     <main className="play-page">
       <div className="game-topline" inert={!!modal}>
@@ -219,21 +219,21 @@ export function Game({
             className={`status-dot ${network ? "on" : ""}`}
             aria-hidden="true"
           />
-          {network ? "牌桌已连接" : "正在重连，当前操作时间仍会继续"}
+          {network ? "已连接" : "连接中断，正在重连；计时照常"}
         </span>
-        <span>{formatName(v.format)}，四人立直</span>
+        <span>{formatName(v.format)}</span>
         {table.supported && !table.portrait && (
           <button
             className="text-button"
             onClick={() => table.choose(table.active === "3d" ? "flat" : "3d")}
           >
-            {table.active === "3d" ? "改用平面牌桌" : "改用 3D 牌桌"}
+            {table.active === "3d" ? "换成平面牌桌" : "换成 3D 牌桌"}
           </button>
         )}
         <button
           className="text-button"
           onClick={() => {
-            a.suspend("控制权正在切换，自动操作已关闭");
+            a.suspend("托管切换中，自动操作已关闭");
             emit("game:control", {
               matchId: v.matchId,
               bindingId: binding,
@@ -243,23 +243,23 @@ export function Game({
               .finally(() => a.resume());
           }}
         >
-          {v.self.desiredControl === "AI" ? "恢复人工" : "交给 AI 托管"}
+          {v.self.desiredControl === "AI" ? "收回托管" : "交给 AI 托管"}
         </button>
       </div>
-      <div className="portrait-hint">转为横屏，牌桌看得更清楚</div>
+      <div className="portrait-hint">横过来，牌桌更舒展</div>
       {v.status === "ABORTED" && (
         <div className="takeover">
-          <p>本场因技术原因中止，不计入有效战绩。请另开一桌继续。</p>
+          <p>本场意外中止，不计入战绩。再开一桌吧。</p>
           <button className="primary" onClick={onNew}>
-            创建新房间
+            再开一桌
           </button>
         </div>
       )}
       {table.failure && (
         <p className="table-fallback-note" role="status">
           {table.failure === "slow"
-            ? "3D 牌桌在这台设备上运行较慢，已改用平面牌桌；可在上方改回 3D。"
-            : "3D 牌桌无法显示，已改用平面牌桌。"}
+            ? "这台设备上 3D 牌桌有些吃力，已换成平面牌桌；可在上方换回。"
+            : "这台设备显示不了 3D 牌桌，已换成平面牌桌。"}
         </p>
       )}
       <div
@@ -284,7 +284,7 @@ export function Game({
           inert={!!modal}
           ref={controls.region}
           tabIndex={-1}
-          aria-label="牌桌操作区域"
+          aria-label="我的手牌"
           onKeyDownCapture={controls.keydown}
         >
           <div className="hand-rack">
@@ -296,7 +296,7 @@ export function Game({
                   actionPrompt
                 )}
                 {Object.values(v.self.furiten).some(Boolean) && (
-                  <span className="furiten">振听：不可荣和，可有役自摸</span>
+                  <span className="furiten">振听中：不能荣和，可以自摸</span>
                 )}
               </div>
               <div className="action-buttons">
@@ -329,7 +329,7 @@ export function Game({
                     }
                     title={
                       a.noCall && ["CHI", "PON", "DAIMINKAN"].includes(type)
-                        ? "请先关闭不鸣牌"
+                        ? "已开启不鸣牌"
                         : undefined
                     }
                     onClick={() =>
@@ -393,14 +393,10 @@ export function Game({
             <div className="hand-footer">
               <span>
                 {own.riichi === "ESTABLISHED"
-                  ? "立直后只能摸切，或选择合法和牌与暗杠"
-                  : a.quick
-                    ? "单击即出牌，立直选牌后确认"
-                    : "点选手牌，点击打出"}
+                  ? "已立直：摸到的牌直接打出，可和牌或暗杠"
+                  : "按 ← → 选牌，Enter 打出；R 立直，C 吃，P 碰，K 杠，W 和，空格过"}
               </span>
-              <span>
-                {wind(own.seatWind)}家 / {hand.handIndex} 次配牌
-              </span>
+              <span>你是{wind(own.seatWind)}家</span>
             </div>
           </div>
           <div
@@ -416,32 +412,15 @@ export function Game({
                   onClick={() => a.intervene()}
                   disabled={!can}
                 >
-                  本次手动
+                  这一手我来
                 </button>
                 <button
                   className="text-button"
                   onClick={() => a.stopAutomatic()}
                 >
-                  停止自动操作
+                  全部关闭
                 </button>
               </>
-            )}
-            {a.lock?.status === "unknown" && (
-              <button
-                className="secondary"
-                disabled={!network || !a.fresh}
-                onClick={() => a.recover(true)}
-              >
-                查询／恢复原动作
-              </button>
-            )}
-            {!a.fresh && network && (
-              <button
-                className="text-button"
-                onClick={() => a.synchronize(true)}
-              >
-                重新同步
-              </button>
             )}
           </div>
           <div className="table-controls" aria-label="牌桌操作设置">
@@ -451,9 +430,9 @@ export function Game({
                 checked={a.quick}
                 onChange={(e) => controls.preference("quick", e.target.checked)}
               />
-              快速出牌 {a.quick && <small>单击即出牌</small>}
+              快速出牌
             </label>
-            <label title="立即对本次行动生效，等待 500 毫秒。可能放弃本次立直机会；和牌、杠等选择暂停。">
+            <label title="摸到什么打什么；能和、能杠时停下等你">
               <input
                 type="checkbox"
                 checked={a.autoDiscard}
@@ -473,7 +452,7 @@ export function Game({
               />
               自动摸切
             </label>
-            <label title="立即对本次响应生效，等待 500 毫秒；不吃、不碰、不明杠；仍提示荣和。">
+            <label title="他家打牌不吃、不碰、不杠；能荣和时仍会停下">
               <input
                 type="checkbox"
                 checked={a.noCall}
@@ -491,46 +470,20 @@ export function Game({
                 }
                 onChange={(e) => a.setAutomatic("noCall", e.target.checked)}
               />
-              不鸣牌 <small>仍提示荣和</small>
+              不鸣牌
             </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={a.keyboard}
-                onChange={(e) =>
-                  controls.preference("keyboard", e.target.checked)
-                }
-              />
-              启用键盘操作
-            </label>
-            <button
-              className="text-button"
-              onClick={() => controls.region.current?.focus()}
-            >
-              聚焦牌桌
-            </button>
           </div>
           {controls.quickHelp && (
             <div className="operation-help" role="status">
-              快速出牌：单击或轻触即提交普通弃牌，已提交不能撤销；立直仍需选牌后确认。
+              快速出牌已开：点一下就打出，不再确认。立直时仍要先选牌。
               <button
                 className="text-button"
                 onClick={controls.closeQuickHelp}
-                aria-label="关闭快速出牌说明"
+                aria-label="收起快速出牌说明"
               >
                 知道了
               </button>
             </div>
-          )}
-          <p className="operation-help">
-            自动摸切：立即对本次行动生效，等待 500
-            毫秒；可能放弃立直机会。和牌、杠等选择暂停。不鸣牌：不吃、不碰、不明杠，仍提示荣和。
-          </p>
-          {a.keyboard && (
-            <p className="operation-help">
-              聚焦后：← → / Home End 选牌，Enter 确认；R 立直，C 吃，P 碰，K
-              杠，W 和牌，Space 过，Esc 取消。键盘始终选牌后确认。
-            </p>
           )}
           {controls.storageWarning && (
             <p role="status">{controls.storageWarning}</p>
@@ -552,42 +505,40 @@ export function Game({
             <button
               className="close"
               data-cancel
-              aria-label="取消当前操作"
+              aria-label="取消"
               onClick={() => a.escape()}
             >
               ×
             </button>
             <h2 id="action-modal-title">
               {modal.passRon
-                ? "确认放弃荣和？"
-                : `选择${[...new Set(modal.options.map((o) => actionNames[o.type]))].join("／")}方案`}
+                ? "这张能荣和，确定要过？"
+                : `怎么${[...new Set(modal.options.map((o) => actionNames[o.type]))].join("／")}`}
             </h2>
             {time !== null && (
               <span
                 className={`call-window-time ${time <= 3 ? "urgent" : ""}`}
                 role="timer"
               >
-                剩余 {time} 秒
+                还剩 {time} 秒
               </span>
             )}
             {modal.passRon ? (
               <>
-                <p>
-                  放弃合法荣和可能产生同巡振听或立直后振听，由服务器按规则计算。
-                </p>
+                <p>过掉之后会进入振听：本巡内（立直后则整局）不能再荣和。</p>
                 <button
                   className="secondary"
                   data-cancel="ron"
                   onClick={() => a.escape()}
                 >
-                  取消，保留荣和
+                  不过，留着荣和
                 </button>
                 <button
                   className="primary"
                   disabled={!can}
                   onClick={() => a.confirm()}
                 >
-                  确认放弃荣和并过牌
+                  确定过
                 </button>
               </>
             ) : (
@@ -595,13 +546,12 @@ export function Game({
                 {target && (
                   <ResponseSource
                     source={target}
-                    prompt="确认后提交，取消不等于过牌"
+                    prompt="选好后确认；取消不等于过"
                   />
                 )}
                 {!target && modal.options.some((o) => o.type === "TSUMO") && (
                   <p className="call-target">
-                    本人{v.self.drawSource === "RINSHAN" ? "岭上摸牌" : "摸牌"}
-                    自摸：
+                    {v.self.drawSource === "RINSHAN" ? "岭上开花" : "自摸"}：
                     {v.self.drawnTile !== null && (
                       <Tile tile={v.self.drawnTile} small />
                     )}
@@ -655,7 +605,7 @@ export function Game({
                   data-cancel
                   onClick={() => a.escape()}
                 >
-                  取消本次选择
+                  再想想
                 </button>
               </>
             )}
@@ -679,7 +629,7 @@ export function Game({
                 setDetails={setDetails}
               />
               <p className="auto-next">
-                {v.matchResult ? "即将显示整场成绩" : "下一局即将开始"}，{" "}
+                {v.matchResult ? "稍后揭晓全场" : "下一局"}，{" "}
                 {Math.max(
                   0,
                   Math.ceil(
@@ -694,8 +644,8 @@ export function Game({
       {finished && v.matchResult && (
         <div className="modal-shade">
           <section className="modal final-modal">
-            <h2>本场结算</h2>
-            <p className="modal-sub">一场好时光，感谢同桌</p>
+            <h2>一场终了</h2>
+            <p className="modal-sub">谢谢同桌</p>
             <p className="muted">{endNames[v.matchResult.reason]}</p>
             <div className="rankings">
               {[...v.players]
@@ -725,17 +675,17 @@ export function Game({
             </div>
             <div className="final-actions">
               <button className="secondary" onClick={onReplay}>
-                回看本场牌谱
+                看牌谱
               </button>
               {onRematch ? (
                 <button className="primary" onClick={onRematch}>
-                  同桌再战
+                  再来一场
                 </button>
               ) : (
-                <p>等待房主发起同桌再战</p>
+                <p>等房主再开一场</p>
               )}
               <button className="text-button" onClick={onNew}>
-                另开一桌
+                换一桌
               </button>
             </div>
           </section>
@@ -808,7 +758,7 @@ function HandResult({
           {r.tenpaiSeats.length
             ? r.tenpaiSeats.map((s) => v.players[s].displayName).join("、") +
               " 听牌"
-            : "四家未听"}
+            : "四家皆未听牌"}
         </p>
       )}
       <div className="result-points">
@@ -832,7 +782,7 @@ function HandResult({
         ))}
       </div>
       <button className="text-button" onClick={() => setDetails(!details)}>
-        {details ? "收起" : "查看"}支付明细 {details ? "−" : "＋"}
+        {details ? "收起" : "展开"}点数往来 {details ? "−" : "＋"}
       </button>
       {details && (
         <div className="ledger">

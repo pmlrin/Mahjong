@@ -16,9 +16,9 @@ export function seatStatus(v: MatchView, s: Seat) {
     : p.participantKind === "BOT"
       ? "AI 牌友"
       : !p.connected
-        ? "离线，托管中"
+        ? "暂离，托管中"
         : p.effectiveControl === "AI"
-          ? "AI 托管"
+          ? "托管中"
           : "在线";
 }
 
