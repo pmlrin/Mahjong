@@ -26,6 +26,8 @@ import { LatestDiscard } from "../turn-feedback";
 import type { Anchor, AnchorStore } from "../hand-anchors";
 import { createTile } from "./geometry";
 import { QUALITY, frameVerdict, type QualityLevel } from "./quality";
+import { useReducedMotion } from "../motion";
+import { DISCARD_FLIGHT, REVEAL } from "./timing";
 import {
   SCENE,
   SELF_HAND,
@@ -114,6 +116,8 @@ function tileGeometry(kit: Kit, glyph: number | null) {
 
 /** How far a selected own-hand tile rises, along its own "up". */
 const LIFT = selfHandUp().multiplyScalar(0.42 * SELF_HAND.scale);
+/** How far the winning tile rises off the table. */
+const WIN_LIFT = 0.45;
 
 /** Where a tile first appears from, when it was not on the table a moment ago. */
 interface Origin {
@@ -129,6 +133,8 @@ interface Motion {
   start: number;
   duration: number;
   arc: number;
+  /** A discard: travel to a point above the river, hang, then drop. */
+  hover?: Vector3;
 }
 const now = () => performance.now() / 1000;
 function motion(
@@ -137,6 +143,7 @@ function motion(
   toP: Vector3,
   toQ: Quaternion,
   arc?: number,
+  delay = 0,
 ): Motion {
   const distance = fromP.distanceTo(toP);
   return {
@@ -144,11 +151,61 @@ function motion(
     fromQ: fromQ.clone(),
     toP,
     toQ,
-    start: now(),
+    start: now() + delay,
     // Short hops (a lift) are quick; flights across the table take longer.
     duration: Math.min(0.46, 0.13 + distance * 0.02),
     arc: arc ?? (distance > 2.5 ? Math.min(1.4, distance * 0.09) : 0),
   };
+}
+/** The fixed-length discard flight, so its sound can land with it. */
+function discardMotion(
+  fromP: Vector3,
+  fromQ: Quaternion,
+  toP: Vector3,
+  toQ: Quaternion,
+): Motion {
+  const hover = toP.clone().setY(toP.y + DISCARD_FLIGHT.hover);
+  return {
+    fromP: fromP.clone(),
+    fromQ: fromQ.clone(),
+    toP,
+    toQ,
+    start: now(),
+    duration: DISCARD_FLIGHT.duration,
+    arc: 0,
+    hover,
+  };
+}
+const scratch = new Vector3();
+/** Place a moving tile at `t` (0–1) along its motion. */
+function step(g: Group, mv: Motion, t: number) {
+  if (!mv.hover) {
+    const e = 1 - (1 - t) ** 3;
+    g.position.lerpVectors(mv.fromP, mv.toP, e);
+    g.position.y += Math.sin(Math.PI * t) * mv.arc;
+    g.quaternion.slerpQuaternions(mv.fromQ, mv.toQ, e);
+    return;
+  }
+  const { travel, hang } = DISCARD_FLIGHT;
+  // Hang drifts down a quarter of the hover height, then the drop speeds up.
+  const low = scratch.lerpVectors(mv.toP, mv.hover, 0.75);
+  if (t < travel) {
+    // Up to the hover height first, then across: lifted, never tossed.
+    const u = t / travel,
+      across = 1 - (1 - u) ** 3,
+      up = 1 - (1 - u) ** 6;
+    g.position.lerpVectors(mv.fromP, mv.hover, across);
+    g.position.y = mv.fromP.y + (mv.hover.y - mv.fromP.y) * up;
+    g.quaternion.slerpQuaternions(mv.fromQ, mv.toQ, across);
+  } else if (t < hang) {
+    const u = (t - travel) / (hang - travel);
+    g.position.lerpVectors(mv.hover, low, u * u);
+    g.quaternion.copy(mv.toQ);
+  } else {
+    const u = (t - hang) / (1 - hang);
+    g.position.lerpVectors(low, mv.toP, u * u);
+    g.quaternion.copy(mv.toQ);
+  }
 }
 
 /**
@@ -164,6 +221,7 @@ function TileMesh({
   dim = false,
   animate,
   origin,
+  delay = 0,
 }: {
   p: TilePlacement;
   kit: Kit;
@@ -171,15 +229,22 @@ function TileMesh({
   dim?: boolean;
   animate: boolean;
   origin?: Origin;
+  /** Seconds to wait before moving (a finished hand plays out in turn). */
+  delay?: number;
 }) {
   const m = kit.materials;
   const showFace = p.faceUp && p.tile !== null;
   const ref = useRef<Group>(null);
   const moving = useRef<Motion | null>(null);
   const mounted = useRef(false);
+  const group = useRef(p.group);
   const invalidate = useThree((s) => s.invalidate);
   const [x, y, z] = p.position;
-  const target = lifted ? [x + LIFT.x, y + LIFT.y, z + LIFT.z] : [x, y, z];
+  const target = lifted
+    ? [x + LIFT.x, y + LIFT.y, z + LIFT.z]
+    : p.winning
+      ? [x, y + WIN_LIFT, z]
+      : [x, y, z];
   const key = [...target, ...p.quaternion].map((n) => n.toFixed(4)).join();
   useLayoutEffect(() => {
     const g = ref.current!;
@@ -187,13 +252,27 @@ function TileMesh({
       toQ = new Quaternion(...p.quaternion);
     const first = !mounted.current;
     mounted.current = true;
-    if (first && animate && origin) {
+    const was = group.current;
+    group.current = p.group;
+    // Into the river from a hand: an opponent's unseen tile (it has an
+    // origin) or the viewer's own tile (it was in the hand a moment ago).
+    const discard =
+      animate && p.group === "river" && (first ? !!origin : was === "hand");
+    if (discard) {
+      const from = first
+        ? origin!
+        : { position: g.position, quaternion: g.quaternion };
+      moving.current = discardMotion(from.position, from.quaternion, toP, toQ);
+      g.position.copy(from.position);
+      g.quaternion.copy(from.quaternion);
+    } else if (first && animate && origin) {
       moving.current = motion(
         origin.position,
         origin.quaternion,
         toP,
         toQ,
         origin.arc,
+        delay,
       );
       g.position.copy(origin.position);
       g.quaternion.copy(origin.quaternion);
@@ -202,7 +281,14 @@ function TileMesh({
       g.position.copy(toP);
       g.quaternion.copy(toQ);
     } else {
-      moving.current = motion(g.position, g.quaternion, toP, toQ);
+      moving.current = motion(
+        g.position,
+        g.quaternion,
+        toP,
+        toQ,
+        undefined,
+        delay,
+      );
     }
     invalidate();
   }, [key, animate]);
@@ -210,11 +296,9 @@ function TileMesh({
     const mv = moving.current;
     if (!mv) return;
     const g = ref.current!;
-    const t = Math.min(1, (now() - mv.start) / mv.duration);
-    const e = 1 - (1 - t) ** 3;
-    g.position.lerpVectors(mv.fromP, mv.toP, e);
-    g.position.y += Math.sin(Math.PI * t) * mv.arc;
-    g.quaternion.slerpQuaternions(mv.fromQ, mv.toQ, e);
+    // Before a delayed start the tile waits where it was.
+    const t = Math.max(0, Math.min(1, (now() - mv.start) / mv.duration));
+    step(g, mv, t);
     if (t < 1) state.invalidate();
     else moving.current = null;
   });
@@ -232,7 +316,7 @@ function TileMesh({
         castShadow
         receiveShadow
       />
-      {p.latest && (
+      {(p.latest || p.winning) && (
         <mesh
           geometry={kit.marker}
           material={m.marker}
@@ -241,18 +325,6 @@ function TileMesh({
       )}
     </group>
   );
-}
-
-function usePrefersReducedMotion() {
-  const query = "(prefers-reduced-motion: reduce)";
-  const [reduce, setReduce] = useState(() => matchMedia(query).matches);
-  useEffect(() => {
-    const list = matchMedia(query);
-    const change = () => setReduce(list.matches);
-    list.addEventListener("change", change);
-    return () => list.removeEventListener("change", change);
-  }, []);
-  return reduce;
 }
 
 /** A tile that was not on the table before: where does it come from? */
@@ -358,40 +430,83 @@ function CenterPlate({
   );
 }
 
+/** A riichi stick, once the riichi stands (its discard passed). */
+function RiichiStick({
+  seat,
+  viewer,
+  palette,
+  animate,
+}: {
+  seat: number;
+  viewer: number;
+  palette: Palette;
+  animate: boolean;
+}) {
+  const ref = useRef<Group>(null);
+  const slide = useRef<{ from: Vector3; start: number } | null>(null);
+  const invalidate = useThree((s) => s.invalidate);
+  const rel = relativeSeat(seat, viewer);
+  const q = seatQuaternion(rel);
+  const at = new Vector3(0, 0.05, SCENE.centerHalf + 0.35).applyQuaternion(q);
+  useLayoutEffect(() => {
+    // Laid down from the player's side of the table, sliding in to the centre.
+    if (!animate) return;
+    const from = new Vector3(0, 0.35, SCENE.riverStart + 2.2)
+      .applyQuaternion(q)
+      .setY(0.35);
+    slide.current = { from, start: now() };
+    ref.current!.position.copy(from);
+    invalidate();
+  }, []);
+  useFrame((state) => {
+    const sl = slide.current;
+    if (!sl) return;
+    const t = Math.min(1, (now() - sl.start) / RIICHI_STICK_SLIDE);
+    const e = 1 - (1 - t) ** 3;
+    ref.current!.position.lerpVectors(sl.from, at, e);
+    if (t < 1) state.invalidate();
+    else slide.current = null;
+  });
+  return (
+    <group ref={ref} name={`riichi-${seat}`} position={at} quaternion={q}>
+      <mesh castShadow>
+        <boxGeometry args={[2.6, 0.1, 0.18]} />
+        <meshStandardMaterial
+          color={srgb(palette["--tile-face"])}
+          roughness={0.4}
+        />
+      </mesh>
+      <mesh position={[0, 0.051, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.07, 16]} />
+        <meshStandardMaterial color={srgb(palette["--color-riichi"])} />
+      </mesh>
+    </group>
+  );
+}
+const RIICHI_STICK_SLIDE = 0.36;
 function RiichiSticks({
   view,
   palette,
+  animate,
 }: {
   view: MatchView;
   palette: Palette;
+  animate: boolean;
 }) {
   return (
     <>
-      {view.hand.seats.map((h, s) => {
-        if (h.riichi === "NONE") return null;
-        const rel = relativeSeat(s, view.viewerSeat);
-        const q = seatQuaternion(rel);
-        const pos = new Vector3(
-          0,
-          0.05,
-          SCENE.centerHalf + 0.35,
-        ).applyQuaternion(q);
-        return (
-          <group key={s} position={pos} quaternion={q}>
-            <mesh castShadow>
-              <boxGeometry args={[2.6, 0.1, 0.18]} />
-              <meshStandardMaterial
-                color={srgb(palette["--tile-face"])}
-                roughness={0.4}
-              />
-            </mesh>
-            <mesh position={[0, 0.051, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-              <circleGeometry args={[0.07, 16]} />
-              <meshStandardMaterial color={srgb(palette["--color-riichi"])} />
-            </mesh>
-          </group>
-        );
-      })}
+      {view.hand.seats.map((h, s) =>
+        h.riichi === "ESTABLISHED" ? (
+          <RiichiStick
+            // A new hand gets new sticks.
+            key={`${view.hand.handId}-${s}`}
+            seat={s}
+            viewer={view.viewerSeat}
+            palette={palette}
+            animate={animate}
+          />
+        ) : null,
+      )}
     </>
   );
 }
@@ -471,9 +586,11 @@ const FACE_CORNERS = [-1, 1].flatMap((x) =>
 );
 function HandAnchors({
   placements,
+  viewer,
   anchors,
 }: {
   placements: TilePlacement[];
+  viewer: Seat;
   anchors: AnchorStore;
 }) {
   const camera = useThree((s) => s.camera);
@@ -483,7 +600,8 @@ function HandAnchors({
     const out = new Map<number, Anchor>();
     const corner = new Vector3();
     for (const p of placements) {
-      if (p.group !== "hand" || p.tile === null) continue;
+      // Only the viewer's own hand: the others' are face up at a hand's end.
+      if (p.group !== "hand" || p.seat !== viewer || p.tile === null) continue;
       const q = new Quaternion(...p.quaternion);
       let left = Infinity,
         top = Infinity,
@@ -513,7 +631,7 @@ function HandAnchors({
       });
     }
     anchors.set(out);
-  }, [placements, camera, size.width, size.height, anchors]);
+  }, [placements, viewer, camera, size.width, size.height, anchors]);
   useEffect(() => () => anchors.set(new Map()), [anchors]);
   return null;
 }
@@ -544,12 +662,15 @@ function Scene({
   kit,
   hand,
   quality,
+  reduce,
   onSlow,
 }: {
   view: MatchView;
   kit: Kit;
   hand?: Table3DHand;
   quality: QualityLevel;
+  /** Leave motion out: tiles are placed, not moved. */
+  reduce: boolean;
   onSlow: () => void;
 }) {
   const placements = useMemo(
@@ -560,28 +681,50 @@ function Scene({
     () => new Set((hand?.dim ?? "").split(",").filter(Boolean).map(Number)),
     [hand?.dim],
   );
-  const reduce = usePrefersReducedMotion();
   // Compare with the previous layout: animate a single step of play; place
   // everything at once on first show, a new hand, or a jump.
   const previous = useRef<{
     handId: string;
+    phase: string;
     byKey: Map<string, TilePlacement>;
   } | null>(null);
-  const { animate, origins } = useMemo(() => {
+  const { animate, origins, delays } = useMemo(() => {
     const before = previous.current;
     const origins = new Map<string, Origin>();
+    const delays = new Map<string, number>();
     if (reduce || !before || before.handId !== view.hand.handId)
-      return { animate: false, origins };
+      return { animate: false, origins, delays };
     for (const p of placements)
       if (p.group !== "wall" && !before.byKey.has(p.key)) {
         const o = originOf(p, view.viewerSeat);
         if (o) origins.set(p.key, o);
       }
-    return { animate: !isJump(before.byKey, placements), origins };
+    // The hand just ended: after a beat the revealed hands fall one tile
+    // after another, the winning tile rises, then any ura dora turn over.
+    if (before.phase !== "HAND_RESULT" && view.hand.phase === "HAND_RESULT") {
+      const fallen = new Map<number, number>();
+      let ura = 0;
+      for (const p of placements) {
+        if (before.byKey.has(p.key)) {
+          if (p.winning) delays.set(p.key, REVEAL.lift);
+        } else if (p.group === "hand" && p.tile !== null) {
+          const i = fallen.get(p.seat) ?? 0;
+          fallen.set(p.seat, i + 1);
+          delays.set(p.key, REVEAL.pause + i * REVEAL.stagger);
+        } else if (
+          p.group === "dead" &&
+          p.faceUp &&
+          !view.hand.doraIndicators.includes(p.tile!)
+        )
+          delays.set(p.key, REVEAL.ura + ura++ * REVEAL.uraStagger);
+      }
+    }
+    return { animate: !isJump(before.byKey, placements), origins, delays };
   }, [placements, reduce]);
   useEffect(() => {
     previous.current = {
       handId: view.hand.handId,
+      phase: view.hand.phase,
       byKey: new Map(placements.map((p) => [p.key, p])),
     };
   }, [placements]);
@@ -609,7 +752,7 @@ function Scene({
       />
       <TableBody palette={kit.palette} />
       <CenterPlate info={info} palette={kit.palette} />
-      <RiichiSticks view={view} palette={kit.palette} />
+      <RiichiSticks view={view} palette={kit.palette} animate={animate} />
       {placements.map((p) => (
         <TileMesh
           key={p.key}
@@ -621,11 +764,18 @@ function Scene({
           dim={p.group === "hand" && p.tile !== null && dim.has(p.tile)}
           animate={animate}
           origin={origins.get(p.key)}
+          delay={delays.get(p.key)}
         />
       ))}
       <CameraRig />
       <FrameMonitor onSlow={onSlow} />
-      {hand && <HandAnchors placements={placements} anchors={hand.anchors} />}
+      {hand && (
+        <HandAnchors
+          placements={placements}
+          viewer={view.viewerSeat}
+          anchors={hand.anchors}
+        />
+      )}
     </>
   );
 }
@@ -684,6 +834,7 @@ function Table3D({
   onFail: (reason: string) => void;
 }) {
   const kit = useMemo(createKit, []);
+  const reduce = useReducedMotion();
   useEffect(() => () => kit.dispose(), [kit]);
   const fail = useRef(onFail);
   fail.current = onFail;
@@ -764,6 +915,7 @@ function Table3D({
           kit={kit}
           hand={handState}
           quality={QUALITY[level]}
+          reduce={reduce}
           onSlow={slower}
         />
       </Canvas>

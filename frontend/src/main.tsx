@@ -31,6 +31,8 @@ import { AccountPanel, type AccountPage } from "./account";
 import { History, Stats, formatName } from "./history-pages";
 import { Tile } from "./Tile";
 import { Melds } from "./Melds";
+import { playSound } from "./sounds";
+import { AppReducedMotion } from "./motion";
 const uuid = () => crypto.randomUUID();
 type Me = CurrentUser;
 const wind = (w: string) =>
@@ -109,11 +111,9 @@ function App() {
     binding = useRef(""),
     latest = useRef<Frame | null>(null),
     roomRef = useRef<Room | null>(null),
-    meRef = useRef<Me | null>(null),
-    soundRef = useRef(sound);
+    meRef = useRef<Me | null>(null);
   roomRef.current = room;
   meRef.current = me;
-  soundRef.current = sound;
   const run = async (fn: () => Promise<void>) => {
     setBusy(true);
     setError("");
@@ -313,12 +313,6 @@ function App() {
       if (old && old.streamId !== f.streamId && !f.syncId) return;
       latest.current = f;
       setFrame(f);
-      if (
-        soundRef.current &&
-        old?.state.hand.seats.reduce((n, s) => n + s.discards.length, 0) !==
-          f.state.hand.seats.reduce((n, s) => n + s.discards.length, 0)
-      )
-        beep();
     });
     s.on("server:notice", (n: { code: string; message: string }) => {
       if (!valid()) return;
@@ -454,7 +448,7 @@ function App() {
   function toggleSound() {
     setSound((v) => {
       writeLocalPreference("mj_sound", String(!v));
-      if (!v) beep();
+      if (!v) playSound("discard");
       return !v;
     });
   }
@@ -649,7 +643,15 @@ function App() {
             aria-label={sound ? "关闭音效" : "开启音效"}
             aria-pressed={sound}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z" />
               {sound ? (
                 <path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11" />
@@ -1077,26 +1079,29 @@ function App() {
           </p>
         </main>
       ) : screen === "game" && view ? (
-        <Game
-          key={me!.userId + ":" + sessionEpoch + ":" + view.matchId}
-          userId={me!.userId}
-          identity={me!.userId + ":" + sessionEpoch}
-          authorized={(c) =>
-            latest.current === c.frame &&
-            binding.current === c.binding &&
-            !!socket.current?.connected &&
-            meRef.current?.userId === me?.userId
-          }
-          view={view}
-          frame={frame!}
-          network={network}
-          binding={binding.current}
-          emit={emit}
-          setError={setError}
-          onNew={newRoom}
-          onRematch={room?.hostUserId === me?.userId ? rematch : undefined}
-          onReplay={() => openReplay(view.matchId)}
-        />
+        <AppReducedMotion.Provider value={reduced}>
+          <Game
+            key={me!.userId + ":" + sessionEpoch + ":" + view.matchId}
+            userId={me!.userId}
+            identity={me!.userId + ":" + sessionEpoch}
+            authorized={(c) =>
+              latest.current === c.frame &&
+              binding.current === c.binding &&
+              !!socket.current?.connected &&
+              meRef.current?.userId === me?.userId
+            }
+            view={view}
+            frame={frame!}
+            network={network}
+            binding={binding.current}
+            emit={emit}
+            setError={setError}
+            onNew={newRoom}
+            onRematch={room?.hostUserId === me?.userId ? rematch : undefined}
+            onReplay={() => openReplay(view.matchId)}
+            sound={sound}
+          />
+        </AppReducedMotion.Provider>
       ) : screen === "rules" ? (
         <Rules text={rules} onBack={() => setScreen(view ? "game" : "home")} />
       ) : screen === "social" && me?.identityKind === "ACCOUNT" ? (
@@ -1229,24 +1234,6 @@ function App() {
       )}
     </div>
   );
-}
-let audio: AudioContext | undefined;
-function beep() {
-  try {
-    audio ??= new AudioContext();
-    audio.resume();
-    const o = audio.createOscillator(),
-      g = audio.createGain();
-    o.type = "sine";
-    o.frequency.setValueAtTime(750, audio.currentTime);
-    o.frequency.exponentialRampToValueAtTime(350, audio.currentTime + 0.06);
-    g.gain.setValueAtTime(0.04, audio.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.07);
-    o.connect(g);
-    g.connect(audio.destination);
-    o.start();
-    o.stop(audio.currentTime + 0.08);
-  } catch {}
 }
 interface ReplayData {
   format?: string;

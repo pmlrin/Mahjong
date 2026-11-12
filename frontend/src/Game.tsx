@@ -1,5 +1,6 @@
 import React, {
   useEffect,
+  useRef,
   useState,
   useSyncExternalStore,
   type CSSProperties,
@@ -14,6 +15,11 @@ import { Avatar } from "./Avatar";
 import { Tile } from "./Tile";
 import { TableView, useTableMode } from "./TableView";
 import { createAnchorStore, handTop } from "./hand-anchors";
+import { frameEvents } from "./match-events";
+import { useReducedMotion } from "./motion";
+import { CallStamps, type PlayStep } from "./CallStamps";
+import { playEvents } from "./sounds";
+import { DISCARD_LANDS_AFTER, RESULT_HOLD } from "./table3d/timing";
 import { CallChoices, ResponseSource } from "./turn-feedback";
 import { responseTarget } from "../../shared/game-feedback";
 import { formatName } from "./history-pages";
@@ -66,6 +72,7 @@ export function Game({
   onNew,
   onRematch,
   onReplay,
+  sound = false,
 }: {
   view: MatchView;
   userId: string;
@@ -79,6 +86,8 @@ export function Game({
   onNew: () => void;
   onRematch?: () => void;
   onReplay: () => void;
+  /** Table sounds are on (the player's setting; off by default). */
+  sound?: boolean;
 }) {
   const controls = useTableActions({
     frame,
@@ -92,6 +101,40 @@ export function Game({
   });
   const a = controls.actions;
   const table = useTableMode(userId);
+  // Each step of play, read from what changed since the last view: it drives
+  // the stamps and the sounds.
+  const heard = useRef(frame);
+  const reduce = useReducedMotion();
+  const [step, setStep] = useState<PlayStep | null>(null);
+  // While a hand's end plays out, its result panel waits (handId held).
+  const [held, setHeld] = useState<string | null>(null);
+  const holdTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(holdTimer.current), []);
+  useEffect(() => {
+    const before = heard.current;
+    heard.current = frame;
+    if (before === frame) return;
+    const events = frameEvents(before, frame);
+    if (!events?.length) return;
+    setStep((s) => ({ id: (s?.id ?? 0) + 1, events }));
+    const left = (v.hand.resultDisplayUntil ?? 0) - frame.serverTime;
+    if (
+      events.some((e) => e.type === "win" || e.type === "draw") &&
+      left > RESULT_HOLD.minRemaining * 1000
+    ) {
+      const id = v.hand.handId;
+      setHeld(id);
+      clearTimeout(holdTimer.current);
+      holdTimer.current = setTimeout(
+        () => setHeld((h) => (h === id ? null : h)),
+        (table.active === "3d" ? RESULT_HOLD.table3d : RESULT_HOLD.flat) * 1000,
+      );
+    }
+    if (!sound) return;
+    // On the moving 3D table a discard sounds as the tile lands.
+    const flying = table.active === "3d" && !reduce;
+    playEvents(events, flying ? DISCARD_LANDS_AFTER : 0);
+  }, [frame]);
   const { selected, riichi, modal, pending } = a;
   const can = a.can,
     d = v.self.decision,
@@ -227,8 +270,14 @@ export function Game({
             : ({ "--hand-top": `${stageTop}px` } as CSSProperties)
         }
       >
-        <div inert={!!modal}>
+        <div className="table-frame" inert={!!modal}>
           <TableView view={v} table={table} hand={hand3d} />
+          <CallStamps step={step} view={v} reasons={resultNames} />
+          {held === hand.handId && hand.phase === "HAND_RESULT" && (
+            <button className="result-skip" onClick={() => setHeld(null)}>
+              查看结算
+            </button>
+          )}
         </div>
         <section
           className="hand-panel"
@@ -613,32 +662,35 @@ export function Game({
           </section>
         </div>
       )}
-      {hand.phase === "HAND_RESULT" && v.lastHandResult && (
-        <div className="modal-shade result-shade">
-          <section className="modal result-modal">
-            <h2>
-              {resultNames[v.lastHandResult.reason] ?? v.lastHandResult.reason}
-            </h2>
-            <p className="modal-sub">这一局，落定</p>
-            <HandResult
-              result={v.lastHandResult}
-              view={v}
-              details={details}
-              setDetails={setDetails}
-            />
-            <p className="auto-next">
-              {v.matchResult ? "即将显示整场成绩" : "下一局即将开始"}，{" "}
-              {Math.max(
-                0,
-                Math.ceil(
-                  ((hand.resultDisplayUntil ?? 0) - a.serverNow()) / 1000,
-                ),
-              )}{" "}
-              秒
-            </p>
-          </section>
-        </div>
-      )}
+      {hand.phase === "HAND_RESULT" &&
+        v.lastHandResult &&
+        held !== hand.handId && (
+          <div className="modal-shade result-shade">
+            <section className="modal result-modal">
+              <h2>
+                {resultNames[v.lastHandResult.reason] ??
+                  v.lastHandResult.reason}
+              </h2>
+              <p className="modal-sub">这一局，落定</p>
+              <HandResult
+                result={v.lastHandResult}
+                view={v}
+                details={details}
+                setDetails={setDetails}
+              />
+              <p className="auto-next">
+                {v.matchResult ? "即将显示整场成绩" : "下一局即将开始"}，{" "}
+                {Math.max(
+                  0,
+                  Math.ceil(
+                    ((hand.resultDisplayUntil ?? 0) - a.serverNow()) / 1000,
+                  ),
+                )}{" "}
+                秒
+              </p>
+            </section>
+          </div>
+        )}
       {finished && v.matchResult && (
         <div className="modal-shade">
           <section className="modal final-modal">
