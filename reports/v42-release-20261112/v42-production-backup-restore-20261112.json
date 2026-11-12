@@ -1,0 +1,8 @@
+{
+  "at": "2026-11-12T04:10:50.442598Z",
+  "backup": "/opt/mahjong/backups/mahjong-v42-production-stopped-20261112.dump",
+  "restoreDatabase": "mahjong_v42_predeploy_restore_20261112",
+  "tables": 29,
+  "allRowCountsAndDigestsIdentical": true,
+  "passed": true
+}

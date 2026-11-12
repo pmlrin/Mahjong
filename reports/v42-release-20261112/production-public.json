@@ -1,0 +1,107 @@
+{
+  "health": {
+    "ok": true,
+    "version": "0.4.2",
+    "buildId": "2610312af31d596b992f17f4158cdec202aad93a45747eacf9d97e502d73578c",
+    "activeTables": 1
+  },
+  "maintenance": false,
+  "auth": {
+    "enabled": true,
+    "passwordLogin": true,
+    "registration": true,
+    "passwordReset": true,
+    "mailAvailable": true,
+    "previewRestricted": false,
+    "environment": "production"
+  },
+  "assets": [
+    {
+      "path": "index.html",
+      "sha256": "fa688c20b80b6218010bc4d331fea241738027ad0477f269e24d125cb02da65d",
+      "bytes": 518
+    },
+    {
+      "path": "avatars/snow.svg",
+      "sha256": "f17f42530492c74657ec04e72cb3fa3b021db5682ddc9880e0dba016a96f8f76",
+      "bytes": 302
+    },
+    {
+      "path": "avatars/chrysanthemum.svg",
+      "sha256": "2ce757bde9a21c6457258c85873ca2a9f2ed0a41f7c9aa1386fcb5b49f04864c",
+      "bytes": 302
+    },
+    {
+      "path": "avatars/orchid.svg",
+      "sha256": "eaf211bfc933e2d2928356ea2138a17ef7f3c105ae5b3cac6b524871a67e6166",
+      "bytes": 302
+    },
+    {
+      "path": "avatars/river.svg",
+      "sha256": "8685e1deb6ba2dcc4dead0519ef3de7e41d91dbf8f6269953f3cd229b32eb3be",
+      "bytes": 302
+    },
+    {
+      "path": "avatars/bamboo.svg",
+      "sha256": "237932d74a2352c823be12843b9b996627017a997e85046f3e25a141a7e939dc",
+      "bytes": 302
+    },
+    {
+      "path": "avatars/sun.svg",
+      "sha256": "c4ae2dfe8b04feb3874792a907ebca6a8117d78ebb4d32dad6c191164d3ad6a0",
+      "bytes": 302
+    },
+    {
+      "path": "avatars/plum.svg",
+      "sha256": "52f8f4c4f1ac6f4aa5f2476df79003a79870b4dff6909498717c822179b3d5e9",
+      "bytes": 302
+    },
+    {
+      "path": "avatars/crane.svg",
+      "sha256": "1fadc3f1c49f568882791ddaf19f022e87fbab0cb767028afe8dd023a9468530",
+      "bytes": 302
+    },
+    {
+      "path": "avatars/pine.svg",
+      "sha256": "78603bb620311933a0daf6c47a23cb14ae54b6af5e1b276dc99194a885584582",
+      "bytes": 302
+    },
+    {
+      "path": "avatars/mountain.svg",
+      "sha256": "796d2af1a4b905e3db1f710214b9e561ea3f2d17e2c0a3decaa6bbbe38fdadfb",
+      "bytes": 302
+    },
+    {
+      "path": "avatars/cloud.svg",
+      "sha256": "27a41b8086afb066506be8bcebf0ea5cc3953e2d2c454799d6e30ec03adc0869",
+      "bytes": 302
+    },
+    {
+      "path": "avatars/moon.svg",
+      "sha256": "63621b80ee29494fa4a3cf318b3b2602cb92200c03d0c7d712089a05d76510be",
+      "bytes": 302
+    },
+    {
+      "path": "assets/Table3D-5h8Sz9FA.js",
+      "sha256": "134534c776caf864ddbef720fdc23f74ee0fe486002725c00a5f5ed5ccb03bac",
+      "bytes": 950799
+    },
+    {
+      "path": "assets/Table3D-DQpbVc3v.css",
+      "sha256": "818ad83122eec1271949cf2e4afba954189e3d1b13cccd80985766f39c469a04",
+      "bytes": 5108
+    },
+    {
+      "path": "assets/index-CR64KYo1.js",
+      "sha256": "ef47a9211654b50460e166927fa4669fd8af9d0a3a35344dcd3ee2cb83f79a5b",
+      "bytes": 484056
+    },
+    {
+      "path": "assets/index-BFbC5QYl.css",
+      "sha256": "dfadb0f9c555e49e272ff20815af1f4f1f55b89849bb17701d66948fcb9b75dd",
+      "bytes": 69030
+    }
+  ],
+  "allAssetsByteIdentical": true,
+  "passed": true
+}

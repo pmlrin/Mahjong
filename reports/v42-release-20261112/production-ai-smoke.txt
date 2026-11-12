@@ -1,0 +1,11 @@
+$ node --import tsx scripts/smoke.ts https://mahjong.yangjm.cn 4
+Public match started: 8e2a673f-bc98-4d51-b7b6-2da89fdeaf1a with 4 human sessions
+/Users/yangjm/Documents/Mahjong/scripts/smoke.ts:147
+      throw Error("Public smoke test exceeded its configured time budget");
+            ^
+
+Error: Public smoke test exceeded its configured time budget
+    at <anonymous> (/Users/yangjm/Documents/Mahjong/scripts/smoke.ts:147:13)
+
+Node.js v26.13.0
+[ELIFECYCLE] Command failed with exit code 1.

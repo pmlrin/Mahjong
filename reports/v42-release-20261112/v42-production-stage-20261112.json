@@ -1,0 +1,34 @@
+{
+  "previousRelease": "/opt/mahjong/releases/20261102-v41-production-rc2",
+  "newRelease": "/opt/mahjong/releases/20261112-v42-production",
+  "release": {
+    "version": "0.4.2",
+    "protocolVersion": "2.0",
+    "sourceSha256": "2610312af31d596b992f17f4158cdec202aad93a45747eacf9d97e502d73578c",
+    "builtAt": "2026-11-12T03:59:40.806Z"
+  },
+  "runtimeLockIdentical": true,
+  "migrationsIdentical": true,
+  "oldAssetsRetained": true,
+  "assets": {
+    "index.html": "fa688c20b80b6218010bc4d331fea241738027ad0477f269e24d125cb02da65d",
+    "avatars/pine.svg": "78603bb620311933a0daf6c47a23cb14ae54b6af5e1b276dc99194a885584582",
+    "avatars/cloud.svg": "27a41b8086afb066506be8bcebf0ea5cc3953e2d2c454799d6e30ec03adc0869",
+    "avatars/bamboo.svg": "237932d74a2352c823be12843b9b996627017a997e85046f3e25a141a7e939dc",
+    "avatars/mountain.svg": "796d2af1a4b905e3db1f710214b9e561ea3f2d17e2c0a3decaa6bbbe38fdadfb",
+    "avatars/river.svg": "8685e1deb6ba2dcc4dead0519ef3de7e41d91dbf8f6269953f3cd229b32eb3be",
+    "avatars/plum.svg": "52f8f4c4f1ac6f4aa5f2476df79003a79870b4dff6909498717c822179b3d5e9",
+    "avatars/moon.svg": "63621b80ee29494fa4a3cf318b3b2602cb92200c03d0c7d712089a05d76510be",
+    "avatars/snow.svg": "f17f42530492c74657ec04e72cb3fa3b021db5682ddc9880e0dba016a96f8f76",
+    "avatars/chrysanthemum.svg": "2ce757bde9a21c6457258c85873ca2a9f2ed0a41f7c9aa1386fcb5b49f04864c",
+    "avatars/orchid.svg": "eaf211bfc933e2d2928356ea2138a17ef7f3c105ae5b3cac6b524871a67e6166",
+    "avatars/sun.svg": "c4ae2dfe8b04feb3874792a907ebca6a8117d78ebb4d32dad6c191164d3ad6a0",
+    "avatars/crane.svg": "1fadc3f1c49f568882791ddaf19f022e87fbab0cb767028afe8dd023a9468530",
+    "assets/Table3D-5h8Sz9FA.js": "134534c776caf864ddbef720fdc23f74ee0fe486002725c00a5f5ed5ccb03bac",
+    "assets/index-CR64KYo1.js": "ef47a9211654b50460e166927fa4669fd8af9d0a3a35344dcd3ee2cb83f79a5b",
+    "assets/index-BmuTKPlu.css": "157b2267ce00a6f1a9a35bc17a280e66cbfc5ae160b13d1347b3963baa4ccf6f",
+    "assets/Table3D-DQpbVc3v.css": "818ad83122eec1271949cf2e4afba954189e3d1b13cccd80985766f39c469a04",
+    "assets/index-BFbC5QYl.css": "dfadb0f9c555e49e272ff20815af1f4f1f55b89849bb17701d66948fcb9b75dd",
+    "assets/index-zzvEzHCJ.js": "4d598938f3dce79dd49938e0caff8863a0794fcf7bcc80b9dc2fa70d5d45e8af"
+  }
+}

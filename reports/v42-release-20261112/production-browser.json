@@ -1,0 +1,14 @@
+{
+  "at": "2026-11-12T04:12:02.226Z",
+  "origin": "https://mahjong.yangjm.cn",
+  "checks": [
+    "new public homepage loads",
+    "390px homepage has no horizontal overflow",
+    "guest identity survives reload",
+    "3D preference and operation settings available",
+    "create room, add AI and leave room"
+  ],
+  "consoleErrors": [],
+  "physicalDevice": false,
+  "passed": true
+}

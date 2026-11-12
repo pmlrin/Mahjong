@@ -1,0 +1,137 @@
+{
+  "at": "2026-11-12T04:10:20.032077Z",
+  "previousRelease": "/opt/mahjong/releases/20261102-v41-production-rc2",
+  "release": "/opt/mahjong/releases/20261112-v42-production",
+  "health": {
+    "ok": true,
+    "version": "0.4.2",
+    "buildId": "2610312af31d596b992f17f4158cdec202aad93a45747eacf9d97e502d73578c",
+    "activeTables": 0
+  },
+  "backup": "/opt/mahjong/backups/mahjong-v42-production-stopped-20261112.dump",
+  "backupBytes": 734598,
+  "configBackup": "/opt/mahjong/backups/v42-production-config-20261112",
+  "beforeTables": {
+    "auth_accounts": {
+      "rows": 3,
+      "md5": "2c9d269f309fb39306e8cfe8057333a5"
+    },
+    "auth_audit": {
+      "rows": 12,
+      "md5": "883211c3b672ed37a67c6e4da4072247"
+    },
+    "auth_challenges": {
+      "rows": 5,
+      "md5": "eb2a007918ae7e6a948bb5f0bde9056c"
+    },
+    "auth_environment": {
+      "rows": 1,
+      "md5": "73b72345212e6c68ff02956d6ab0f05a"
+    },
+    "auth_grants": {
+      "rows": 3,
+      "md5": "d650b47378def4bd493a89a72d9170f6"
+    },
+    "auth_limits": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "auth_mail_jobs": {
+      "rows": 4,
+      "md5": "3852913e59f0fa2d714effea9d8c3b30"
+    },
+    "auth_migration_issues": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "auth_migrations": {
+      "rows": 1,
+      "md5": "ce3ec52fbc0f5768a974a8f1ba65f105"
+    },
+    "auth_receipts": {
+      "rows": 13,
+      "md5": "7b8182a4cf3fa16a7c7cb7d5212a2d4e"
+    },
+    "auth_sessions": {
+      "rows": 35,
+      "md5": "3dca6f102e1c1764f23fd4092eca885c"
+    },
+    "auth_users": {
+      "rows": 32,
+      "md5": "39f0106c33815d495b81c66745a60491"
+    },
+    "avatar_assets": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "blocks": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "documents": {
+      "rows": 1835,
+      "md5": "7a14bf82b81c66d1b409d14dd7be1174"
+    },
+    "friend_requests": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "friendships": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "history_members": {
+      "rows": 30,
+      "md5": "7f3e6824658b07d527a5143c2ba234e7"
+    },
+    "history_summaries": {
+      "rows": 10,
+      "md5": "28444c0477d4b90e5b63bd30d320b775"
+    },
+    "migration_issues": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "replay_positions": {
+      "rows": 3,
+      "md5": "caaa8d0e287e6e9d9bdaf9d8ef828739"
+    },
+    "room_invitations": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "social_audit": {
+      "rows": 3,
+      "md5": "0049f27f5396eb3a59765e501b97072a"
+    },
+    "social_cooldowns": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "social_limits": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "social_profiles": {
+      "rows": 3,
+      "md5": "381899e36a4063154e57bbd33b137411"
+    },
+    "social_receipts": {
+      "rows": 3,
+      "md5": "c06f4ca494065a0bca2e0a6b2e760ea7"
+    },
+    "social_sessions": {
+      "rows": 6,
+      "md5": "ee0ec56497fc3396e4d0c7d8d29444b4"
+    },
+    "social_user_state": {
+      "rows": 3,
+      "md5": "4c0b93303c8316ddc473fc4bafd791f8"
+    }
+  },
+  "originalConfigurationUnchanged": true,
+  "migrationsUnchanged": true,
+  "runtimeDependenciesUnchanged": true,
+  "maintenance": false,
+  "passed": true
+}

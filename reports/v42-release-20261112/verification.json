@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-12",
+  "gitCommit": "e0d2bd95324194727514704d10235c1eea9d0557",
+  "release": {
+    "version": "0.4.2",
+    "protocolVersion": "2.0",
+    "sourceSha256": "2610312af31d596b992f17f4158cdec202aad93a45747eacf9d97e502d73578c",
+    "builtAt": "2026-11-12T03:59:40.806Z"
+  },
+  "archive": "/Users/yangjm/Documents/Mahjong/release-package/mahjong-20261112-v42-production.tar.gz",
+  "sha256": "8ac7e8412a55e36ba6c55cfc57280f533621f17999f3ccfa724d00cf2b2fac9c",
+  "bytes": 874815,
+  "tests": {
+    "passed": 167,
+    "failed": 0
+  },
+  "chromeScenarios": 17,
+  "consoleErrors": [],
+  "simulations": {
+    "EAST_ONLY": 100,
+    "HANCHAN": 100
+  },
+  "webkitAvailable": false,
+  "physicalDevicesVerified": false,
+  "deploymentStatus": "deployed",
+  "serverModified": true,
+  "runtimeDependencies": "Exact manifest, lock and five migrations verified identical to previous production; existing runtime dependencies copied to new release.",
+  "productionOrigin": "https://mahjong.yangjm.cn/",
+  "productionRelease": "/opt/mahjong/releases/20261112-v42-production",
+  "backupRestore": {
+    "tables": 29,
+    "rowCountsAndDigestsIdentical": true
+  },
+  "publicBrowserPassed": true,
+  "allPublicAssetsByteIdentical": true,
+  "publicMatch": {
+    "origin": "https://mahjong.yangjm.cn",
+    "at": "2026-11-12T04:15:29.756Z",
+    "elapsedMs": 87216,
+    "humanSessions": 4,
+    "aiSeats": 0,
+    "matchId": "402f5f66-c1d2-4b2a-bab9-9b7aa39fe0a2",
+    "points": [
+      23300,
+      14900,
+      20900,
+      40900
+    ],
+    "replayEvents": 742,
+    "passed": true
+  },
+  "initialDefaultAiSmoke": {
+    "scriptTimeBudgetMs": 300000,
+    "completedWithinBudget": false,
+    "matchId": "8e2a673f-bc98-4d51-b7b6-2da89fdeaf1a",
+    "note": "Default runner uses AI control and normal production pacing; a separate four-HUMAN scripted full match subsequently passed. The AI match continues normally on the server."
+  }
+}

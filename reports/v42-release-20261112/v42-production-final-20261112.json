@@ -1,0 +1,47 @@
+{
+  "at": "2026-11-12T04:16:25.201858Z",
+  "health": {
+    "ok": true,
+    "version": "0.4.2",
+    "buildId": "2610312af31d596b992f17f4158cdec202aad93a45747eacf9d97e502d73578c",
+    "activeTables": 1
+  },
+  "preview": {
+    "ok": true,
+    "version": "0.4.1",
+    "buildId": "02726a6c8fe0d5c53e622dc35b89fc64200b52fc32b19df4dae1ba544f3ee707",
+    "activeTables": 0
+  },
+  "protectedDataUnchanged": true,
+  "protectedTables": {
+    "auth_accounts": {
+      "rows": 3,
+      "md5": "2c9d269f309fb39306e8cfe8057333a5"
+    },
+    "avatar_assets": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "social_profiles": {
+      "rows": 3,
+      "md5": "381899e36a4063154e57bbd33b137411"
+    },
+    "friendships": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "friend_requests": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "blocks": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+  },
+  "services": "NRestarts=0\nId=mahjong.service\nActiveState=active\n\nNRestarts=0\nId=mahjong-v2-preview.service\nActiveState=active\n\nNRestarts=6\nId=astrbot.service\nActiveState=active\n\nNRestarts=1\nId=napcat.service\nActiveState=active\n",
+  "backupTimers": "active\nactive\n",
+  "configurationPreserved": true,
+  "passed": true,
+  "publicHumanMatchVerified": true
+}
