@@ -161,7 +161,7 @@ const errors: Record<string, string> = {
   DECISION_NOT_OWNED: "当前不是你的操作时机",
   DECISION_ALREADY_SUBMITTED: "本次选择已经提交",
   OPTION_NOT_AVAILABLE: "该操作已不可用，请同步牌桌",
-  REQUEST_ID_CONFLICT: "同一请求编号的内容不能改变",
+  REQUEST_ID_CONFLICT: "这项操作已经提交过了",
   CONTROL_PENDING: "将在下个操作窗口恢复人工",
   MATCH_NOT_RUNNING: "比赛已经结束",
 };
@@ -265,7 +265,7 @@ app.use("/api", (req, res, next) => {
       !["GET", "HEAD", "OPTIONS"].includes(req.method) &&
       !originOK(req.headers.origin, req.headers.host)
     )
-      fail("FORBIDDEN", "请求来源不受支持", 403);
+      fail("FORBIDDEN", "请从本站页面打开", 403);
     next();
   } catch (e) {
     res
@@ -286,7 +286,7 @@ function sessionFrom(cookie: string | undefined): Session | null {
 function user(req: Request): Session {
   return (
     sessionFrom(req.headers.cookie) ??
-    fail("UNAUTHENTICATED", "登录状态已失效，请重新登录或选择游客试玩", 401)
+    fail("UNAUTHENTICATED", "登录已失效，请重新登录，或以游客入座", 401)
   );
 }
 async function avatarFor(userId: string) {
@@ -754,7 +754,7 @@ async function mutation(
       httpReceipts.get(dedup) ?? (await store.get<HttpReceipt>("http", dedup));
     if (prior) {
       if (prior.hash !== hash)
-        fail("REQUEST_ID_CONFLICT", "同一请求编号的内容不能改变");
+        fail("REQUEST_ID_CONFLICT", "这项操作已经提交过了");
       return res.status(prior.status).json({ data: prior.data });
     }
     staged = { writes: [], effects: [] };
@@ -891,9 +891,9 @@ route("post", "/rooms/join", async (req, res) =>
     const active = current(u.userId);
     if (active) {
       if (active.roomId === old.roomId) return active;
-      fail("ALREADY_IN_ROOM", "你还有未结束的房间，请先继续或离开");
+      fail("ALREADY_IN_ROOM", "你还在另一张牌桌上，请先回去或离开");
     }
-    if (old.status !== "WAITING") fail("ROOM_STARTED", "这间房已经开场或关闭");
+    if (old.status !== "WAITING") fail("ROOM_STARTED", "这一桌已经开局或散了");
     const r = structuredClone(old);
     const slot = r.slots.indexOf(null);
     if (slot < 0) fail("ROOM_FULL", "房间已满");
@@ -923,12 +923,12 @@ function generation(r: Room, value: unknown) {
   try {
     checkGeneration(r, value);
   } catch {
-    fail("LOBBY_GENERATION_CONFLICT", "准备轮次已变化，请刷新房间");
+    fail("LOBBY_GENERATION_CONFLICT", "牌桌有变，请重新查看");
   }
 }
 function waiting(req: Request, u: Session, host = false) {
   const r = roomFor(String(req.params.roomId), u.userId);
-  if (r.status !== "WAITING") fail("ROOM_STARTED", "房间已开场或关闭");
+  if (r.status !== "WAITING") fail("ROOM_STARTED", "这一桌已经开局或散了");
   if (host && r.hostUserId !== u.userId)
     fail("FORBIDDEN", "只有房主可以操作", 403);
   generation(
@@ -982,7 +982,7 @@ route("put", "/rooms/:roomId/slots/:slotId/bot", async (req, res) =>
       req.params.slotId,
     );
     if (r.slots[slot]?.participantKind === "HUMAN")
-      fail("SLOT_OCCUPIED", "不能替换真人座位");
+      fail("SLOT_OCCUPIED", "这个座位已有人");
     r.slots[slot] = {
       memberId: uid(),
       userId: null,
@@ -1004,7 +1004,7 @@ route("delete", "/rooms/:roomId/slots/:slotId/bot", async (req, res) =>
     const r = waiting(req, u, true),
       slot = parse(z.coerce.number().int().min(0).max(3), req.params.slotId);
     if (r.slots[slot]?.participantKind !== "BOT")
-      fail("FORBIDDEN", "只能移除 AI", 403);
+      fail("FORBIDDEN", "只能请离 AI", 403);
     r.slots[slot] = null;
     clearReady(r);
     roomChanged(r);
@@ -1026,12 +1026,12 @@ route("post", "/rooms/:roomId/start", async (req, res) =>
     const r = roomFor(String(req.params.roomId), u.userId);
     if (r.hostUserId !== u.userId) fail("FORBIDDEN", "只有房主可以开始", 403);
     generation(r, req.body.lobbyGeneration);
-    if (maintenance()) fail("MAINTENANCE", "正在维护，暂不能开始新对局", 503);
+    if (maintenance()) fail("MAINTENANCE", "维护中，暂不开新桌", 503);
     if (r.matchId) return { matchId: r.matchId };
     if (r.roomVersion !== req.body.expectedRoomVersion)
       fail("ROOM_VERSION_CONFLICT", "房间已更新");
     if (r.status !== "WAITING" || r.slots.some((m) => !m || !m.ready))
-      fail("ROOM_NOT_READY", "请补齐四个座位，并让所有玩家准备");
+      fail("ROOM_NOT_READY", "四个座位坐满、众人准备后才能开局");
     const members = structuredClone(r.slots) as [
       Member,
       Member,
@@ -1090,13 +1090,13 @@ route("get", "/matches/:matchId/requests/:requestId", async (req, res) => {
   const x =
     receipts.get(receiptKey) ??
     (await store.get<SavedReceipt>("receipt", receiptKey));
-  if (!x) fail("NOT_FOUND", "尚未找到已提交记录", 404);
+  if (!x) fail("NOT_FOUND", "还没找到这一手的记录", 404);
   res.json({ data: x!.receipt });
 });
 route("get", "/matches/:matchId/replay", async (req, res) => {
   const { g } = await gameFor(String(req.params.matchId), user(req).userId);
   if (g.status !== "FINISHED")
-    fail("REPLAY_NOT_AVAILABLE", "整场正常结束后才能查看牌谱", 403);
+    fail("REPLAY_NOT_AVAILABLE", "打完一整场后才能看牌谱", 403);
   res.json({
     data: {
       replayVersion: g.protocolVersion === "1.0" ? "1.0" : "2.0",
@@ -1174,14 +1174,14 @@ route("post", "/rooms/:roomId/rematch", async (req, res) =>
     );
     const r = roomFor(String(req.params.roomId), u.userId);
     generation(r, req.body.lobbyGeneration);
-    if (r.hostUserId !== u.userId) fail("FORBIDDEN", "只有房主可以再战", 403);
+    if (r.hostUserId !== u.userId) fail("FORBIDDEN", "只有房主可以再开一场", 403);
     if (r.roomVersion !== req.body.expectedRoomVersion)
       fail("ROOM_VERSION_CONFLICT", "房间已更新");
     if (
       !r.matchId ||
       (await gameFor(r.matchId, u.userId)).g.phase !== "MATCH_RESULT"
     )
-      fail("REMATCH_NOT_AVAILABLE", "请等待整场结算展示完毕");
+      fail("REMATCH_NOT_AVAILABLE", "请稍候，结算还在展示");
     for (const m of r.slots)
       if (m?.userId) {
         const active = current(m.userId);
@@ -1201,7 +1201,7 @@ route("post", "/rooms/:roomId/rematch", async (req, res) =>
     try {
       openRematch(r);
     } catch {
-      fail("REMATCH_NOT_AVAILABLE", "只有正常结束的牌桌可以同桌再战");
+      fail("REMATCH_NOT_AVAILABLE", "只有正常打完的牌桌才能再来一场");
     }
     roomChanged(r);
     staged!.effects.push(() => {
@@ -1284,7 +1284,7 @@ route("put", "/matches/:matchId/replay-position", async (req, res) =>
     );
     const { g } = await gameFor(String(req.params.matchId), u.userId);
     if (g.status !== "FINISHED" || g.events[p.eventIndex]?.handId !== p.handId)
-      fail("REPLAY_POSITION_INVALID", "观看位置已失效，请从局首开始", 400);
+      fail("REPLAY_POSITION_INVALID", "上次看到的地方找不到了，请从局首看起", 400);
     const data = { ...p, updatedAt: Date.now() };
     staged!.writes.push({
       kind: "replay_position",
@@ -1517,7 +1517,7 @@ ns.on("connection", (socket) => {
         ensureBinding(socket);
         const { g, s } = await gameFor(p.matchId, u.userId);
         if (subscriptions.get(socket.id) !== p.matchId)
-          fail("FORBIDDEN", "请先连接牌桌", 403);
+          fail("FORBIDDEN", "请先连上牌桌", 403);
         const f = frames(g)[s];
         f.syncId = p.syncId;
         socket.emit("game:view", f);
@@ -1561,7 +1561,7 @@ ns.on("connection", (socket) => {
           return prior.data;
         }
         if (g.status !== "RUNNING")
-          fail("MATCH_NOT_RUNNING", "比赛已结束，原牌谱只读");
+          fail("MATCH_NOT_RUNNING", "这场已经打完了");
         g.players[s].desiredControl = p.mode;
         log(g, "CONTROL_CHANGED", { seat: s, mode: p.mode });
         const record = { hash, status: 200, data: { mode: p.mode } };

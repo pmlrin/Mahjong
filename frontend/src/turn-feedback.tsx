@@ -31,15 +31,15 @@ export function LatestDiscard({ view }: { view: MatchView }) {
     >
       <Tile tile={source.tile} />
       <div>
-        <small>{source.source === "KAN" ? "正在声明杠" : "最新出牌"}</small>
+        <small>{source.source === "KAN" ? "正在开杠" : "刚刚打出"}</small>
         <strong>
           {source.displayName}
           <span>（{source.relation}）</span>
         </strong>
         <p>
-          {source.source === "KAN" ? "声明杠：" : "打出："}
+          {source.source === "KAN" ? "开杠：" : "打出："}
           <b>{tileName(source.tile)}</b>
-          {called && <em>，已被鸣走</em>}
+          {called && <em>，已被鸣去</em>}
         </p>
       </div>
     </aside>
@@ -58,8 +58,7 @@ export function ResponseSource({
       <span>
         <strong>
           {source.displayName}（{source.relation}）
-          {source.source === "KAN" ? "声明杠" : "打出"}了{" "}
-          {tileName(source.tile)}
+          {source.source === "KAN" ? "开杠" : "打出"}了 {tileName(source.tile)}
         </strong>
         <small>{prompt}</small>
       </span>
@@ -90,7 +89,7 @@ export function CallChoices({
             {target.displayName}（{target.relation}）打出{" "}
             {tileName(target.tile)}
           </strong>
-          <span>选择你要用的手牌，确认后等待服务器裁决。</span>
+          <span>选好搭配的手牌，点一下即可。</span>
         </p>
       </div>
       <div className="call-options explained-call-options">

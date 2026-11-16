@@ -97,7 +97,7 @@ export function TableSurface({ view: v }: { view: MatchView }) {
                     <span
                       key={x.discardId}
                       className={`${x.riichiDeclaration ? "riichi-tile" : ""} ${x.claimedByMeldId ? "claimed" : ""} ${x.tsumogiri ? "tsumogiri" : ""} ${x.discardId === hand.seats[s].discards.at(-1)?.discardId ? "last-in-river" : ""} ${x.discardId === hand.lastDiscard?.discardId ? "latest-discard" : ""}`}
-                      title={`${v.players[s].displayName}打出${tileName(x.tile)} · ${x.tsumogiri ? "摸切" : "手切"}`}
+                      title={`${v.players[s].displayName}打出${tileName(x.tile)}，${x.tsumogiri ? "摸切" : "手切"}`}
                       aria-current={
                         x.discardId === hand.lastDiscard?.discardId
                           ? "true"

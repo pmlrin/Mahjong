@@ -1,8 +1,4 @@
-import {
-  TablePreferenceSettings,
-  readLocalPreference,
-  writeLocalPreference,
-} from "./table-preferences";
+import { readLocalPreference, writeLocalPreference } from "./table-preferences";
 import { Game, actionNames, resultNames } from "./Game";
 import { RulesPage as Rules } from "./rules-page";
 import { useSocial } from "./use-social";
@@ -28,11 +24,10 @@ import {
 import "./style.css";
 import { api } from "./api";
 import { AccountPanel, type AccountPage } from "./account";
-import { History, Stats, formatName } from "./history-pages";
+import { History, formatName } from "./history-pages";
 import { Tile } from "./Tile";
 import { Melds } from "./Melds";
-import { playSound } from "./sounds";
-import { AppReducedMotion } from "./motion";
+import { loadSounds, playSound } from "./sounds";
 const uuid = () => crypto.randomUUID();
 type Me = CurrentUser;
 const wind = (w: string) =>
@@ -53,8 +48,6 @@ function App() {
       | "rules"
       | "replay"
       | "history"
-      | "stats"
-      | "settings"
       | "account"
       | "social"
     >(() =>
@@ -65,8 +58,6 @@ function App() {
     [network, setNetwork] = useState(false),
     [takeover, setTakeover] = useState(false),
     [sound, setSound] = useState(readLocalPreference("mj_sound") === "true"),
-    [rules, setRules] = useState(""),
-    [format, setFormat] = useState<"EAST_ONLY" | "HANCHAN">("EAST_ONLY"),
     [replayTarget, setReplayTarget] = useState<{
       id: string;
       handId?: string;
@@ -74,13 +65,6 @@ function App() {
       const id = new URLSearchParams(location.search).get("replay");
       return id ? { id } : null;
     }),
-    [size, setSize] = useState(
-      readLocalPreference("mj_tableSize") ?? "standard",
-    ),
-    [reduced, setReduced] = useState(
-      readLocalPreference("mj_reducedMotion") === "true",
-    ),
-    [diagnostic, setDiagnostic] = useState(""),
     [capabilities, setCapabilities] = useState<{
       formats: ("EAST_ONLY" | "HANCHAN")[];
       botLevels: ("BASIC" | "STANDARD")[];
@@ -139,7 +123,7 @@ function App() {
       const s = socket.current,
         generation = identityGeneration.current;
       if (!s?.connected) {
-        reject(new Error("网络连接中，请稍候"));
+        reject(new Error("正在连接，请稍候"));
         return;
       }
       s.timeout(10000).emit(
@@ -150,15 +134,18 @@ function App() {
             socket.current !== s ||
             identityGeneration.current !== generation
           ) {
-            reject(new Error("身份或连接已变化，请重新同步"));
+            reject(new Error("连接有变，正在重新同步"));
             return;
           }
-          if (err) reject(new Error("操作回执尚未收到，正在重新同步"));
+          if (err) reject(new Error("这一手还没有回音，正在确认"));
           else if (!r?.ok)
             reject(
-              Object.assign(new Error(r?.error?.message ?? "操作未成功"), {
-                code: r?.error?.code,
-              }),
+              Object.assign(
+                new Error(r?.error?.message ?? "没能完成，请再试一次"),
+                {
+                  code: r?.error?.code,
+                },
+              ),
             );
           else resolve(r.data);
         },
@@ -394,7 +381,7 @@ function App() {
   async function newRoom() {
     await run(async () => {
       const r = await api<Room>("/rooms", "POST", {
-        format,
+        format: "EAST_ONLY",
         rulesetId: RULESET,
         timePresetId: "standard-v1",
       });
@@ -426,9 +413,12 @@ function App() {
             : {},
         );
         if (r.roomId) {
+          const wasReady = room!.slots.find(
+            (m) => m?.userId === me?.userId,
+          )?.ready;
           setRoom(r);
-          if (path === "/config" || path.endsWith("/bot"))
-            setError("配置已变更，请重新准备");
+          if (wasReady && (path === "/config" || path.endsWith("/bot")))
+            setError("牌桌有变，请重新准备");
         }
       } catch (e) {
         setRoom(await api<Room>("/rooms/" + room!.roomId));
@@ -436,38 +426,19 @@ function App() {
       }
     });
   }
-  async function showRules() {
+  function showRules() {
     setScreen("rules");
-    if (!rules)
-      try {
-        setRules(await api<string>("/rules"));
-      } catch (e) {
-        setError((e as Error).message);
-      }
   }
   function toggleSound() {
     setSound((v) => {
       writeLocalPreference("mj_sound", String(!v));
-      if (!v) playSound("discard");
+      if (!v) void loadSounds().then(() => playSound("discard"));
       return !v;
     });
   }
-  async function copyDiagnostic() {
-    await run(async () => {
-      const d = await api<any>("/diagnostics", "POST", {
-        roomId: room?.roomId ?? null,
-        matchId: frame?.matchId ?? null,
-      });
-      const text = JSON.stringify(d, null, 2);
-      setDiagnostic(text);
-      try {
-        await navigator.clipboard.writeText(text);
-        setError("诊断信息已复制，编号：" + d.diagnosticId);
-      } catch {
-        setScreen("settings");
-      }
-    });
-  }
+  useEffect(() => {
+    if (sound) void loadSounds();
+  }, [sound]);
   function openReplay(id: string, handId?: string) {
     setReplayTarget({ id, handId });
     setScreen("replay");
@@ -523,7 +494,7 @@ function App() {
       if (!current) clearIdentityContext(true);
       setAccountPage("login");
       setScreen("account");
-      setError("操作已完成，请用账号密码重新登录；当前游客记录不会合并");
+      setError("已完成，请用账号重新登录。");
       return;
     }
     const current = await api<Me>("/me");
@@ -550,9 +521,7 @@ function App() {
   }
   const view = frame?.state;
   return (
-    <div
-      className={`app ${screen === "game" ? "game-app" : ""} table-${size} ${reduced ? "reduce-motion" : ""}`}
-    >
+    <div className={`app ${screen === "game" ? "game-app" : ""}`}>
       <header className="header">
         <button className="brand" onClick={() => setScreen("home")}>
           <span className="brand-seal">一</span>
@@ -565,31 +534,23 @@ function App() {
             className={screen === "home" ? "active" : ""}
             onClick={() => setScreen("home")}
           >
-            会客厅
+            首页
           </button>
           {room && (
             <button
               className={screen === "room" || screen === "game" ? "active" : ""}
               onClick={() => setScreen(room.matchId ? "game" : "room")}
             >
-              我的牌桌
+              牌桌
             </button>
           )}
           {me && (
-            <>
-              <button
-                className={screen === "history" ? "active" : ""}
-                onClick={() => setScreen("history")}
-              >
-                历史战绩
-              </button>
-              <button
-                className={screen === "stats" ? "active" : ""}
-                onClick={() => setScreen("stats")}
-              >
-                我的统计
-              </button>
-            </>
+            <button
+              className={screen === "history" ? "active" : ""}
+              onClick={() => setScreen("history")}
+            >
+              战绩
+            </button>
           )}
           {me?.identityKind === "ACCOUNT" && capabilities?.friends && (
             <button
@@ -605,16 +566,10 @@ function App() {
             </button>
           )}
           <button
-            className={screen === "settings" ? "active" : ""}
-            onClick={() => setScreen("settings")}
-          >
-            设置
-          </button>
-          <button
             className={screen === "rules" ? "active" : ""}
             onClick={showRules}
           >
-            玩法说明
+            规则
           </button>
         </nav>
         <div className="user">
@@ -626,21 +581,19 @@ function App() {
           />
           <button
             className="account-entry"
-            aria-label="个人与账号"
-            onClick={() => openAccount()}
+            aria-label="我的账号"
+            onClick={() => openAccount(me ? "profile" : "login")}
           >
             {me?.identityKind === "ACCOUNT" && <Avatar id={me.avatarId} />}
-            <span className="identity-name">
-              {me?.displayName ?? "欢迎来坐"}
-            </span>
-            <span className="identity-kind">
-              {me ? (me.identityKind === "ACCOUNT" ? "账号" : "游客") : "登录"}
-            </span>
+            <span className="identity-name">{me?.displayName ?? "登录"}</span>
+            {me?.identityKind === "GUEST" && (
+              <span className="identity-kind">游客</span>
+            )}
           </button>
           <button
             className="icon-button"
             onClick={toggleSound}
-            aria-label={sound ? "关闭音效" : "开启音效"}
+            aria-label={sound ? "关闭声音" : "打开声音"}
             aria-pressed={sound}
           >
             <svg
@@ -665,23 +618,22 @@ function App() {
       {error && (
         <div className="toast" role="alert">
           <span>{error}</span>
-          {me && <button onClick={copyDiagnostic}>复制诊断信息</button>}
-          <button onClick={() => setError("")} aria-label="关闭提示">
+          <button onClick={() => setError("")} aria-label="关闭">
             ×
           </button>
         </div>
       )}
       {takeover && (
         <div className="takeover">
-          <p>另一页面正在控制你的牌桌。</p>
+          <p>这张牌桌正在另一个页面打开。</p>
           <button className="primary" onClick={() => run(() => claim(true))}>
-            在这里接管
+            在这里继续
           </button>
         </div>
       )}
       {capabilities?.maintenance && (
         <p className="maintenance-notice" role="status">
-          正在维护，已有对局可继续，暂不能开始新比赛。
+          维护中：进行中的对局照常，暂不开新桌。
         </p>
       )}
       {boot ? (
@@ -697,15 +649,10 @@ function App() {
                   从一桌开始。
                 </h1>
                 <p className="intro">
-                  把朋友聚在一起，让好时光慢一点。
+                  邀上朋友，打开即玩；
                   <br />
-                  一场轻松的四人立直麻将，等你落座。
+                  人不够，AI 补位。
                 </p>
-                <ul className="hero-tags">
-                  <li>四人立直</li>
-                  <li>好友邀请</li>
-                  <li>AI 随时补位</li>
-                </ul>
               </div>
               {!me ? (
                 <form
@@ -715,12 +662,12 @@ function App() {
                     login();
                   }}
                 >
-                  <h2>好友相聚，随时开桌</h2>
-                  <label htmlFor="nickname">先认识一下你</label>
+                  <h2>留个名字，就能入座</h2>
                   <div className="entry-row">
                     <input
                       id="nickname"
-                      placeholder="起个牌桌上的名字"
+                      aria-label="牌桌上的名字"
+                      placeholder="牌桌上怎么称呼你"
                       maxLength={16}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
@@ -730,7 +677,7 @@ function App() {
                       入座
                     </button>
                   </div>
-                  <small>以游客身份进入，刷新后仍会为你保留座位。</small>
+                  <small>不必注册。关掉页面再回来，座位还在。</small>
                   <div className="account-shortcuts">
                     <button
                       type="button"
@@ -738,52 +685,33 @@ function App() {
                       disabled={!capabilities?.auth?.passwordLogin}
                       onClick={() => openAccount("login")}
                     >
-                      登录已有账号
-                    </button>
-                    <button
-                      type="button"
-                      className="text-button"
-                      disabled={!capabilities?.auth?.registration}
-                      onClick={() => openAccount("register")}
-                    >
-                      注册新账号
+                      已有账号，登录
                     </button>
                   </div>
                 </form>
               ) : (
                 <div className="entry-card">
-                  <h2>好友相聚，随时开桌</h2>
+                  <h2>今天，打一桌？</h2>
                   <p className="guest-hint">
-                    {me.identityKind === "ACCOUNT"
-                      ? `正式账号：${me.maskedEmail}`
-                      : "游客身份，注册后可在其他浏览器登录"}
+                    {me.identityKind === "ACCOUNT" ? (
+                      `${me.displayName}，欢迎回来。`
+                    ) : (
+                      <>
+                        以游客身份入座。
+                        {capabilities?.auth?.registration && (
+                          <>
+                            <button
+                              className="text-button"
+                              onClick={() => openAccount("register")}
+                            >
+                              注册
+                            </button>
+                            后，换台设备也能接着打。
+                          </>
+                        )}
+                      </>
+                    )}
                   </p>
-                  <div className="account-shortcuts">
-                    <button
-                      className="text-button"
-                      onClick={() => openAccount()}
-                    >
-                      {me.identityKind === "ACCOUNT"
-                        ? "个人与账号"
-                        : "注册／登录账号"}
-                    </button>
-                  </div>
-                  <label>
-                    赛制{" "}
-                    <select
-                      aria-label="新房间赛制"
-                      value={format}
-                      onChange={(e) =>
-                        setFormat(e.target.value as typeof format)
-                      }
-                    >
-                      {capabilities?.formats.map((f) => (
-                        <option key={f} value={f}>
-                          {formatName(f)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
                   <button
                     className="primary create"
                     onClick={newRoom}
@@ -794,12 +722,12 @@ function App() {
                       capabilities.maintenance
                     }
                   >
-                    开一张好友桌
+                    开一桌
                   </button>
                   <div className="join-line">
                     <input
                       aria-label="房间邀请码"
-                      placeholder="输入 6 位邀请码"
+                      placeholder="或输入朋友的 6 位邀请码"
                       maxLength={6}
                       value={code}
                       onChange={(e) => setCode(e.target.value.toUpperCase())}
@@ -809,7 +737,7 @@ function App() {
                       onClick={join}
                       disabled={busy || code.length !== 6 || !network}
                     >
-                      加入
+                      入座
                     </button>
                   </div>
                   {(me.roomId || room) && (
@@ -824,7 +752,7 @@ function App() {
                         })
                       }
                     >
-                      返回我的牌桌
+                      回到我的牌桌
                     </button>
                   )}
                 </div>
@@ -843,38 +771,33 @@ function App() {
           <div className="lounge-bottom">
             <div className="lounge-note">
               <h2>把时间留给牌局</h2>
+              <p>不必下载，不必久等。</p>
+            </div>
+            <div className="lounge-feature">
+              <h3>一条链接，即可入座</h3>
               <p>
-                一期一会，一局一心。
-                <br />
-                无需下载，打开即玩。
+                开桌后把邀请链接发给朋友，点开便坐到你身边。少一个人，就请 AI
+                补上。
               </p>
             </div>
             <div className="lounge-feature">
-              <h3>邀朋友，开一桌</h3>
-              <p>分享邀请码，熟悉的人围坐一起。</p>
-            </div>
-            <div className="lounge-feature">
-              <h3>少个人，也尽兴</h3>
-              <p>AI 补齐空位，一个人也能练习。</p>
-            </div>
-            <div className="lounge-feature">
-              <h3>一局之后，再回味</h3>
-              <p>留存牌谱，回看每一次选择。</p>
+              <h3>一张有纵深的牌桌</h3>
+              <p>
+                横屏即是 3D
+                牌桌。快速出牌、自动摸切、不鸣牌，一键开关，手里从容。
+              </p>
             </div>
           </div>
         </main>
       ) : screen === "room" && room ? (
         <main className="room-page">
           <div className="page-title">
-            <div>
-              <h1>这一桌，等你到齐。</h1>
-              <p className="page-sub">等朋友的时间，也很好</p>
-            </div>
+            <h1>这一桌，等你到齐。</h1>
           </div>
           <div className="seats">
             <div className="room-center">
               <div className="room-invite">
-                <small>房间邀请码</small>
+                <small>邀请码</small>
                 <strong>{room.inviteCode}</strong>
                 <button
                   className="secondary"
@@ -886,7 +809,7 @@ function App() {
                           "?invite=" +
                           room.inviteCode,
                       );
-                      setError("邀请链接已复制，发给朋友就能入桌");
+                      setError("邀请链接已复制，发给朋友即可入座");
                     })
                   }
                 >
@@ -900,36 +823,36 @@ function App() {
                     className="secondary"
                     onClick={() => setScreen("social")}
                   >
-                    邀请站内好友
+                    邀请好友
                   </button>
                 )}
               <div className="room-meta">
-                <span>四人立直，{formatName(room.config.format)}</span>
-                {room.hostUserId === me?.userId &&
-                  room.status === "WAITING" && (
-                    <label>
-                      赛制{" "}
-                      <select
-                        aria-label="房间赛制"
-                        value={room.config.format}
-                        disabled={busy}
-                        onChange={(e) =>
-                          roomAction("/config", "PUT", {
-                            format: e.target.value,
-                            expectedRoomVersion: room.roomVersion,
-                          })
-                        }
-                      >
-                        {capabilities?.formats.map((f) => (
-                          <option key={f} value={f}>
-                            {formatName(f)}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  )}
-                <span>25,000 点起始，赤宝牌，食断</span>
-                <span>行动 15 秒 / 响应 8 秒</span>
+                {room.hostUserId === me?.userId && room.status === "WAITING" ? (
+                  <label>
+                    赛制{" "}
+                    <select
+                      aria-label="赛制"
+                      value={room.config.format}
+                      disabled={busy}
+                      onChange={(e) =>
+                        roomAction("/config", "PUT", {
+                          format: e.target.value,
+                          expectedRoomVersion: room.roomVersion,
+                        })
+                      }
+                    >
+                      {capabilities?.formats.map((f) => (
+                        <option key={f} value={f}>
+                          {formatName(f)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : (
+                  <span>{formatName(room.config.format)}</span>
+                )}
+                <span>起始 25,000 点，有赤宝牌与食断</span>
+                <span>出牌 15 秒，应答 8 秒</span>
               </div>
             </div>
             {room.slots.map((m, i) => (
@@ -950,15 +873,15 @@ function App() {
                 <p>
                   {m
                     ? m.participantKind === "BOT"
-                      ? `${m.botLevel === "BASIC" ? "基础" : "标准"} · AI 牌友`
-                      : `${m.userId === room.hostUserId ? "房主 · " : ""}${m.userId === me?.userId ? "你" : m.connected ? "在线" : "暂时离线"}`
-                    : "邀请一位朋友，或让 AI 来陪你"}
+                      ? `AI 牌友，${m.botLevel === "BASIC" ? "基础" : "标准"}`
+                      : `${m.userId === room.hostUserId ? "房主，" : ""}${m.userId === me?.userId ? "你" : m.connected ? "在线" : "暂离"}`
+                    : "邀一位朋友，或请 AI 入座"}
                 </p>
                 <div className="seat-controls">
                   {m ? (
                     <>
                       <span className={`ready ${m.ready ? "yes" : ""}`}>
-                        {m.ready ? "已准备" : "等待准备"}
+                        {m.ready ? "已准备" : "未准备"}
                       </span>
                       {m.participantKind === "BOT" &&
                         room.hostUserId === me?.userId && (
@@ -966,7 +889,7 @@ function App() {
                             <label>
                               难度{" "}
                               <select
-                                aria-label={`座位 ${i + 1} AI 难度`}
+                                aria-label={`${i + 1} 号位 AI 难度`}
                                 value={m.botLevel ?? "STANDARD"}
                                 disabled={busy}
                                 onChange={(e) =>
@@ -990,7 +913,7 @@ function App() {
                                 roomAction("/slots/" + i + "/bot", "DELETE")
                               }
                             >
-                              移除 AI
+                              请离
                             </button>
                           </>
                         )}
@@ -1006,10 +929,10 @@ function App() {
                         })
                       }
                     >
-                      ＋ 邀请 AI
+                      请 AI 入座
                     </button>
                   ) : (
-                    <span className="muted">等待朋友加入</span>
+                    <span className="muted">等朋友入座</span>
                   )}
                 </div>
               </section>
@@ -1029,9 +952,9 @@ function App() {
                 })
               }
             >
-              离开房间
+              离开
             </button>
-            <span>座位将在开始时随机分配</span>
+            <span>开局时随机定座</span>
             <button
               className="secondary"
               disabled={busy}
@@ -1045,7 +968,7 @@ function App() {
             >
               {room.slots.find((m) => m?.userId === me?.userId)?.ready
                 ? "取消准备"
-                : "准备好了"}
+                : "准备"}
             </button>
             {room.hostUserId === me?.userId && (
               <button
@@ -1069,41 +992,38 @@ function App() {
                   })
                 }
               >
-                开始对局
+                开局
               </button>
             )}
           </div>
           <p className="room-footnote">
-            真人全部准备后，由房主开始。成员、赛制或 AI
-            难度变更会清空准备。半庄计划至南四，必要时延长；时长随连庄而变化。
+            众人准备后，由房主开局。换人、改赛制或调 AI 难度后，需重新准备。
           </p>
         </main>
       ) : screen === "game" && view ? (
-        <AppReducedMotion.Provider value={reduced}>
-          <Game
-            key={me!.userId + ":" + sessionEpoch + ":" + view.matchId}
-            userId={me!.userId}
-            identity={me!.userId + ":" + sessionEpoch}
-            authorized={(c) =>
-              latest.current === c.frame &&
-              binding.current === c.binding &&
-              !!socket.current?.connected &&
-              meRef.current?.userId === me?.userId
-            }
-            view={view}
-            frame={frame!}
-            network={network}
-            binding={binding.current}
-            emit={emit}
-            setError={setError}
-            onNew={newRoom}
-            onRematch={room?.hostUserId === me?.userId ? rematch : undefined}
-            onReplay={() => openReplay(view.matchId)}
-            sound={sound}
-          />
-        </AppReducedMotion.Provider>
+        <Game
+          key={me!.userId + ":" + sessionEpoch + ":" + view.matchId}
+          userId={me!.userId}
+          identity={me!.userId + ":" + sessionEpoch}
+          authorized={(c) =>
+            latest.current === c.frame &&
+            binding.current === c.binding &&
+            !!socket.current?.connected &&
+            meRef.current?.userId === me?.userId
+          }
+          view={view}
+          frame={frame!}
+          network={network}
+          binding={binding.current}
+          emit={emit}
+          setError={setError}
+          onNew={newRoom}
+          onRematch={room?.hostUserId === me?.userId ? rematch : undefined}
+          onReplay={() => openReplay(view.matchId)}
+          sound={sound}
+        />
       ) : screen === "rules" ? (
-        <Rules text={rules} onBack={() => setScreen(view ? "game" : "home")} />
+        <Rules onBack={() => setScreen(view ? "game" : "home")} />
       ) : screen === "social" && me?.identityKind === "ACCOUNT" ? (
         <SocialPage
           key={me.userId + ":" + sessionEpoch}
@@ -1122,8 +1042,7 @@ function App() {
             const generation = identityGeneration.current;
             const current = await api<Me>("/me");
             if (generation !== identityGeneration.current) return;
-            if (current.roomId !== roomId)
-              throw Error("房间状态已变化，请重新查看当前房间");
+            if (current.roomId !== roomId) throw Error("牌桌有变，请重新查看");
             setMe(current);
             const joined = await api<Room>("/rooms/" + roomId);
             if (generation !== identityGeneration.current) return;
@@ -1134,7 +1053,6 @@ function App() {
         <AccountPanel
           key={accountPage}
           socialCapabilities={capabilities ?? {}}
-          onFriends={() => setScreen("social")}
           onProfileUpdated={async () => {
             const generation = identityGeneration.current;
             const updated = await api<Me>("/me");
@@ -1154,66 +1072,6 @@ function App() {
         />
       ) : screen === "history" && me ? (
         <History userId={me.userId} onReplay={openReplay} />
-      ) : screen === "stats" && me ? (
-        <Stats />
-      ) : screen === "settings" ? (
-        <main className="history-page">
-          <h1>设置</h1>
-          <div className="settings-list">
-            <label>
-              牌桌尺寸{" "}
-              <select
-                value={size}
-                onChange={(e) => {
-                  setSize(e.target.value);
-                  writeLocalPreference("mj_tableSize", e.target.value);
-                }}
-              >
-                <option value="standard">标准</option>
-                <option value="compact">紧凑</option>
-              </select>
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={reduced}
-                onChange={(e) => {
-                  setReduced(e.target.checked);
-                  writeLocalPreference(
-                    "mj_reducedMotion",
-                    String(e.target.checked),
-                  );
-                }}
-              />{" "}
-              减少动画
-            </label>
-            <p>默认先选牌再确认；设置在当前浏览器保存。</p>
-            {me && (
-              <TablePreferenceSettings key={me.userId} userId={me.userId} />
-            )}
-            {me && (
-              <button
-                className="secondary"
-                onClick={copyDiagnostic}
-                disabled={busy}
-              >
-                复制诊断信息
-              </button>
-            )}
-            {diagnostic && (
-              <textarea
-                aria-label="诊断信息"
-                readOnly
-                value={diagnostic}
-                rows={10}
-                onFocus={(e) => e.target.select()}
-              />
-            )}
-            <p className="muted">
-              诊断信息仅包含定位编号和版本等必要信息，不含会话凭据、暗手或牌山。
-            </p>
-          </div>
-        </main>
       ) : screen === "replay" && replayTarget ? (
         <Replay
           key={replayTarget.id}
@@ -1226,10 +1084,7 @@ function App() {
       )}
       {screen !== "game" && (
         <footer>
-          <span>一桌，与好朋友，打好时光。</span>
-          <span>
-            四人立直麻将 <i> / </i> Ichitaku
-          </span>
+          <span>一桌，与好友的四人立直麻将。</span>
         </footer>
       )}
     </div>
@@ -1270,7 +1125,7 @@ function Replay({
       .then(([d, p]) => {
         if (!active) return;
         if (!["1.0", "2.0"].includes(d.replayVersion ?? "1.0"))
-          throw Error("暂不支持这个牌谱版本");
+          throw Error("这份牌谱版本较旧，暂时打不开");
         setData(d);
         setAll(false);
         const deals = d.events.filter((e) => e.type === "DEAL");
@@ -1298,9 +1153,8 @@ function Replay({
               d.events.filter((e) => e.handId === target.handId).indexOf(event),
             );
             setSeat(target.viewerSeat);
-            if (!initialHandId)
-              setNotice("已恢复上次观看位置，全信息展示默认关闭");
-          } else setNotice("原观看位置已失效，已返回局首");
+            if (!initialHandId) setNotice("已回到上次看到的地方");
+          } else setNotice("上次看到的地方找不到了，从局首看起");
         }
         setPositionReady(true);
       })
@@ -1339,7 +1193,7 @@ function Replay({
         handId: current.handId,
         eventIndex: data.events.indexOf(current),
         viewerSeat: seat,
-      }).catch((e) => setNotice("观看位置暂未保存：" + e.message));
+      }).catch((e) => setNotice("进度暂未保存：" + e.message));
     }, 350);
     return () => clearTimeout(t);
   }, [positionReady, current, seat, data, matchId]);
@@ -1356,43 +1210,28 @@ function Replay({
         "MATCH_FINISHED",
       ].includes(e.type),
     );
-  function download() {
-    const url = URL.createObjectURL(
-      new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }),
-    );
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `mahjong-${matchId}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
   return (
     <main className="replay-page">
       <button className="text-button" onClick={onBack}>
-        返回成绩
+        返回战绩
       </button>
       <div className="page-title">
         <div>
-          <h1>本场牌谱</h1>
-          <p className="page-sub">再看一次，那时的选择</p>
+          <h1>牌谱</h1>
+          <p className="page-sub">
+            {data
+              ? formatName(data.format ?? "EAST_ONLY") + "，再看一次那时的选择"
+              : "再看一次那时的选择"}
+          </p>
         </div>
-        <button className="secondary" disabled={!data} onClick={download}>
-          导出 JSON
-        </button>
       </div>
-      {data && (
-        <p className="muted meta-row">
-          <span>{formatName(data.format ?? "EAST_ONLY")}</span>
-          <span>牌谱版本 {data.replayVersion ?? "1.0"}</span>
-        </p>
-      )}
       {err && <p role="alert">{err}</p>}
       {notice && <p aria-live="polite">{notice}</p>}
       {data && (
         <>
           <div className="replay-controls">
             <label>
-              选择局{" "}
+              局{" "}
               <select
                 value={hand}
                 onChange={(e) => {
@@ -1410,7 +1249,7 @@ function Replay({
               </select>
             </label>
             <label>
-              查看座位{" "}
+              视角{" "}
               <select
                 value={seat}
                 onChange={(e) => setSeat(Number(e.target.value) as Seat)}
@@ -1428,7 +1267,7 @@ function Replay({
                 checked={all}
                 onChange={(e) => setAll(e.target.checked)}
               />
-              全信息回放
+              亮出四家手牌
             </label>
           </div>
           <div className="replay-board">
@@ -1437,7 +1276,7 @@ function Replay({
                 <h3>
                   <Avatar id={p.avatarId} /> {p.displayName}
                   <span>{state.points[p.seat].toLocaleString()} 点</span>
-                  <small>{p.seat === seat ? "当前视角" : ""}</small>
+                  <small>{p.seat === seat ? "视角" : ""}</small>
                 </h3>
                 <div className="replay-hand">
                   {state.tiles[p.seat].map((t) => (
@@ -1460,7 +1299,7 @@ function Replay({
           </div>
           {all && (
             <details>
-              <summary>查看本局完整牌山（回放全信息）</summary>
+              <summary>本局牌山</summary>
               <div className="wall-tiles">
                 {deals[hand]?.data.shuffled.map((t: number) => (
                   <Tile key={t} tile={t} small />
@@ -1518,11 +1357,10 @@ function Replay({
             }}
           />
           <p className="replay-event">
-            第 {data.events.indexOf(current) + 1} 步：
             {current ? eventLabel(current, data) : ""}
           </p>
           <details className="key-events" open>
-            <summary>本局关键事件（{keyEvents.length}）</summary>
+            <summary>本局要点（{keyEvents.length}）</summary>
             <div>
               {keyEvents.map(({ e, index }) => (
                 <button
@@ -1533,7 +1371,7 @@ function Replay({
                     setStep(index);
                   }}
                 >
-                  第 {data.events.indexOf(e) + 1} 步：{eventLabel(e, data)}
+                  第 {index + 1} 手：{eventLabel(e, data)}
                 </button>
               ))}
             </div>
@@ -1596,12 +1434,12 @@ function eventLabel(e: any, data: ReplayData) {
           p +
           "打出 " +
           (e.data.tile === undefined ? "" : tileName(e.data.tile)),
-        RIICHI_DECLARED: p + "声明立直",
+        RIICHI_DECLARED: p + "宣告立直",
         RIICHI_ESTABLISHED: p + "立直成立",
         CALL_RESOLVED: p + actionNames[e.data?.meld?.type],
-        KAN_PROPOSED: p + "声明杠",
+        KAN_PROPOSED: p + "宣告杠",
         KAN_COMMITTED: p + "杠成立",
-        DORA_REVEALED: "翻开杠宝牌指示",
+        DORA_REVEALED: "翻开新宝牌",
         HAND_SETTLED:
           (e.data?.wins
             ?.map(
@@ -1613,11 +1451,11 @@ function eventLabel(e: any, data: ReplayData) {
             )
             .join("、") ?? "") +
           " " +
-          (resultNames[e.data?.reason] ?? "本局结算"),
-        MATCH_FINISHED: "整场结束",
-        RESPONSE_RECORDED: p + "提交响应",
+          (resultNames[e.data?.reason] ?? "本局终了"),
+        MATCH_FINISHED: "一场终了",
+        RESPONSE_RECORDED: p + "应答",
         CONTROL_CHANGED: p + "切换托管",
-        RECOVERED: "服务恢复",
+        RECOVERED: "牌桌恢复",
       } as Record<string, string>
     )[e.type] ?? e.type
   );

@@ -4,6 +4,7 @@ import { Quaternion, Vector3 } from "three";
 import { createGame, project, quad } from "../backend/src/engine.ts";
 import {
   TILE,
+  armCues,
   isJump,
   layoutTable,
   meldDisplay,
@@ -397,4 +398,108 @@ test("one action animates; a resync of several actions is placed at once", () =>
       discard(t + seat, i),
     );
   assert.equal(isJump(before, layoutTable(later, { selfHand: true })), true);
+});
+
+test("arm cues: other players' discards, draws, calls and shown hands", () => {
+  const view = baseView(0);
+  const keyed = (v: MatchView) =>
+    new Map(layoutTable(v, { selfHand: true }).map((p) => [p.key, p]));
+  const cues = (a: MatchView, b: MatchView, revealing = false) =>
+    armCues(keyed(a), layoutTable(b, { selfHand: true }), 0, revealing).map(
+      (c) => [c.kind, c.seat],
+    );
+  const discard = (tile: number) => ({
+    discardId: `a${tile}`,
+    tile,
+    tsumogiri: false,
+    riichiDeclaration: false,
+    claimedByMeldId: null,
+  });
+  // Seat 1 draws: one hidden tile more, one wall tile fewer.
+  const drawn = structuredClone(view);
+  drawn.hand.seats[1].concealedCount += 1;
+  drawn.hand.liveWallRemaining -= 1;
+  assert.deepEqual(cues(view, drawn), [["draw", 1]]);
+  const draw = armCues(
+    keyed(view),
+    layoutTable(drawn, { selfHand: true }),
+    0,
+    false,
+  )[0];
+  assert.ok(draw.kind === "draw" && draw.wall.group === "wall");
+  // ...and discards.
+  const thrown = structuredClone(drawn);
+  thrown.hand.seats[1].concealedCount -= 1;
+  thrown.hand.seats[1].discards = [discard(120)];
+  assert.deepEqual(cues(drawn, thrown), [["discard", 1]]);
+  // The viewer's own discard is no cue.
+  const own = structuredClone(view);
+  const played = own.self.concealedTiles.shift()!;
+  own.hand.seats[0].discards = [discard(played)];
+  assert.deepEqual(cues(view, own), []);
+  // Seat 2 pons the viewer's discard: the tile goes from river to meld.
+  const pon = structuredClone(own);
+  pon.hand.seats[0].discards[0].claimedByMeldId = "m";
+  pon.hand.seats[2].concealedCount -= 2;
+  pon.hand.seats[2].melds = [
+    {
+      meldId: "m",
+      type: "PON",
+      tiles: [played, 130, 131],
+      sourceSeat: 0,
+      sourceDiscardId: `a${played}`,
+      calledTile: played,
+      addedTile: null,
+    },
+  ];
+  const call = armCues(
+    keyed(own),
+    layoutTable(pon, { selfHand: true }),
+    0,
+    false,
+  ).find((c) => c.kind === "call");
+  assert.ok(call?.kind === "call");
+  assert.equal(call.seat, 2);
+  assert.equal(call.tile.tile, played);
+  assert.equal(call.river.seat, 0);
+  // Seat 3's hand shown at the result: one row, in order along the hand.
+  const used = new Set([
+    ...view.self.concealedTiles,
+    ...(view.self.drawnTile === null ? [] : [view.self.drawnTile]),
+    ...view.hand.doraIndicators,
+  ]);
+  const free = Array.from({ length: 136 }, (_, i) => i).filter(
+    (t) => !used.has(t),
+  );
+  const result = structuredClone(view);
+  result.lastHandResult = {
+    handId: view.hand.handId,
+    wins: [],
+    revealedUraIndicators: [],
+    revealedHands: [
+      {
+        seat: 3,
+        concealedTiles: free.slice(0, 13),
+        drawnTile: null,
+        winningTile: null,
+      },
+    ],
+  } as unknown as MatchView["lastHandResult"];
+  result.hand.phase = "HAND_RESULT";
+  assert.deepEqual(cues(view, result, false), []);
+  const shown = armCues(
+    keyed(view),
+    layoutTable(result, { selfHand: true }),
+    0,
+    true,
+  );
+  assert.deepEqual(
+    shown.map((c) => [c.kind, c.seat]),
+    [["reveal", 3]],
+  );
+  assert.ok(shown[0].kind === "reveal");
+  assert.deepEqual(
+    shown[0].row.map((p) => p.tile),
+    free.slice(0, 13),
+  );
 });

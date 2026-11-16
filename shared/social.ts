@@ -32,7 +32,7 @@ export const nicknameSchema = z
   .max(256)
   .refine(
     (s) => !/[\p{Cc}\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/u.test(s),
-    "昵称不能含控制字符",
+    "名字不能含特殊字符",
   )
   .transform((s) => s.trim().normalize("NFC"))
   .refine(
@@ -40,7 +40,7 @@ export const nicknameSchema = z
       [...s].length >= 1 &&
       [...s].length <= 16 &&
       !/[\p{Cc}\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/u.test(s),
-    "昵称须为1至16个字符，不含换行、控制或方向控制符",
+    "名字需要 1 到 16 个字符，不能含换行等特殊字符",
   );
 export const friendCodeSchema = z
   .string()

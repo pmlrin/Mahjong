@@ -199,7 +199,7 @@ test("Latest-discard banner and response hint display source player and tile acc
   const html = renderToStaticMarkup(
     React.createElement(LatestDiscard, { view: v }),
   );
-  assert(html.includes("最新出牌"));
+  assert(html.includes("刚刚打出"));
   assert(html.includes("本人"));
   assert(html.includes('aria-live="polite"'));
   const target = {
@@ -213,7 +213,7 @@ test("Latest-discard banner and response hint display source player and tile acc
   const hint = renderToStaticMarkup(
     React.createElement(ResponseSource, {
       source: target,
-      prompt: "你可以碰，或选择过牌",
+      prompt: "你可以碰，或者过",
     }),
   );
   assert(hint.includes("打出"));

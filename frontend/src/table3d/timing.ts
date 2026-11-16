@@ -31,3 +31,19 @@ export const REVEAL = {
  * least display time that must be left to bother (after a reconnect, say).
  */
 export const RESULT_HOLD = { table3d: 2, flat: 1.2, minRemaining: 4 };
+
+/**
+ * A player's arm taking a discard on the 3D table: it reaches the tile first
+ * (the tile waits), carries it along the discard flight, then lets go and
+ * pulls back. Seconds.
+ */
+export const ARM = { reach: 0.18, retract: 0.3 };
+/**
+ * Seats, relative to the viewer, whose arm is shown taking their discards:
+ * their tiles land `ARM.reach` later, and so does the discard sound. Kept up
+ * to date by the 3D table.
+ */
+export const armedSeats = new Set<number>();
+/** When a discard by this relative seat touches the 3D table. */
+export const discardLandsAfter = (relative: number) =>
+  DISCARD_LANDS_AFTER + (armedSeats.has(relative) ? ARM.reach : 0);

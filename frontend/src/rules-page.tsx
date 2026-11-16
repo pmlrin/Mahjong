@@ -46,13 +46,7 @@ export function YakuHand({
     </div>
   );
 }
-export function RulesPage({
-  text,
-  onBack,
-}: {
-  text: string;
-  onBack: () => void;
-}) {
+export function RulesPage({ onBack }: { onBack: () => void }) {
   const [showYaku, setShowYaku] = useState(false),
     [search, setSearch] = useState("");
   const visible = YAKU_CATALOG.filter((y) =>
@@ -68,43 +62,43 @@ export function RulesPage({
       <h1>几分钟，认识这一桌</h1>
       <p className="page-sub">落座之前</p>
       <p className="rules-lead">
-        四人立直麻将。先把手牌凑成和牌形，再确认至少有一个役。
+        四人立直麻将：把手牌凑成和牌形，且至少有一个役，就能和牌。
       </p>
       <section className="rule-intro" aria-label="简明玩法说明">
         <article>
           <h2>摸一张，打一张</h2>
           <p>
-            <b>怎么打。</b>每人13张，轮到自己摸1张再打1张。通常把手牌组成四组面子和一对雀头：面子是同花色连续三张，或三张相同牌。
+            每人 13 张，轮到自己摸 1 张、打 1 张。通常把手牌组成四组面子和一对雀头：面子是同花色连续三张，或三张相同牌。
           </p>
         </article>
         <article>
           <h2>拿别人的牌来组面子</h2>
           <p>
-            <b>吃碰杠。</b>只能吃上家打出的牌；任意一家打出的牌都可能碰、杠。吃碰后直接打牌，杠后补摸岭上牌。鸣牌会影响可成立的役。
+            只能吃上家打出的牌；任意一家打出的牌都可能碰、杠。吃碰后直接打牌，杠后补摸岭上牌。鸣牌会影响可成立的役。
           </p>
         </article>
         <article>
           <h2>牌形完整，还要有役</h2>
           <p>
-            <b>怎么和。</b>自己摸到叫自摸，别人打出叫荣和。除四面子一雀头，也有七对子、国士无双。只有宝牌、没有役，不能和牌。
+            自己摸到叫自摸，别人打出叫荣和。除四面子一雀头，也有七对子、国士无双。只有宝牌、没有役，不能和牌。
           </p>
         </article>
         <article>
           <h2>门清听牌后可以立直</h2>
           <p>
-            <b>立直。</b>没有吃碰明杠、只差一张就能和时，可支付1000点立直。立直后通常摸切，不能再随意换牌；立直本身是一役。
+            没有吃碰明杠、只差一张就能和时，可付 1,000 点立直。立直后通常摸切，不能再随意换牌；立直本身是一役。
           </p>
         </article>
         <article>
           <h2>自己的弃牌也要看</h2>
           <p>
-            <b>振听。</b>自己打过当前任一种和牌牌，就不能荣和，但仍可自摸。放过合法荣和会有同巡振听；立直后见逃持续本局。
+            自己打过当前任一种和牌牌，就不能荣和，但仍可自摸。放过合法荣和会有同巡振听；立直后见逃持续本局。
           </p>
         </article>
         <article>
-          <h2>从25,000点开始</h2>
+          <h2>从 25,000 点开始</h2>
           <p>
-            <b>一场比赛。</b>可选东风或半庄，30,000点为目标。庄家和牌或荒牌听牌会连庄；不足目标时可能延长。低于0点会结束比赛，恰好0点不会。
+            可选东风战或半庄战，以 30,000 点为目标。庄家和牌或荒牌听牌会连庄；不足目标时可能延长。点数跌破 0 即终局，恰好 0 点不算。
           </p>
         </article>
       </section>
@@ -116,7 +110,7 @@ export function RulesPage({
             winning: "m4",
           }}
         />
-        <p>四组面子＋一对雀头。杏色标记是和牌牌；这副牌还满足断幺九、平和。</p>
+        <p>四组面子加一对雀头。杏色标记的是和牌的那张；这副牌还满足断幺九、平和。</p>
       </section>
       <button
         className="yaku-toggle primary"
@@ -126,7 +120,7 @@ export function RulesPage({
       >
         {showYaku
           ? "收起役种图鉴"
-          : "查看全部 " + YAKU_CATALOG.length + " 种役种与示例牌"}
+          : "全部 " + YAKU_CATALOG.length + " 种役，各配一副示例牌"}
         <span>{showYaku ? "−" : "＋"}</span>
       </button>
       {showYaku && (
@@ -139,22 +133,21 @@ export function RulesPage({
             <div>
               <h2>全部役种，一副牌看懂</h2>
               <p>
-                以下为本桌支持的全部{YAKU_CATALOG.length}
-                种役种。示例可同时成立其他役，所列番数仅属于当前役。杏色底的组为副露；杠是四张，仍算一组面子。
+                示例牌可能同时成立别的役，标出的番数只算这一役。杏色底的一组是副露；杠虽四张，仍算一组面子。
               </p>
             </div>
             <label>
-              查找役种
+              找一找
               <input
                 type="search"
-                placeholder="役名或条件"
+                placeholder="役名或条件，如：立直、门清"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </label>
           </div>
           <p className="yaku-result-count" aria-live="polite">
-            显示 {visible.length} / {YAKU_CATALOG.length} 种
+            共 {visible.length} 种
             {search && (
               <button className="text-button" onClick={() => setSearch("")}>
                 显示全部
@@ -193,7 +186,7 @@ export function RulesPage({
             ))}
           </div>
           {!visible.length && (
-            <p>没有找到这个役名，可以清空搜索查看完整清单。</p>
+            <p>没找到。换个说法，或清空再看。</p>
           )}
           <article className="yaku-special">
             <h3>特殊结算：流局满贯</h3>
@@ -221,17 +214,11 @@ export function RulesPage({
           </div>
         </section>
       )}
-      <details>
-        <summary>查看详细比赛规则</summary>
-        <pre className="full-rules">{text || "正在读取规则…"}</pre>
-      </details>
       <div className="rules-note">
         <p>
-          行动限时15秒，响应8秒。掉线不会暂停比赛，后续窗口按既有规则托管；重连后可恢复人工控制。
+          出牌限时 15 秒，吃碰杠与荣和的应答 8 秒。掉线不会让牌局停下，期间由 AI 托管，重连后即可接着打。
         </p>
-        <p>
-          正式账号登录后可读取本环境本人保存期内的成绩与牌谱；游客清除Cookie后不能凭昵称恢复身份。整场正常结束后，参与者才可查看完整牌谱。
-        </p>
+        <p>一场打完，同桌的人都能看完整牌谱，保存 30 天。</p>
       </div>
     </main>
   );
