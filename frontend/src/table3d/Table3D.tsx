@@ -28,7 +28,7 @@ import { createTile } from "./geometry";
 import { QUALITY, frameVerdict, type QualityLevel } from "./quality";
 import { useReducedMotion } from "../motion";
 import { ARM, DISCARD_FLIGHT, REVEAL, armedSeats } from "./timing";
-import { Figure, useFigures, leanFor, type Reach } from "./arms";
+import { Figure, useFigures, canReach, type Reach } from "./arms";
 import {
   SCENE,
   SELF_HAND,
@@ -137,6 +137,11 @@ interface Motion {
   arc: number;
   /** A discard: travel to a point above the river, hang, then drop. */
   hover?: Vector3;
+  /** A discard's owner's wall, as fractions of the way across (see step()). */
+  wall?: { near: number; far: number };
+  /** Size on the way: the viewer's enlarged hand tile shrinks as it goes. */
+  fromS: number;
+  toS: number;
 }
 const now = () => performance.now() / 1000;
 /** Short hops (a lift) are quick; flights across the table take longer. */
@@ -148,6 +153,8 @@ function motion(
   toQ: Quaternion,
   arc?: number,
   delay = 0,
+  fromS = 1,
+  toS = 1,
 ): Motion {
   const distance = fromP.distanceTo(toP);
   return {
@@ -158,8 +165,31 @@ function motion(
     start: now() + delay,
     duration: travelTime(distance),
     arc: arc ?? (distance > 2.5 ? Math.min(1.4, distance * 0.09) : 0),
+    fromS,
+    toS,
   };
 }
+/**
+ * Height of a flying tile's centre that clears a full two-high wall, turning
+ * as it goes.
+ */
+const WALL_CLEAR = TILE.thickness * 2 + 0.85;
+/**
+ * Where a discard is above its owner's wall, as fractions of the way across,
+ * so it passes over the wall rather than through it. Distances from the
+ * centre are measured square, like the table; undefined when no wall is in
+ * the way.
+ */
+function wallCrossing(fromP: Vector3, hover: Vector3) {
+  const r = (v: Vector3) => Math.max(Math.abs(v.x), Math.abs(v.z));
+  const a = r(fromP),
+    b = r(hover),
+    half = TILE.height / 2,
+    w = SCENE.wallDistance;
+  if (!(a > w + half && w - half > b)) return undefined;
+  return { near: (a - w - half) / (a - b), far: (a - w + half) / (a - b) };
+}
+const smoothstep = (x: number) => x * x * (3 - 2 * x);
 /** The fixed-length discard flight, so its sound can land with it. */
 function discardMotion(
   fromP: Vector3,
@@ -167,6 +197,8 @@ function discardMotion(
   toP: Vector3,
   toQ: Quaternion,
   delay = 0,
+  fromS = 1,
+  toS = 1,
 ): Motion {
   const hover = toP.clone().setY(toP.y + DISCARD_FLIGHT.hover);
   return {
@@ -177,7 +209,10 @@ function discardMotion(
     start: now() + delay,
     duration: DISCARD_FLIGHT.duration,
     arc: 0,
+    wall: wallCrossing(fromP, hover),
     hover,
+    fromS,
+    toS,
   };
 }
 const scratch = new Vector3();
@@ -188,6 +223,7 @@ function step(g: Group, mv: Motion, t: number) {
     g.position.lerpVectors(mv.fromP, mv.toP, e);
     g.position.y += Math.sin(Math.PI * t) * mv.arc;
     g.quaternion.slerpQuaternions(mv.fromQ, mv.toQ, e);
+    g.scale.setScalar(mv.fromS + (mv.toS - mv.fromS) * e);
     return;
   }
   const { travel, hang } = DISCARD_FLIGHT;
@@ -199,16 +235,31 @@ function step(g: Group, mv: Motion, t: number) {
       across = 1 - (1 - u) ** 3,
       up = 1 - (1 - u) ** 6;
     g.position.lerpVectors(mv.fromP, mv.hover, across);
-    g.position.y = mv.fromP.y + (mv.hover.y - mv.fromP.y) * up;
+    const w = mv.wall;
+    // Over a wall: rise to clear it, keep clear of it, then ease down.
+    g.position.y = !w
+      ? mv.fromP.y + (mv.hover.y - mv.fromP.y) * up
+      : across < w.near
+        ? mv.fromP.y +
+          (WALL_CLEAR - mv.fromP.y) *
+            Math.sin((Math.PI / 2) * (across / w.near))
+        : across <= w.far
+          ? WALL_CLEAR
+          : WALL_CLEAR +
+            (mv.hover.y - WALL_CLEAR) *
+              smoothstep((across - w.far) / (1 - w.far));
     g.quaternion.slerpQuaternions(mv.fromQ, mv.toQ, across);
+    g.scale.setScalar(mv.fromS + (mv.toS - mv.fromS) * across);
   } else if (t < hang) {
     const u = (t - travel) / (hang - travel);
     g.position.lerpVectors(mv.hover, low, u * u);
     g.quaternion.copy(mv.toQ);
+    g.scale.setScalar(mv.toS);
   } else {
     const u = (t - hang) / (1 - hang);
     g.position.lerpVectors(low, mv.toP, u * u);
     g.quaternion.copy(mv.toQ);
+    g.scale.setScalar(mv.toS);
   }
 }
 
@@ -249,12 +300,17 @@ function TileMesh({
     : p.winning
       ? [x, y + WIN_LIFT, z]
       : [x, y, z];
-  const key = [...target, ...p.quaternion].map((n) => n.toFixed(4)).join();
+  const size = p.scale ?? 1;
+  const key = [...target, ...p.quaternion, size]
+    .map((n) => n.toFixed(4))
+    .join();
   useLayoutEffect(() => {
     const g = ref.current!;
     const toP = new Vector3(...target),
       toQ = new Quaternion(...p.quaternion);
     const first = !mounted.current;
+    // Scale is driven here too, so a hand tile shrinks on its way out.
+    const fromS = first ? size : g.scale.x;
     mounted.current = true;
     const was = group.current;
     group.current = p.group;
@@ -272,9 +328,12 @@ function TileMesh({
         toP,
         toQ,
         delay,
+        fromS,
+        size,
       );
       g.position.copy(from.position);
       g.quaternion.copy(from.quaternion);
+      g.scale.setScalar(fromS);
     } else if (first && animate && origin) {
       moving.current = motion(
         origin.position,
@@ -283,13 +342,17 @@ function TileMesh({
         toQ,
         origin.arc,
         delay,
+        size,
+        size,
       );
       g.position.copy(origin.position);
       g.quaternion.copy(origin.quaternion);
+      g.scale.setScalar(size);
     } else if (first || !animate) {
       moving.current = null;
       g.position.copy(toP);
       g.quaternion.copy(toQ);
+      g.scale.setScalar(size);
     } else {
       moving.current = motion(
         g.position,
@@ -298,6 +361,8 @@ function TileMesh({
         toQ,
         undefined,
         delay,
+        fromS,
+        size,
       );
     }
     invalidate();
@@ -313,7 +378,7 @@ function TileMesh({
     else moving.current = null;
   });
   return (
-    <group ref={ref} name={p.key} scale={p.scale ?? 1}>
+    <group ref={ref} name={p.key}>
       <mesh
         geometry={tileGeometry(kit, showFace ? atlasCell(p.tile!) : null)}
         material={
@@ -440,13 +505,19 @@ function CenterPlate({
   );
 }
 
-/** A riichi stick, once the riichi stands (its discard passed). */
 /** Where a seat's riichi stick is laid down before it slides to the centre. */
 function riichiStickFrom(relative: number) {
   return new Vector3(0, 0.35, SCENE.riverStart + 2.2)
     .applyQuaternion(seatQuaternion(relative))
     .setY(0.35);
 }
+/** Where a seat's riichi stick lies, by the centre plate. */
+function riichiStickAt(relative: number) {
+  return new Vector3(0, 0.05, SCENE.centerHalf + 0.35).applyQuaternion(
+    seatQuaternion(relative),
+  );
+}
+/** A riichi stick, once the riichi stands (its discard passed). */
 function RiichiStick({
   seat,
   viewer,
@@ -466,7 +537,7 @@ function RiichiStick({
   const invalidate = useThree((s) => s.invalidate);
   const rel = relativeSeat(seat, viewer);
   const q = seatQuaternion(rel);
-  const at = new Vector3(0, 0.05, SCENE.centerHalf + 0.35).applyQuaternion(q);
+  const at = riichiStickAt(rel);
   useLayoutEffect(() => {
     // Laid down from the player's side of the table, sliding in to the centre.
     if (!animate) return;
@@ -748,11 +819,17 @@ function Scene({
       const rel = relativeSeat(cue.seat, viewer);
       if (!figure) continue;
       // The arm takes `tile` from `from`; the tile waits there until it does.
+      const to = (p: TilePlacement) => new Vector3(...p.position);
       const take = (tile: TilePlacement, from: Vector3, carry: number) => {
-        reaches.set(rel, { key: tile.key, from, start: now(), carry });
+        reaches.set(rel, {
+          key: tile.key,
+          from,
+          to: to(tile),
+          start: now(),
+          carry,
+        });
         delays.set(tile.key, ARM.reach);
       };
-      const to = (p: TilePlacement) => new Vector3(...p.position);
       if (cue.kind === "discard")
         take(
           cue.tile,
@@ -762,7 +839,7 @@ function Scene({
       else if (cue.kind === "draw" || cue.kind === "call") {
         // Only within reach; a draw's tile then flies from the wall.
         const from = to(cue.kind === "draw" ? cue.wall : cue.river);
-        if (reaches.has(rel) || !leanFor(figure, from)) continue;
+        if (reaches.has(rel) || !canReach(figure, from, to(cue.tile))) continue;
         take(cue.tile, from, travelTime(from.distanceTo(to(cue.tile))));
         if (cue.kind === "draw")
           origins.set(cue.tile.key, {
@@ -800,6 +877,7 @@ function Scene({
       reaches.set(rel, {
         key: `riichi-${seat}`,
         from: riichiStickFrom(rel),
+        to: riichiStickAt(rel),
         start: now(),
         carry: RIICHI_STICK_SLIDE,
       });

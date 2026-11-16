@@ -1,8 +1,8 @@
-// Players' arms on the 3D table. Each other player's figure sits past their
-// table edge, out of shot; when that player discards, draws, calls a discard
-// or lays down a riichi stick, its right arm reaches in, pinches the tile (or
-// stick), carries it along its flight, lets go and pulls back. When their hand
-// is shown at the end, both hands push it down.
+// Players' arms on the 3D table: only arms and hands are drawn, no bodies.
+// When another player discards, draws, calls a discard or lays down a riichi
+// stick, their right arm comes in from their side of the table, pinches the
+// tile (or stick), carries it along its flight, lets go and goes back out the
+// same way. When their hand is shown at the end, both hands push it down.
 // Driven by code (two-bone IK on the VRM's normalized humanoid bones and two
 // finger poses), not by animation files.
 //
@@ -16,6 +16,8 @@ import {
   Color,
   Matrix4,
   Mesh,
+  type Material,
+  type ShaderMaterial,
   Object3D,
   Quaternion,
   SRGBColorSpace,
@@ -29,35 +31,39 @@ import { seatQuaternion } from "./layout";
 import { ARM, DISCARD_FLIGHT } from "./timing";
 
 /**
- * Where the figure sits and how big it is, in table units (a tile is about
- * 2.6 cm wide, so a person is drawn a little larger than life to reach the
- * river). Tunable from the console in development (`__arms`).
+ * Where the arms come from and how big they are, in table units (a tile is
+ * about 2.6 cm wide, so the arms are drawn a little larger than life to reach
+ * the river). Tunable from the console in development (`__arms`).
  */
 export const FIGURE = {
   /** Metres of the model to table units. */
-  scale: 44,
+  scale: 36,
   /** Shoulder height above the felt. */
-  shoulderHeight: 12,
-  /** Body from the table centre, along the player's side. */
-  distance: 23,
-  /** Forward lean of the upper body, radians. */
+  shoulderHeight: 7,
+  /** The shoulders stay at least this far from the table centre (its edge is 14.6). */
+  edge: 16,
+  /** Share of the arm's length used at the farthest-in point of a reach. */
+  extend: 0.88,
+  /** A lone right hand's shoulder sits this far to the player's right of its line. */
+  offset: 1.5,
+  /** The across player's arms rise this much per unit back as they leave. */
+  rise: 0.6,
+  /** Forward lean of the (hidden) upper body, radians. */
   lean: 0.3,
   /** Wrist held this far back from the tile (toward the body) and above it. */
   gripBack: 2.4,
   gripUp: 1.7,
   /** The hands are drawn smaller than the model's, which read as huge here. */
-  handScale: 0.75,
+  handScale: 0.9,
   /** Fingers point down toward the tile at this angle, radians. */
   gripPitch: 0.75,
   /** Height of the arc while reaching in and pulling back. */
-  arc: 2.5,
-  /** The body may shift this far toward a distant tile; farther ones get no arm. */
-  stretch: 6,
+  arc: 1,
 };
 
 const now = () => performance.now() / 1000;
-/** Materials of the figure that are drawn: the clothes and the body. */
-const SHOWN = ["huku_bake", "body_nm", "body_bake"];
+/** Materials of the figure that are drawn: the suit (sleeves) and the skin. */
+const SHOWN = ["body_nm", "body_bake"];
 /** Development only: hold a reach at this many seconds in, for inspection. */
 let frozen: number | null = null;
 
@@ -109,8 +115,7 @@ function loadFigures() {
         const mesh = o as Mesh;
         if (!mesh.isMesh) return;
         mesh.castShadow = true;
-        // Only the body and clothes (which carry the arms) are drawn: the
-        // head, hair and backpack would only peek over the far edge.
+        // Only the suit and skin are drawn (of them, only the arms, below).
         const names = [mesh.material]
           .flat()
           .map((m) => m.name.replace(/ \(Outline\)$/, ""));
@@ -122,30 +127,36 @@ function loadFigures() {
       });
       figures.push(vrm);
     }
-    // The side players' bodies would lean into the edges of the shot (the
-    // across player's sits behind the far edge): draw only their right arms.
-    for (const i of [0, 2]) {
-      const left: SkinnedMesh[] = [];
-      for (const m of meshes(figures[i]).filter((m) => m.visible)) {
-        const mesh = m as SkinnedMesh;
-        // The left arm only shows to push a hand down.
-        const arm = new SkinnedMesh(armOnly(mesh, LEFT_ARM), mesh.material);
-        arm.bind(mesh.skeleton, mesh.bindMatrix);
-        arm.position.copy(mesh.position);
-        arm.quaternion.copy(mesh.quaternion);
-        arm.scale.copy(mesh.scale);
-        arm.frustumCulled = false;
-        arm.castShadow = true;
-        arm.visible = false;
-        mesh.parent!.add(arm);
-        left.push(arm);
-        mesh.geometry = armOnly(mesh, RIGHT_ARM);
-      }
-      figures[i].scene.userData.leftArm = left;
+    // Only the arms: the right one, and the left one while pushing a hand
+    // down. The geometry is cut once and shared by all three.
+    const shown = meshes(figures[0]).filter((m) => m.visible) as SkinnedMesh[];
+    // Of the skin, only the hands: the rest is under the suit, and would
+    // show in the cut at the shoulder.
+    const skin = (m: Mesh) => [m.material].flat()[0].name === "body_bake";
+    const right = shown.map((m) => armOnly(m, skin(m) ? HAND.R : RIGHT_ARM));
+    const left = shown.map((m) => armOnly(m, skin(m) ? HAND.L : LEFT_ARM));
+    for (const vrm of figures) {
+      const arms: SkinnedMesh[] = [];
+      meshes(vrm)
+        .filter((m) => m.visible)
+        .forEach((m, k) => {
+          const mesh = m as SkinnedMesh;
+          const arm = new SkinnedMesh(left[k], mesh.material);
+          arm.bind(mesh.skeleton, mesh.bindMatrix);
+          arm.position.copy(mesh.position);
+          arm.quaternion.copy(mesh.quaternion);
+          arm.scale.copy(mesh.scale);
+          arm.frustumCulled = false;
+          arm.castShadow = true;
+          arm.visible = false;
+          mesh.parent!.add(arm);
+          arms.push(arm);
+          mesh.geometry = right[k];
+        });
+      vrm.scene.userData.leftArm = arms;
     }
-    // The across player sits behind the table: nothing below it is seen.
-    for (const m of meshes(figures[1]).filter((m) => m.visible))
-      m.geometry = armOnly(m as SkinnedMesh, ABOVE_TABLE);
+    const materials = new Set(shown.flatMap((m) => [m.material].flat()));
+    materials.forEach(fadePastTable);
     return figures;
   })();
   return loading;
@@ -175,6 +186,8 @@ export function useFigures(enabled: boolean) {
 export interface Reach {
   key: string;
   from: Vector3;
+  /** Where the tile ends up, if it travels (the arm lines up for both ends). */
+  to?: Vector3;
   /** Seconds (performance clock) when the arm starts to move. */
   start: number;
   /** Seconds the tile travels in the hand once picked up. */
@@ -186,29 +199,78 @@ export interface Reach {
   push?: { left: Vector3; right: Vector3 };
 }
 
-/** A seated figure's shoulder and arm length, measured when it sits down. */
-const seated = new WeakMap<VRM, { shoulder: Vector3; arm: number }>();
-const NO_LEAN = new Vector3();
+type Side = "left" | "right";
+/** +1 for the right side, -1 for the left: the model is mirror-symmetric. */
+const SIGN = { right: 1, left: -1 } as const;
+
 /**
- * How far the figure must lean (a horizontal shift of the whole body) for its
- * hand to take a tile at `at`, or null if the tile is too far to reach.
+ * A figure's seat, measured when it sits down: out from the table centre
+ * toward the player, the player's right, each shoulder's offset from the
+ * body's origin, and the length of an arm.
  */
-export function leanFor(vrm: VRM, at: Vector3) {
-  const m = seated.get(vrm);
-  if (!m) return null;
-  const flat = at.clone().sub(m.shoulder).setY(0);
-  const wrist = at
-    .clone()
-    .addScaledVector(flat.clone().normalize(), -FIGURE.gripBack)
-    .addScaledVector(UP, FIGURE.gripUp);
-  const drop = m.shoulder.y - wrist.y;
-  const comfortable = Math.sqrt(Math.max(0, (m.arm * 0.95) ** 2 - drop ** 2));
-  const across = wrist.sub(m.shoulder).setY(0);
-  const excess = across.length() - comfortable;
-  if (excess <= 0) return NO_LEAN;
-  if (excess > FIGURE.stretch) return null;
-  return across.normalize().multiplyScalar(excess);
+interface Seated {
+  out: Vector3;
+  right: Vector3;
+  shoulders: Record<Side, Vector3>;
+  arm: number;
 }
+const seated = new WeakMap<VRM, Seated>();
+
+/**
+ * Where to put the body (of which only the arms are drawn) for each hand to
+ * take its points: its shoulders behind the player's own edge of the table,
+ * in line with what they take (or `across` the player's side, if given), so
+ * the arms come straight in from that side. `ok` is false when a point is too
+ * far in to reach that way.
+ */
+function bodyFor(
+  vrm: VRM,
+  hands: { side: Side; points: Vector3[] }[],
+  across?: number,
+) {
+  const m = seated.get(vrm)!;
+  const sideways = (p: Vector3) => p.dot(m.right);
+  // Between the two hands; a single hand's shoulder a little to its right.
+  if (across === undefined) {
+    across = 0;
+    for (const h of hands)
+      across +=
+        h.points.reduce((sum, p) => sum + sideways(p), 0) / h.points.length -
+        sideways(m.shoulders[h.side]);
+    across = across / hands.length + (hands.length === 1 ? FIGURE.offset : 0);
+  }
+  // As close in as the farthest-in point allows, the arm a little bent there.
+  let depth = Infinity,
+    ok = true;
+  for (const h of hands) {
+    const s = m.shoulders[h.side];
+    for (const p of h.points) {
+      const aside = sideways(p) - across - sideways(s);
+      const drop = s.y - p.y;
+      const flat = (FIGURE.extend * m.arm) ** 2 - drop ** 2 - aside ** 2;
+      if (flat <= 0) ok = false;
+      depth = Math.min(
+        depth,
+        p.dot(m.out) + Math.sqrt(Math.max(0, flat)) - s.dot(m.out),
+      );
+    }
+  }
+  const edge =
+    FIGURE.edge - Math.min(...hands.map((h) => m.shoulders[h.side].dot(m.out)));
+  if (depth < edge) {
+    ok = false;
+    depth = edge;
+  }
+  return {
+    at: m.out.clone().multiplyScalar(depth).addScaledVector(m.right, across),
+    across,
+    ok,
+  };
+}
+
+/** Whether the figure's right hand can take a tile at `from` (and take it on to `to`). */
+export const canReach = (vrm: VRM, from: Vector3, to = from) =>
+  seated.has(vrm) && bodyFor(vrm, [{ side: "right", points: [from, to] }]).ok;
 
 const FINGERS = ["Index", "Middle", "Ring", "Little"] as const;
 const JOINTS = ["Proximal", "Intermediate", "Distal"] as const;
@@ -224,7 +286,10 @@ const ease = (u: number) => u * u * (3 - 2 * u);
 /** Wrist heights pushing a hand down: over the standing tiles, then flat. */
 const PUSH = { high: 2.6, low: 1.5 };
 
-/** A seated player's figure, taking that player's tiles with its right hand. */
+/**
+ * A player's arms (no body), taking that player's tiles with the right hand:
+ * in from the player's side of the table, back out the same way.
+ */
 export function Figure({
   vrm,
   relative,
@@ -240,16 +305,18 @@ export function Figure({
   const current = useRef<
     | (Reach & {
         tile?: Object3D;
-        lean?: Vector3;
+        /** The body's place, at first, and its place across the player's side. */
+        body?: Vector3;
+        across?: number;
+        /** Where the hand and body were, when it goes on from a last reach. */
         startWrist?: Vector3;
-        /** How far a side figure sits back at the start and the end. */
+        startAcross?: number;
+        /** How far back the arm is at the start and the end (out of shot). */
         awayIn?: number;
         awayOut?: number;
       })
     | null
   >(null);
-  const rest = useRef({ right: new Vector3(), left: new Vector3() });
-  const seat = useRef(new Vector3());
   /** Where the wrist was last drawn, so a new reach can start from there. */
   const wristAt = useRef<Vector3 | null>(null);
   const lengths = useRef({ upper: 1, lower: 1 });
@@ -258,10 +325,13 @@ export function Figure({
 
   const begin = (r: Reach) => {
     // Still busy with the last one (a discard right after a draw): go on
-    // from where the hand is instead of from rest.
+    // from where the hand is instead of from out of shot.
+    const last = current.current;
+    const busy = last && wristAt.current;
     current.current = {
       ...r,
-      startWrist: current.current ? wristAt.current?.clone() : undefined,
+      startWrist: busy ? wristAt.current!.clone() : undefined,
+      startAcross: busy ? last.across : undefined,
     };
     invalidate();
   };
@@ -269,39 +339,37 @@ export function Figure({
     if (reach) begin(reach);
   }, [reach]);
 
-  // Sit down: place the body past the edge, lean in, arms hanging below the
-  // felt. Then measure the arm and where the wrist rests.
+  // Face the table from the player's side, then measure the shoulders and
+  // the arm.
   const sitDown = () => {
     const g = root.current!;
-    const seatAt = seat.current;
     const turn = seatQuaternion(relative);
     // The model faces +z; a seat at +z faces the centre (-z).
     g.quaternion
       .copy(turn)
       .multiply(new Quaternion().setFromAxisAngle(UP, Math.PI));
+    g.position.set(0, 0, 0);
     vrm.scene.scale.setScalar(FIGURE.scale);
     vrm.scene.position.set(0, 0, 0);
     restPose(vrm, 0);
-    vrm.scene.updateMatrixWorld(true);
-    const shoulder = new Vector3();
-    bone("rightUpperArm").getWorldPosition(shoulder);
-    vrm.scene.position.y = FIGURE.shoulderHeight - shoulder.y;
-    g.position.copy(new Vector3(0, 0, FIGURE.distance).applyQuaternion(turn));
-    seatAt.copy(g.position);
     g.updateMatrixWorld(true);
-    const a = new Vector3(),
-      b = new Vector3(),
-      c = new Vector3();
-    bone("rightUpperArm").getWorldPosition(a);
-    bone("rightLowerArm").getWorldPosition(b);
-    bone("rightHand").getWorldPosition(c);
-    bone("leftHand").getWorldPosition(rest.current.left);
-    lengths.current = { upper: a.distanceTo(b), lower: b.distanceTo(c) };
+    const at = (name: VRMHumanBoneName) =>
+      bone(name).getWorldPosition(new Vector3());
+    vrm.scene.position.y = FIGURE.shoulderHeight - at("rightUpperArm").y;
+    g.updateMatrixWorld(true);
+    const shoulder = at("rightUpperArm"),
+      elbow = at("rightLowerArm");
+    lengths.current = {
+      upper: shoulder.distanceTo(elbow),
+      lower: elbow.distanceTo(at("rightHand")),
+    };
+    const out = new Vector3(0, 0, 1).applyQuaternion(turn);
     seated.set(vrm, {
-      shoulder: a.clone(),
+      out,
+      right: new Vector3().crossVectors(out.clone().negate(), UP),
+      shoulders: { right: shoulder, left: at("leftUpperArm") },
       arm: lengths.current.upper + lengths.current.lower,
     });
-    rest.current.right.copy(c);
     vrm.update(0);
     // Out of sight until it reaches in.
     vrm.scene.visible = false;
@@ -328,20 +396,9 @@ export function Figure({
       },
       /** Replay any reach, optionally held at a moment of it. */
       play(r: Reach, at?: number) {
+        current.current = null;
         begin({ ...r, start: now() });
         frozen = at ?? null;
-      },
-      reach(key: string, at?: number) {
-        const tile = scene.getObjectByName(key);
-        if (!tile) return false;
-        begin({
-          key,
-          from: tile.getWorldPosition(new Vector3()),
-          start: now(),
-          carry: DISCARD_FLIGHT.duration,
-        });
-        frozen = at ?? null;
-        return true;
       },
     };
   });
@@ -364,7 +421,6 @@ export function Figure({
       wristAt.current = null;
       vrm.scene.visible = false;
       for (const m of leftArm) m.visible = false;
-      g.position.copy(seat.current);
       restPose(vrm, 0);
       vrm.update(delta);
       state.invalidate();
@@ -373,30 +429,49 @@ export function Figure({
     vrm.scene.visible = true;
     for (const m of leftArm) m.visible = !!r.push;
     r.tile ??= scene.getObjectByName(r.key);
-    r.lean ??= r.push ? NO_LEAN : (leanFor(vrm, r.from) ?? NO_LEAN);
-    const tile = r.tile?.getWorldPosition(new Vector3()) ?? r.from;
+    const tile = r.tile?.getWorldPosition(new Vector3()) ?? r.to ?? r.from;
+    const m = seated.get(vrm)!;
+    const out = m.out,
+      forward = out.clone().negate();
+    if (!r.body) {
+      const placed = bodyFor(
+        vrm,
+        r.push
+          ? [
+              { side: "right", points: [r.push.right] },
+              { side: "left", points: [r.push.left] },
+            ]
+          : [{ side: "right", points: [r.from, r.to ?? r.from] }],
+      );
+      r.body = placed.at;
+      r.across = placed.across;
+    }
+    const body = r.body;
+    // The wrist a little back from the tile (toward the shoulder) and above.
     const grip = (at: Vector3) => {
-      const toward = at.clone().sub(seated.get(vrm)!.shoulder).setY(0);
+      const toward = at
+        .clone()
+        .sub(body)
+        .sub(m.shoulders.right)
+        .setY(0)
+        .normalize();
       return at
         .clone()
-        .addScaledVector(toward.normalize(), -FIGURE.gripBack)
+        .addScaledVector(toward, -FIGURE.gripBack)
         .addScaledVector(UP, FIGURE.gripUp);
     };
-    const out = seat.current.clone().normalize();
     // What each hand does: where it arrives, where it is while the tile
     // travels (u from 0 to 1), where it lets go, and what the fingers aim at.
     type Hand = {
       side: Side;
       arrive: Vector3;
       carry: (u: number) => Vector3;
-      leave: Vector3;
+      leave: () => Vector3;
       aimAt: Vector3;
-      home: Vector3;
     };
     let hands: Hand[];
     if (r.push) {
       // Behind the standing tiles' tops, then forward and down as they fall.
-      const forward = out.clone().negate();
       const before = (at: Vector3) =>
         at.clone().addScaledVector(forward, -1.7).setY(PUSH.high);
       const after = (at: Vector3) =>
@@ -407,9 +482,8 @@ export function Figure({
           side,
           arrive: before(at),
           carry: (u) => before(at).lerp(after(at), ease(u)),
-          leave: after(at),
+          leave: () => after(at),
           aimAt: at.clone().addScaledVector(forward, 6),
-          home: rest.current[side],
         };
       });
     } else {
@@ -418,66 +492,42 @@ export function Figure({
           side: "right",
           arrive: grip(r.from),
           carry: () => grip(tile),
-          leave: grip(tile),
+          leave: () => grip(tile),
           aimAt: tile,
-          home: rest.current.right,
         },
       ];
     }
-    // A side player's arms slide in from out of shot along their seat and
-    // back out the same way (past the table's sides nothing would hide a
-    // hand hanging below the felt). The across player's arms rise from
-    // behind the far edge instead.
-    const side = relative % 2 === 1;
+    // In from out of shot, back along the player's side of the table; the
+    // across player's arms also rise as they go, away over the far edge.
+    const back = out
+      .clone()
+      .addScaledVector(UP, relative === 2 ? FIGURE.rise : 0)
+      .normalize();
     const away = (points: Vector3[]) => {
-      if (!side) return 0;
       const hidden = (p: Vector3) => {
         const n = p.clone().project(state.camera);
         return n.z > 1 || Math.abs(n.x) > 1.08 || Math.abs(n.y) > 1.08;
       };
       for (let k = 0; k < 60; k += 2)
-        if (points.every((p) => hidden(p.clone().addScaledVector(out, k))))
+        if (points.every((p) => hidden(p.clone().addScaledVector(back, k))))
           return k;
       return 60;
     };
-    r.awayIn ??= r.startWrist
-      ? 0
-      : away([r.from, ...hands.map((h) => h.arrive)]);
-    // Lean toward a far tile while reaching, and back while bringing it home.
-    let leaning: number, withdrawn: number;
-    if (t < ARM.reach) {
-      leaning = ease(t / ARM.reach);
-      withdrawn = r.awayIn * (1 - leaning);
-    } else if (t < ARM.reach + flight) {
-      leaning = 1 - ease((t - ARM.reach) / flight);
-      withdrawn = 0;
-    } else {
-      leaning = 0;
-      r.awayOut ??= away([tile, ...hands.map((h) => h.leave)]);
-      withdrawn = r.awayOut * ease((t - ARM.reach - flight) / ARM.retract);
-    }
-    const offset = r.lean
-      .clone()
-      .multiplyScalar(leaning)
-      .addScaledVector(out, withdrawn);
-    g.position.copy(seat.current).add(offset);
-    g.updateMatrixWorld(true);
-    const lift = (u: number) =>
-      Math.sin(Math.PI * u) * FIGURE.arc * (side ? 0.4 : 1);
+    r.awayIn ??= r.startWrist ? 0 : away(hands.map((h) => h.arrive));
+    const lift = (u: number) => Math.sin(Math.PI * u) * FIGURE.arc;
     const pinch = !r.push;
-    let closed: number;
-    let wrists: Vector3[];
+    let closed: number, wrists: Vector3[];
+    let across = r.across!;
     if (t < ARM.reach) {
+      // From out of shot, or from wherever the last reach left the hand.
       const u = t / ARM.reach;
-      // From out of shot (side), from rest (across), or from wherever the
-      // last reach left the hand.
+      if (r.startAcross !== undefined)
+        across += (r.startAcross - across) * (1 - ease(u));
       wrists = hands.map((h) => {
-        const from =
-          (h.side === "right" && r.startWrist) ||
-          (side
-            ? h.arrive.clone().addScaledVector(out, withdrawn)
-            : h.home.clone().add(offset));
-        const w = from.clone().lerp(h.arrive, ease(u));
+        const w =
+          h.side === "right" && r.startWrist
+            ? r.startWrist.clone().lerp(h.arrive, ease(u))
+            : h.arrive.clone().addScaledVector(back, r.awayIn! * (1 - ease(u)));
         w.y += lift(u);
         return w;
       });
@@ -487,15 +537,23 @@ export function Figure({
       closed = pinch ? 1 : 0;
     } else {
       const u = (t - ARM.reach - flight) / ARM.retract;
+      r.awayOut ??= away(hands.map((h) => h.leave()));
       wrists = hands.map((h) => {
-        const w = side
-          ? h.leave.clone().addScaledVector(out, withdrawn)
-          : h.leave.clone().lerp(h.home.clone().add(offset), ease(u));
+        const w = h.leave().addScaledVector(back, r.awayOut! * ease(u));
         w.y += lift(u);
         return w;
       });
       closed = pinch ? Math.max(0, 1 - u / 0.3) : 0;
     }
+    // The shoulders follow the hands in and out, so the arms keep their reach.
+    g.position.copy(
+      bodyFor(
+        vrm,
+        hands.map((h, i) => ({ side: h.side, points: [wrists[i]] })),
+        across,
+      ).at,
+    );
+    g.updateMatrixWorld(true);
     restPose(vrm, closed);
     hands.forEach((h, i) =>
       reachTo(vrm, h.side, wrists[i], h.aimAt, lengths.current),
@@ -512,11 +570,7 @@ export function Figure({
   );
 }
 
-type Side = "left" | "right";
-/** +1 for the right side, -1 for the left: the model is mirror-symmetric. */
-const SIGN = { right: 1, left: -1 } as const;
-
-/** Lean in, arms hanging down past the felt, hands relaxed. */
+/** Lean in, arms hanging down, hands relaxed (only the reaching arms show). */
 function restPose(vrm: VRM, closed: number) {
   const b = (n: VRMHumanBoneName) => vrm.humanoid.getNormalizedBoneNode(n);
   b("spine")?.quaternion.setFromAxisAngle(X, FIGURE.lean * 0.5);
@@ -628,14 +682,48 @@ function reachTo(
   hand.quaternion.copy(parent.invert().multiply(want));
 }
 
+/**
+ * Arms fade out past the table's rim, toward their shoulders (the canvas is
+ * see-through there), so they come in out of the dark and never show a cut.
+ * Distance from the table centre along x or z, in table units.
+ */
+const FADE = { from: 15.5, to: 19.5 };
+function fadePastTable(material: Material) {
+  const shader = material as ShaderMaterial;
+  const compile = shader.onBeforeCompile.bind(shader);
+  const key = shader.customProgramCacheKey.bind(shader);
+  shader.transparent = true;
+  shader.depthWrite = true;
+  shader.customProgramCacheKey = () => key() + ",armFade";
+  shader.onBeforeCompile = (program, renderer) => {
+    compile(program, renderer);
+    const varying = "varying vec3 vArmWorld;";
+    program.vertexShader = program.vertexShader
+      .replace("#include <common>", `#include <common>\n${varying}`)
+      .replace(
+        "#include <worldpos_vertex>",
+        "#include <worldpos_vertex>\nvArmWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;",
+      );
+    program.fragmentShader = program.fragmentShader
+      .replace("#include <common>", `#include <common>\n${varying}`)
+      .replaceAll(
+        // MToon's colour writes (the last, and its debug ones), before its
+        // own colour-space correction.
+        "gl_FragColor = vec4( col, diffuseColor.a );",
+        `gl_FragColor = vec4( col, diffuseColor.a * (1.0 - smoothstep(${FADE.from.toFixed(1)}, ${FADE.to.toFixed(1)}, max(abs(vArmWorld.x), abs(vArmWorld.z)))) );`,
+      );
+  };
+  shader.needsUpdate = true;
+}
+
 /** Bones of the black glove: palm, finger roots and thumb. */
 const GLOVE = /^(hand|palm0\d|f_(index|middle|ring|pinky)01|thumb0[12])[LR]$/;
 /**
- * How far up the forearm from the wrist joint is bare too, in metres. The
- * left sleeve has no cuff (her armgear, hidden here, covered that wrist), so
- * bare skin reaches further there to hide the suit's ragged end.
+ * How far up the forearm from the wrist joint is bare too, in metres: past
+ * the suit's ragged sleeve end (her jacket cuff and armgear, not drawn here,
+ * covered it).
  */
-const CUFF = { L: 0.09, R: 0.06 };
+const CUFF = { L: 0.09, R: 0.09 };
 /** Texture slots that would read the suit's UVs from another texture. */
 const TEXTURES = [
   "map",
@@ -794,11 +882,10 @@ function bareHands(vrm: VRM) {
   );
 }
 
-/** Bones above a seated figure's lap: not the legs and feet. */
-const ABOVE_TABLE = /^(?!thigh|shin|heel|foot|toe)/;
-
 /** The left hand's bones (its bare skin is painted as blue armgear). */
 const LEFT_HAND = /^(hand|palm0\d|f_\w+|thumb0\d)L$/;
+/** Each hand's bones. */
+const HAND = { L: LEFT_HAND, R: /^(hand|palm0\d|f_\w+|thumb0\d)R$/ };
 
 /** Whether most of a triangle's corners pass `test`. */
 const mostly = (test: (vertex: number) => boolean) => (corners: number[]) =>

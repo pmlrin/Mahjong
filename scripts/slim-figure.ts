@@ -1,10 +1,11 @@
-// Slim the Seed-san VRM for the 3D table's arms: only the body, suit and
-// clothes are drawn there, small and far away. Reads the original download and
-// writes a much smaller copy:
-// - drops the head, hair, backpack, robot arm and other unused primitives;
+// Slim the Seed-san VRM for the 3D table's arms: only the arms (her suit's
+// sleeves and her skin) are drawn there, small and far away. Reads the original
+// download and writes a much smaller copy:
+// - drops the head, hair, jacket, backpack, robot arm and other unused
+//   primitives;
 // - drops VRM data the table never uses (expressions, first-person, look-at,
 //   spring bones, thumbnail);
-// - drops normal maps, halves the two colour textures and replaces images
+// - drops normal maps, halves the colour textures and replaces images
 //   nothing uses any more with a 1×1 placeholder;
 // - rebuilds the binary chunk with only the data still referenced.
 // Usage: node --import tsx scripts/slim-figure.ts <original.vrm> <out.vrm>
@@ -21,7 +22,7 @@ if (!input || !output) {
 }
 
 /** Materials the table draws (see SHOWN in frontend/src/table3d/arms.tsx). */
-const KEEP_MATERIALS = new Set(["body_bake", "body_nm", "huku_bake"]);
+const KEEP_MATERIALS = new Set(["body_bake", "body_nm"]);
 /** Meshes hidden on the table whatever their materials. */
 const DROP_MESHES = /^(head|hair)/;
 /** Colour textures are drawn at most a few hundred pixels across. */
