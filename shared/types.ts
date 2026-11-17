@@ -1,7 +1,19 @@
 export type MatchFormat = "EAST_ONLY" | "HANCHAN";
-export type BotLevel = "BASIC" | "STANDARD";
+export type BotLevel = "BASIC" | "STANDARD" | "ADVANCED" | "MASTER";
+/** Weakest to strongest. The identifiers are stored in saved matches, so BASIC／STANDARD keep their names. */
+export const BOT_LEVELS: BotLevel[] = ["BASIC", "STANDARD", "ADVANCED", "MASTER"];
+export const BOT_LEVEL_LABELS: Record<BotLevel, string> = {
+  BASIC: "初级",
+  STANDARD: "中级",
+  ADVANCED: "高级",
+  MASTER: "大师级",
+};
+/** A human seat handed to the AI (托管 or disconnected) always plays at this level. */
+export const AUTOPILOT_BOT_LEVEL: BotLevel = "STANDARD";
+export const botLevelLabel = (level: BotLevel | null | undefined) =>
+  BOT_LEVEL_LABELS[level ?? AUTOPILOT_BOT_LEVEL];
 export type MatchMode = "AI_PRACTICE" | "FRIENDS";
-export const BOT_POLICY_VERSION = "v2.0.0" as const;
+export const BOT_POLICY_VERSION = "v3.0.0" as const;
 export const APP_VERSION = "0.4.2" as const;
 export type Seat = 0 | 1 | 2 | 3;
 export type Quad<T> = [T, T, T, T];

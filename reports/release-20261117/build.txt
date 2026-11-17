@@ -1,0 +1,55 @@
+
+> mahjong-friends@0.4.2 build
+> tsc --noEmit && vite build --config frontend/vite.config.ts
+
+vite v7.3.7 building client environment for production...
+transforming...
+node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+✓ 237 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/index.html                                    0.58 kB │ gzip:   0.43 kB
+../dist/assets/ceramic-tile-drop-2-CusB9r_6.ogg       4.97 kB
+../dist/assets/ceramic-tile-drop-2-6cff0txK.m4a       5.31 kB
+../dist/assets/ceramic-tile-drop-3-B8CuRIO7.m4a       5.42 kB
+../dist/assets/ceramic-tile-drop-4-BKgMSNGx.m4a       5.44 kB
+../dist/assets/ceramic-tile-drop-1-BM9sbTCS.m4a       5.44 kB
+../dist/assets/ceramic-tile-drop-3-C781Wtst.ogg       5.46 kB
+../dist/assets/ceramic-tile-drop-4-BHST-3sD.ogg       5.46 kB
+../dist/assets/ceramic-tile-drop-1-B2RJlfwP.ogg       5.51 kB
+../dist/assets/ceramic-tile-flip-1-BpwNk46O.ogg       5.54 kB
+../dist/assets/ceramic-tile-flip-1-BAkrYUgp.m4a       5.85 kB
+../dist/assets/ceramic-tile-flip-2-BhWwXdjK.ogg       5.95 kB
+../dist/assets/ceramic-tile-flip-3-BhS5xEf-.ogg       5.97 kB
+../dist/assets/ceramic-tile-flip-3-C7P0lDS2.m4a       6.03 kB
+../dist/assets/ceramic-tile-flip-2-DnqVXatl.m4a       6.05 kB
+../dist/assets/ceramic-tile-shuffle-1-DNmqZQvl.m4a   18.74 kB
+../dist/assets/ceramic-tile-shuffle-3-Derg7cRV.m4a   18.99 kB
+../dist/assets/ceramic-tile-shuffle-2-BHXoGQ0z.m4a   19.21 kB
+../dist/assets/ceramic-tile-shuffle-1-rU6VgtCZ.ogg   21.94 kB
+../dist/assets/ceramic-tile-shuffle-3-myIZJgLS.ogg   22.05 kB
+../dist/assets/ceramic-tile-shuffle-2-BdfYcj0t.ogg   22.48 kB
+../dist/assets/seed-san-Dq0DXfsR.vrm                760.46 kB
+../dist/assets/Table3D-DQpbVc3v.css                   5.11 kB │ gzip:   1.38 kB
+../dist/assets/index-Di0W6QGd.css                    69.23 kB │ gzip:  12.50 kB
+../dist/assets/GLTFLoader-AmIzW769.js                44.78 kB │ gzip:  13.51 kB
+../dist/assets/three-vrm.module-CpoEHMdy.js         149.54 kB │ gzip:  36.36 kB
+../dist/assets/index-B8a1JgyM.js                    483.19 kB │ gzip: 152.31 kB
+../dist/assets/Table3D-SJy0qKEN.js                  970.42 kB │ gzip: 264.16 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.31s

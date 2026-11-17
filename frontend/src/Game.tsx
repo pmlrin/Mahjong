@@ -7,6 +7,8 @@ import React, {
 } from "react";
 import {
   tileName,
+  AUTOPILOT_BOT_LEVEL,
+  botLevelLabel,
   type MatchView,
   type Frame,
   type Result,
@@ -258,7 +260,9 @@ export function Game({
               .finally(() => a.resume());
           }}
         >
-          {v.self.desiredControl === "AI" ? "收回托管" : "交给 AI 托管"}
+          {v.self.desiredControl === "AI"
+            ? `收回托管（${botLevelLabel(AUTOPILOT_BOT_LEVEL)} AI 代打中）`
+            : `交给 AI 托管（${botLevelLabel(AUTOPILOT_BOT_LEVEL)}）`}
         </button>
       </div>
       <div className="portrait-hint">横过来，牌桌更舒展</div>

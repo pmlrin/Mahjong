@@ -1,0 +1,77 @@
+{
+  "current": "/opt/mahjong/releases/20261112-v42-production",
+  "config": {
+    "/opt/mahjong/service.env": {
+      "sha256": "60bf01cc367f6e08361985a4e4a03e7eb885448845159e7cd8fe74870e8fbb00",
+      "mode": "0o600"
+    },
+    "/opt/mahjong/v3-production-auth.env": {
+      "sha256": "9787da4cce7b190318bbb3ebaf9a1d78f8036af099ff66a72ebdfeb57ba50261",
+      "mode": "0o600"
+    },
+    "/opt/mahjong/v42-production-runtime.env": {
+      "sha256": "d9bc1da163c558151b5412ddf85b1b16e9b8a99c3bef200f708a6132742249a7",
+      "mode": "0o600"
+    },
+    "/etc/systemd/system/mahjong.service.d/v42-20261112.conf": {
+      "sha256": "d0f9c3681f6dffe6dc184f8348ef4f3fa82209aa4cecde271f5694dbff9a2326",
+      "mode": "0o644"
+    }
+  },
+  "runtimePackage": {
+    "name": "mahjong-friends",
+    "version": "0.4.2",
+    "private": true,
+    "type": "module",
+    "engines": {
+      "node": ">=24.7.0"
+    },
+    "dependencies": {
+      "@kobalab/majiang-core": "1.4.1",
+      "express": "5.3.0",
+      "pg": "8.23.1",
+      "socket.io": "4.8.4",
+      "zod": "4.6.7",
+      "nodemailer": "10.3.1",
+      "pngjs": "7.0.0"
+    }
+  },
+  "migrations": {
+    "001_documents.sql": "286f8f93deb0cdd6704a441996f86483251ebd309e919ad39f3ad5b40ac65fae",
+    "003_accounts_v3.sql": "6dda54a0ecbb881ebc5b88001c6d962bb7a5f3f1d066dbc858ecc01914543932",
+    "002_history_v2.sql": "f2a0471272bd10e4af52e9350e2bdcd72bd1547a182bb4508b2e2ef95ee0bf40",
+    "004_social_v4.sql": "33f00de413a372c519cae930a89f4d9822b4119d0ba2a34d9b19244f45596911",
+    "005_avatar_assets_v41.sql": "4e952963a493aa7bdd33f303360630b45164b483889cb99e1fc0a4ed4575c279"
+  },
+  "targetExists": false,
+  "uploadExists": false,
+  "runtimeEnv": {
+    "v2-preview.env:PORT": "18031",
+    "v2-preview.env:STATIC_DIR": "/opt/mahjong/releases/20261029-v2-rc3/dist-server/preview",
+    "v2-migration.env:PORT": "18029",
+    "v4-production-runtime.env:STATIC_DIR": "/opt/mahjong/releases/20261102-v4-production/dist-server/dist",
+    "v4-production-runtime.env:MAINTENANCE_FILE": "/opt/mahjong/maintenance-v3-production",
+    "v41-production-runtime.env:STATIC_DIR": "/opt/mahjong/releases/20261102-v41-production-rc2/dist-server/dist",
+    "v41-production-runtime.env:MAINTENANCE_FILE": "/opt/mahjong/maintenance-v3-production",
+    "v4-preview-before-runtime-20261101.env:STATIC_DIR": "/opt/mahjong/releases/20261101-v3-preview-rc5/dist-server/dist",
+    "v3-production-runtime.env:STATIC_DIR": "/opt/mahjong/releases/20261101-v3-production/dist-server/dist",
+    "v3-production-runtime.env:MAINTENANCE_FILE": "/opt/mahjong/maintenance-v3-production",
+    "service.env:PORT": "8029",
+    "v3-preview-runtime.env:STATIC_DIR": "/opt/mahjong/releases/20261102-v4-preview-rc3/dist-server/dist",
+    "v3-preview-runtime.env:MAINTENANCE_FILE": "/opt/mahjong/v4-preview-maintenance",
+    "v42-production-runtime.env:STATIC_DIR": "/opt/mahjong/releases/20261112-v42-production/dist-server/dist",
+    "v42-production-runtime.env:MAINTENANCE_FILE": "/opt/mahjong/maintenance-v3-production",
+    "v2-capacity1-rc2.env:PORT": "18029",
+    "v41-preview-runtime.env:STATIC_DIR": "/opt/mahjong/releases/20261102-v41-preview-rc2/dist-server/dist",
+    "v41-preview-runtime.env:MAINTENANCE_FILE": "/opt/mahjong/v4-preview-maintenance",
+    "v2-capacity1.env:PORT": "18029",
+    "v2-capacity4-rc2.env:PORT": "18029",
+    "v2-capacity4.env:PORT": "18029"
+  },
+  "dropIns": {
+    "v3-20261101.conf": "# Install after the production backup and restored-copy migration checks.\n[Service]\nEnvironmentFile=/opt/mahjong/v3-production-auth.env\nEnvironmentFile=/opt/mahjong/v3-production-runtime.env\nReadWritePaths=/opt/mahjong/releases/20261101-v3-production /opt/mahjong/mail-budget\nExecStart=\nExecStart=/opt/mahjong/runtime/bin/node --max-old-space-size=112 dist-server/backend/src/server.js\nMemoryHigh=256M\nMemoryMax=320M\nCPUQuota=150%\n",
+    "v41-20261102.conf": "[Service]\nWorkingDirectory=/opt/mahjong/current\nEnvironmentFile=/opt/mahjong/v3-production-auth.env\nEnvironmentFile=/opt/mahjong/v41-production-runtime.env\nReadWritePaths=\nReadWritePaths=/opt/mahjong/releases/20261102-v41-production-rc2 /opt/mahjong/mail-budget\nExecStart=\nExecStart=/opt/mahjong/runtime/bin/node --max-old-space-size=112 dist-server/backend/src/server.js\nMemoryHigh=256M\nMemoryMax=320M\nCPUQuota=150%\n",
+    "v4-20261102.conf": "# Use after the stopped backup and production-copy migration checks.\n[Service]\nWorkingDirectory=/opt/mahjong/current\nEnvironmentFile=/opt/mahjong/v3-production-auth.env\nEnvironmentFile=/opt/mahjong/v4-production-runtime.env\nReadWritePaths=\nReadWritePaths=/opt/mahjong/releases/20261102-v4-production /opt/mahjong/mail-budget\nExecStart=\nExecStart=/opt/mahjong/runtime/bin/node --max-old-space-size=112 dist-server/backend/src/server.js\nMemoryHigh=256M\nMemoryMax=320M\nCPUQuota=150%\n",
+    "v42-20261112.conf": "[Service]\nEnvironmentFile=/opt/mahjong/v42-production-runtime.env\nReadWritePaths=\nReadWritePaths=/opt/mahjong/releases/20261112-v42-production /opt/mahjong/mail-budget\n"
+  }
+}

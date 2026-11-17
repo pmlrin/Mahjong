@@ -1,6 +1,10 @@
 import { Avatar } from "./Avatar";
 import React, { useEffect, useState } from "react";
 import { api } from "./api";
+import {
+  botLevelLabel,
+  type BotLevel,
+} from "../../shared/types";
 import type {
   HistorySummary,
   HistoryPage,
@@ -12,7 +16,7 @@ export const formatName = (f: string) =>
   f === "HANCHAN" ? "半庄战" : "东风战";
 const modeName = (m: string) => (m === "AI_PRACTICE" ? "AI 练习" : "好友场");
 const botName = (level: string | null | undefined) =>
-  `${level === "BASIC" ? "基础" : "标准"} AI`;
+  `${botLevelLabel(level as BotLevel | null)} AI`;
 const signed = (n: number) => `${n > 0 ? "+" : ""}${n.toLocaleString()}`;
 function Filters({
   format,

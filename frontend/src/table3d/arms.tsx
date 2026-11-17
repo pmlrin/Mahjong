@@ -9,7 +9,7 @@
 // Figure: Seed-san by VirtualCast, Inc., VRM Public License 1.0
 // (https://vrm.dev/licenses/1.0/); see THIRD_PARTY_NOTICES.md.
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useThree, type RenderCallback } from "@react-three/fiber";
 import {
   BufferAttribute,
   BufferGeometry,
@@ -50,9 +50,12 @@ export const FIGURE = {
   rise: 0.6,
   /** Forward lean of the (hidden) upper body, radians. */
   lean: 0.3,
-  /** Wrist held this far back from the tile (toward the body) and above it. */
-  gripBack: 2.4,
-  gripUp: 1.7,
+  /** The pinch closes this far above the tile's centre. */
+  gripUp: 0.25,
+  /** The fingertips stay this far above the felt. */
+  clear: 0.12,
+  /** How much the elbow swings up, against 1 out to the side. */
+  elbowUp: 0.35,
   /** The hands are drawn smaller than the model's, which read as huge here. */
   handScale: 0.9,
   /** Fingers point down toward the tile at this angle, radians. */
@@ -213,6 +216,11 @@ interface Seated {
   right: Vector3;
   shoulders: Record<Side, Vector3>;
   arm: number;
+  /**
+   * The pinching right hand, measured from the wrist in the hand's own frame:
+   * the point between the thumb and index fingertips, and the fingertips.
+   */
+  pinch: { between: Vector3; tips: Vector3[] };
 }
 const seated = new WeakMap<VRM, Seated>();
 
@@ -363,8 +371,32 @@ export function Figure({
       upper: shoulder.distanceTo(elbow),
       lower: elbow.distanceTo(at("rightHand")),
     };
+    // The pinch, measured on the posed hand so the fingertips meet the tile
+    // whatever the model's proportions.
+    restPose(vrm, 1);
+    vrm.update(0);
+    g.updateMatrixWorld(true);
+    const raw = (name: VRMHumanBoneName) =>
+      vrm.humanoid.getRawBoneNode(name)!.getWorldPosition(new Vector3());
+    // A fingertip lies a little beyond its last joint.
+    const tip = (last: VRMHumanBoneName, before: VRMHumanBoneName) =>
+      raw(last).add(raw(last).sub(raw(before)).multiplyScalar(0.8));
+    const wrist = raw("rightHand");
+    const frame = bone("rightHand")
+      .getWorldQuaternion(new Quaternion())
+      .invert();
+    const local = (p: Vector3) => p.sub(wrist).applyQuaternion(frame);
+    const thumb = tip("rightThumbDistal", "rightThumbProximal"),
+      index = tip("rightIndexDistal", "rightIndexIntermediate"),
+      middle = tip("rightMiddleDistal", "rightMiddleIntermediate");
+    const pinch = {
+      between: local(thumb.clone().lerp(index, 0.5)),
+      tips: [thumb, index, middle].map(local),
+    };
+    restPose(vrm, 0);
     const out = new Vector3(0, 0, 1).applyQuaternion(turn);
     seated.set(vrm, {
+      pinch,
       out,
       right: new Vector3().crossVectors(out.clone().negate(), UP),
       shoulders: { right: shoulder, left: at("leftUpperArm") },
@@ -403,7 +435,8 @@ export function Figure({
     };
   });
 
-  useFrame((state, delta) => {
+  const frame = useRef<RenderCallback>(() => {});
+  frame.current = (state, delta) => {
     const r = current.current;
     if (!r) return;
     const t = frozen ?? now() - r.start;
@@ -447,18 +480,22 @@ export function Figure({
       r.across = placed.across;
     }
     const body = r.body;
-    // The wrist a little back from the tile (toward the shoulder) and above.
+    // The hand points along the table from its shoulder toward the tile.
+    const pointing = (at: Vector3) =>
+      at.clone().sub(body).sub(m.shoulders.right).setY(0).normalize();
+    // The wrist placed so the thumb and index finger close on the tile,
+    // with no fingertip below the felt.
     const grip = (at: Vector3) => {
-      const toward = at
+      const q = handFrame(pointing(at), "right");
+      const wrist = at
         .clone()
-        .sub(body)
-        .sub(m.shoulders.right)
-        .setY(0)
-        .normalize();
-      return at
-        .clone()
-        .addScaledVector(toward, -FIGURE.gripBack)
-        .addScaledVector(UP, FIGURE.gripUp);
+        .addScaledVector(UP, FIGURE.gripUp)
+        .sub(m.pinch.between.clone().applyQuaternion(q));
+      const low = Math.min(
+        ...m.pinch.tips.map((t) => wrist.y + t.clone().applyQuaternion(q).y),
+      );
+      if (low < FIGURE.clear) wrist.y += FIGURE.clear - low;
+      return wrist;
     };
     // What each hand does: where it arrives, where it is while the tile
     // travels (u from 0 to 1), where it lets go, and what the fingers aim at.
@@ -467,7 +504,9 @@ export function Figure({
       arrive: Vector3;
       carry: (u: number) => Vector3;
       leave: () => Vector3;
-      aimAt: Vector3;
+      /** What the fingers aim at, or the way they point along the table. */
+      aimAt?: Vector3;
+      pointing?: () => Vector3;
     };
     let hands: Hand[];
     if (r.push) {
@@ -493,7 +532,7 @@ export function Figure({
           arrive: grip(r.from),
           carry: () => grip(tile),
           leave: () => grip(tile),
-          aimAt: tile,
+          pointing: () => pointing(t < ARM.reach ? r.from : tile),
         },
       ];
     }
@@ -556,18 +595,36 @@ export function Figure({
     g.updateMatrixWorld(true);
     restPose(vrm, closed);
     hands.forEach((h, i) =>
-      reachTo(vrm, h.side, wrists[i], h.aimAt, lengths.current),
+      reachTo(
+        vrm,
+        h.side,
+        wrists[i],
+        h.pointing?.() ?? h.aimAt!.clone().sub(wrists[i]),
+        lengths.current,
+      ),
     );
     wristAt.current = wrists[0];
     vrm.update(delta);
     if (frozen === null) state.invalidate();
-  });
+  };
 
   return (
     <group ref={root}>
       <primitive object={vrm.scene} />
+      <EachFrame key={reach?.key} run={frame} />
     </group>
   );
+}
+
+/**
+ * Runs the arm's frame after the tiles'. Frame callbacks run in the order
+ * they were added, and a discarded tile is new on the table, so this is added
+ * again with each reach: the hand then follows where the tile is in the same
+ * frame, not where it was in the last one.
+ */
+function EachFrame({ run }: { run: { current: RenderCallback } }) {
+  useFrame((state, delta, frame) => run.current(state, delta, frame));
+  return null;
 }
 
 /** Lean in, arms hanging down, hands relaxed (only the reaching arms show). */
@@ -625,15 +682,36 @@ function aim(node: Object3D, child: Object3D, direction: Vector3) {
 }
 
 /**
+ * A hand's world rotation: palm down, the fingers pointing along the table in
+ * `direction` and tipped down onto what they take.
+ */
+function handFrame(direction: Vector3, side: Side) {
+  const flat = direction.clone().setY(0).normalize();
+  const fingersDir = flat
+    .multiplyScalar(Math.cos(FIGURE.gripPitch))
+    .addScaledVector(UP, -Math.sin(FIGURE.gripPitch))
+    .normalize();
+  const back = UP.clone()
+    .sub(fingersDir.clone().multiplyScalar(UP.dot(fingersDir)))
+    .normalize();
+  // Bone axes: the fingers along -x (right hand) or +x (left), +y the back.
+  const xAxis = fingersDir.clone().multiplyScalar(-SIGN[side]);
+  return new Quaternion().setFromRotationMatrix(
+    new Matrix4().makeBasis(xAxis, back, xAxis.clone().cross(back)),
+  );
+}
+
+/**
  * Two-bone IK for one arm: shoulder fixed, wrist at `wrist`, the elbow
- * bending outward and down; the hand palm down with fingers toward `toward`.
+ * swung out to the side and a little up, so the forearm comes down to the
+ * hand over the wall; the hand palm down with fingers along `direction`.
  * Call after `restPose`.
  */
 function reachTo(
   vrm: VRM,
   side: Side,
   wrist: Vector3,
-  toward: Vector3,
+  direction: Vector3,
   len: { upper: number; lower: number },
 ) {
   const b = (n: VRMHumanBoneName) => vrm.humanoid.getNormalizedBoneNode(n)!;
@@ -655,7 +733,7 @@ function reachTo(
   const outward = new Vector3(-SIGN[side], 0, 0).applyQuaternion(
     vrm.scene.getWorldQuaternion(new Quaternion()),
   );
-  const pole = outward.multiplyScalar(0.7).add(new Vector3(0, -1, 0));
+  const pole = outward.addScaledVector(UP, FIGURE.elbowUp);
   const v = pole.sub(u.clone().multiplyScalar(pole.dot(u))).normalize();
   const elbow = s
     .clone()
@@ -664,20 +742,7 @@ function reachTo(
   const end = s.clone().addScaledVector(u, reach);
   aim(upper, lower, elbow.clone().sub(s));
   aim(lower, hand, end.clone().sub(elbow));
-  // Palm down, fingers toward the target and tipped down onto it.
-  const flat = toward.clone().sub(end).setY(0).normalize();
-  const fingersDir = flat
-    .multiplyScalar(Math.cos(FIGURE.gripPitch))
-    .addScaledVector(UP, -Math.sin(FIGURE.gripPitch))
-    .normalize();
-  const back = UP.clone()
-    .sub(fingersDir.clone().multiplyScalar(UP.dot(fingersDir)))
-    .normalize();
-  // Bone axes: the fingers along -x (right hand) or +x (left), +y the back.
-  const xAxis = fingersDir.clone().multiplyScalar(-SIGN[side]);
-  const want = new Quaternion().setFromRotationMatrix(
-    new Matrix4().makeBasis(xAxis, back, xAxis.clone().cross(back)),
-  );
+  const want = handFrame(direction, side);
   const parent = lower.getWorldQuaternion(new Quaternion());
   hand.quaternion.copy(parent.invert().multiply(want));
 }

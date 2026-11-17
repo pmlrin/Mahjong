@@ -1,24 +1,38 @@
 import React from "react";
-import type { MatchView, Seat } from "../../shared/types";
+import {
+  AUTOPILOT_BOT_LEVEL,
+  botLevelLabel,
+  type MatchView,
+  type Seat,
+} from "../../shared/types";
 import { Avatar } from "./Avatar";
 
 export const windName = (w: string) =>
   ({ EAST: "东", SOUTH: "南", WEST: "西", NORTH: "北" })[w] ?? w;
 
+/** The level the AI plays this seat at: an AI 牌友's own, 中级 for a hosted human seat. */
+export const seatBotLevel = (v: MatchView, s: Seat) =>
+  botLevelLabel(
+    v.players[s].participantKind === "BOT"
+      ? v.players[s].botLevel
+      : AUTOPILOT_BOT_LEVEL,
+  );
+
 /** One-line connection/control status shown under a player's name. */
 export function seatStatus(v: MatchView, s: Seat) {
   const p = v.players[s],
-    hand = v.hand;
+    hand = v.hand,
+    level = seatBotLevel(v, s);
   return hand.phase === "SELF_ACTION" &&
     hand.activeSeat === s &&
     p.effectiveControl === "AI"
-    ? "AI 思考中…"
+    ? `${level} AI 思考中…`
     : p.participantKind === "BOT"
-      ? "AI 牌友"
+      ? `AI 牌友 · ${level}`
       : !p.connected
-        ? "暂离，托管中"
+        ? `暂离，${level} AI 托管中`
         : p.effectiveControl === "AI"
-          ? "托管中"
+          ? `${level} AI 托管中`
           : "在线";
 }
 
@@ -47,7 +61,7 @@ export function PlayerPlate({
         {p.displayName}
         <small>
           {self
-            ? `你${h.riichi !== "NONE" ? "，已立直" : ""}`
+            ? `你${v.self.desiredControl === "AI" ? `，${seatBotLevel(v, s)} AI 托管中` : ""}${h.riichi !== "NONE" ? "，已立直" : ""}`
             : seatStatus(v, s)}
         </small>
       </span>

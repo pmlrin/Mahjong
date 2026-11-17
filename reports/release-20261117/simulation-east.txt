@@ -1,0 +1,15 @@
+
+> mahjong-friends@0.4.2 simulate
+> node --import tsx scripts/simulate.ts 100 EAST_ONLY
+
+10/100 matches completed
+20/100 matches completed
+30/100 matches completed
+40/100 matches completed
+50/100 matches completed
+60/100 matches completed
+70/100 matches completed
+80/100 matches completed
+90/100 matches completed
+100/100 matches completed
+{"matches":100,"elapsedMs":11981,"totalHands":526,"actions":31845}

@@ -20,6 +20,9 @@ import {
   type Seat,
   type CurrentUser,
   type AuthCapabilities,
+  type BotLevel,
+  BOT_LEVELS,
+  botLevelLabel,
 } from "../../shared/types";
 import "./style.css";
 import { api } from "./api";
@@ -65,9 +68,10 @@ function App() {
       const id = new URLSearchParams(location.search).get("replay");
       return id ? { id } : null;
     }),
+    [inviteLevels, setInviteLevels] = useState<Record<number, BotLevel>>({}),
     [capabilities, setCapabilities] = useState<{
       formats: ("EAST_ONLY" | "HANCHAN")[];
-      botLevels: ("BASIC" | "STANDARD")[];
+      botLevels: BotLevel[];
       maintenance: boolean;
       auth?: AuthCapabilities;
       profileEditing?: boolean;
@@ -873,7 +877,7 @@ function App() {
                 <p>
                   {m
                     ? m.participantKind === "BOT"
-                      ? `AI 牌友，${m.botLevel === "BASIC" ? "基础" : "标准"}`
+                      ? `AI 牌友，${botLevelLabel(m.botLevel)}`
                       : `${m.userId === room.hostUserId ? "房主，" : ""}${m.userId === me?.userId ? "你" : m.connected ? "在线" : "暂离"}`
                     : "邀一位朋友，或请 AI 入座"}
                 </p>
@@ -887,9 +891,9 @@ function App() {
                         room.hostUserId === me?.userId && (
                           <>
                             <label>
-                              难度{" "}
+                              档位{" "}
                               <select
-                                aria-label={`${i + 1} 号位 AI 难度`}
+                                aria-label={`${i + 1} 号位 AI 档位`}
                                 value={m.botLevel ?? "STANDARD"}
                                 disabled={busy}
                                 onChange={(e) =>
@@ -901,7 +905,7 @@ function App() {
                               >
                                 {capabilities?.botLevels.map((level) => (
                                   <option key={level} value={level}>
-                                    {level === "BASIC" ? "基础" : "标准"}
+                                    {botLevelLabel(level)}
                                   </option>
                                 ))}
                               </select>
@@ -919,18 +923,42 @@ function App() {
                         )}
                     </>
                   ) : room.hostUserId === me?.userId ? (
-                    <button
-                      className="secondary"
-                      disabled={busy}
-                      onClick={() =>
-                        roomAction("/slots/" + i + "/bot", "PUT", {
-                          botLevel: "STANDARD",
-                          expectedRoomVersion: room.roomVersion,
-                        })
-                      }
-                    >
-                      请 AI 入座
-                    </button>
+                    <>
+                      <label>
+                        档位{" "}
+                        <select
+                          aria-label={`${i + 1} 号位请 AI 入座的档位`}
+                          value={inviteLevels[i] ?? "STANDARD"}
+                          disabled={busy}
+                          onChange={(e) =>
+                            setInviteLevels((levels) => ({
+                              ...levels,
+                              [i]: e.target.value as BotLevel,
+                            }))
+                          }
+                        >
+                          {(capabilities?.botLevels ?? BOT_LEVELS).map(
+                            (level) => (
+                              <option key={level} value={level}>
+                                {botLevelLabel(level)}
+                              </option>
+                            ),
+                          )}
+                        </select>
+                      </label>
+                      <button
+                        className="secondary"
+                        disabled={busy}
+                        onClick={() =>
+                          roomAction("/slots/" + i + "/bot", "PUT", {
+                            botLevel: inviteLevels[i] ?? "STANDARD",
+                            expectedRoomVersion: room.roomVersion,
+                          })
+                        }
+                      >
+                        请 AI 入座
+                      </button>
+                    </>
                   ) : (
                     <span className="muted">等朋友入座</span>
                   )}
@@ -997,7 +1025,7 @@ function App() {
             )}
           </div>
           <p className="room-footnote">
-            众人准备后，由房主开局。换人、改赛制或调 AI 难度后，需重新准备。
+            众人准备后，由房主开局。换人、改赛制或调 AI 档位后，需重新准备。
           </p>
         </main>
       ) : screen === "game" && view ? (

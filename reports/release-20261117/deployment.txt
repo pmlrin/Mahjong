@@ -1,0 +1,154 @@
+{
+  "at": "2026-11-17T06:13:57.782408+00:00",
+  "previousRelease": "/opt/mahjong/releases/20261112-v42-production",
+  "release": "/opt/mahjong/releases/20261117-production-3c6b783",
+  "backup": "/opt/mahjong/backups/mahjong-production-stopped-20261117-3c6b783.dump",
+  "configBackup": "/opt/mahjong/backups/config-20261117-3c6b783-attempt2",
+  "sourceSha256": "5bed6c1e530ac866c8ee791f07228dda8da79c62a5b2f156a83edf484bcf8f34",
+  "passed": true,
+  "beforeTables": {
+    "auth_accounts": {
+      "rows": 3,
+      "md5": "bd46d72c0e6489229bae1e7a82cccef0"
+    },
+    "auth_audit": {
+      "rows": 12,
+      "md5": "461bd9e75161166911df0bfda7f0080e"
+    },
+    "auth_challenges": {
+      "rows": 5,
+      "md5": "11ad4895398ac32e1c083fdc48c39fc5"
+    },
+    "auth_environment": {
+      "rows": 1,
+      "md5": "d7d83afdc9563349b7d7c56f4a83de4f"
+    },
+    "auth_grants": {
+      "rows": 3,
+      "md5": "755f2ed7fc60683940034929075f775f"
+    },
+    "auth_limits": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "auth_mail_jobs": {
+      "rows": 4,
+      "md5": "1c936ff99ee6d81d6ed57cacc274ccde"
+    },
+    "auth_migration_issues": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "auth_migrations": {
+      "rows": 1,
+      "md5": "6fb3ec450eecc2ff8b6f89c8eee36e58"
+    },
+    "auth_receipts": {
+      "rows": 13,
+      "md5": "8e4215476a900a5e0c8cf464fea7ae58"
+    },
+    "auth_sessions": {
+      "rows": 45,
+      "md5": "c8e0bf3bf57b0ae800af44b59b0f16eb"
+    },
+    "auth_users": {
+      "rows": 42,
+      "md5": "9f54f3439436de7ea36b1acb5e960447"
+    },
+    "avatar_assets": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "blocks": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "documents": {
+      "rows": 3317,
+      "md5": "07eeb7f429b83b0cd12d7a2bde1841d4"
+    },
+    "friend_requests": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "friendships": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "history_members": {
+      "rows": 41,
+      "md5": "d8613afe29c21fc1bc74f3444e9541f2"
+    },
+    "history_summaries": {
+      "rows": 15,
+      "md5": "521256fbac6132436632cf4eb00e2cff"
+    },
+    "migration_issues": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "replay_positions": {
+      "rows": 3,
+      "md5": "01dbf6aa8ecbc16cc3546ec87375d8af"
+    },
+    "room_invitations": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "social_audit": {
+      "rows": 3,
+      "md5": "73c5b50b277cf65ee6905bb61695b308"
+    },
+    "social_cooldowns": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "social_limits": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "social_profiles": {
+      "rows": 3,
+      "md5": "daee8ce065377b2a79bbbd6e5a652096"
+    },
+    "social_receipts": {
+      "rows": 3,
+      "md5": "e03520fb25290b5d5940a7338d6eabbd"
+    },
+    "social_sessions": {
+      "rows": 6,
+      "md5": "a33912ce1905aed4aaaacc4228a572d3"
+    },
+    "social_user_state": {
+      "rows": 3,
+      "md5": "ec131018738c6b6e13866139ba224987"
+    }
+  },
+  "backupBytes": 1101449,
+  "backupRestore": {
+    "database": "mahjong_release_restore_20261117_3c6b783",
+    "tables": 29,
+    "allRowsAndDigestsMatch": true,
+    "temporaryDatabaseRemoved": true
+  },
+  "health": {
+    "ok": true,
+    "version": "0.4.2",
+    "buildId": "5bed6c1e530ac866c8ee791f07228dda8da79c62a5b2f156a83edf484bcf8f34",
+    "activeTables": 0
+  },
+  "preservedUserTables": [
+    "auth_users",
+    "auth_accounts",
+    "avatar_assets",
+    "social_profiles",
+    "friendships",
+    "friend_requests",
+    "blocks",
+    "history_summaries",
+    "history_members",
+    "replay_positions"
+  ],
+  "originalConfigurationUnchanged": true,
+  "maintenance": false
+}

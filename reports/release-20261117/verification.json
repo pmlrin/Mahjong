@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-17",
+  "timezone": "Asia/Tokyo",
+  "sourceCommit": "3c6b783a876ab54c199bf8dda347334ed912e427",
+  "version": "0.4.2",
+  "sourceSha256": "5bed6c1e530ac866c8ee791f07228dda8da79c62a5b2f156a83edf484bcf8f34",
+  "tests": {
+    "passed": 176,
+    "failed": 0
+  },
+  "simulation": {
+    "east": 100,
+    "hanchan": 100
+  },
+  "browserScenarios": 18,
+  "publicFilesMatched": 40,
+  "productionMatch": {
+    "origin": "https://mahjong.yangjm.cn",
+    "at": "2026-11-17T06:16:50.741Z",
+    "elapsedMs": 97684,
+    "humanSessions": 4,
+    "aiSeats": 0,
+    "matchId": "e917920b-c64f-4ec3-a334-ac9593076338",
+    "points": [
+      16000,
+      49000,
+      16000,
+      19000
+    ],
+    "replayEvents": 435,
+    "passed": true
+  },
+  "backupRestore": {
+    "database": "mahjong_release_restore_20261117_3c6b783",
+    "tables": 29,
+    "allRowsAndDigestsMatch": true,
+    "temporaryDatabaseRemoved": true
+  },
+  "health": {
+    "ok": true,
+    "version": "0.4.2",
+    "buildId": "5bed6c1e530ac866c8ee791f07228dda8da79c62a5b2f156a83edf484bcf8f34",
+    "activeTables": 0
+  },
+  "maintenance": false,
+  "passed": true
+}

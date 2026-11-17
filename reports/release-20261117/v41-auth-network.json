@@ -1,0 +1,48 @@
+{
+  "at": "2026-11-17T06:09:06.985Z",
+  "protocol": "2.0",
+  "passed": true,
+  "realSMTP": false,
+  "registration": true,
+  "crossBrowserOwnership": true,
+  "explicitControlRelease": true,
+  "resetRevokesSocket": true,
+  "passwordChangeRotatesSession": true,
+  "featureOffPreservesAccount": true,
+  "secretsInLogs": false,
+  "serverEvents": [
+    {
+      "event": "SERVER_BUILD"
+    },
+    {
+      "event": "HISTORY_BACKFILL"
+    },
+    {
+      "event": "AUTH_MIGRATION"
+    },
+    {
+      "event": "TRANSACTION_FAILURE"
+    },
+    {
+      "event": "TRANSACTION_FAILURE"
+    },
+    {
+      "event": "TRANSACTION_FAILURE"
+    },
+    {
+      "event": "TRANSACTION_FAILURE"
+    },
+    {
+      "event": "TRANSACTION_FAILURE"
+    },
+    {
+      "event": "SERVER_BUILD"
+    },
+    {
+      "event": "HISTORY_BACKFILL"
+    },
+    {
+      "event": "AUTH_MIGRATION"
+    }
+  ]
+}

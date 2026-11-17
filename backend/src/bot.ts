@@ -2,27 +2,37 @@ import M from "@kobalab/majiang-core";
 import {
   kind,
   isRed,
+  AUTOPILOT_BOT_LEVEL,
+  type BotLevel,
   type MatchView,
   type Option,
 } from "../../shared/types.ts";
 import { shanten, hand, terminal } from "./rules.ts";
-export function finalStage(view: MatchView): boolean {
-  return (
-    view.hand.isExtension ||
-    (view.hand.roundWind === (view.format === "HANCHAN" ? "SOUTH" : "EAST") &&
-      view.hand.roundNumber === 4)
-  );
+import { chooseStrong, finalStage } from "./bot-strong.ts";
+export { finalStage };
+/** The level a seat plays at: an AI 牌友 uses its own, a hosted human seat uses 中级. */
+export function botLevelOf(view: MatchView): BotLevel {
+  const p = view.players[view.viewerSeat];
+  return p.participantKind === "BOT"
+    ? (p.botLevel ?? AUTOPILOT_BOT_LEVEL)
+    : AUTOPILOT_BOT_LEVEL;
 }
+/**
+ * 初级 BASIC: shanten and a plain count of useful tile kinds; never defends, always riichi.
+ * 中级 STANDARD: live-tile efficiency, folds to 现物 against a riichi, protects a final-stage lead.
+ * 高级 ADVANCED／大师级 MASTER live in bot-strong.ts.
+ */
 export function chooseBot(view: MatchView): string {
   const d = view.self.decision!;
   const opts = d.options,
     win = opts.find((o) => o.type === "TSUMO" || o.type === "RON");
   if (win) return win.optionId;
+  const level = botLevelOf(view);
+  if (level === "ADVANCED" || level === "MASTER")
+    return chooseStrong(view, level);
   const s = view.viewerSeat,
     melds = view.hand.seats[s].melds;
-  const basic =
-    view.players[s].participantKind === "BOT" &&
-    view.players[s].botLevel === "BASIC";
+  const basic = level === "BASIC";
   const leading = view.players.every((p) => p.points <= view.players[s].points);
   const tiles = [
     ...view.self.concealedTiles,
@@ -50,7 +60,8 @@ export function chooseBot(view: MatchView): string {
           c[0] === "z"
             ? 26 + Number(c[1])
             : ["m", "p", "s"].indexOf(c[0]) * 9 + Number(c[1]) - 1;
-        uke += Math.max(0, 4 - seen[k]);
+        // 初级 counts kinds only; it does not notice which tiles are already gone.
+        uke += basic ? 2 : Math.max(0, 4 - seen[k]);
       }
     }
     return { st, uke };
@@ -70,19 +81,17 @@ export function chooseBot(view: MatchView): string {
         score:
           e.st * 1000 -
           e.uke * 5 +
-          (isRed(o.tile!) ? 20 : 0) +
+          (!basic && isRed(o.tile!) ? 20 : 0) +
           (terminal(kind(o.tile!)) ? 0 : 1),
         danger,
       };
     });
     const bestSt = Math.min(...ranked.map((x) => x.st));
     const defend =
+      !basic &&
       threat.length > 0 &&
-      (bestSt >= (basic ? 3 : 1) ||
-        (!basic &&
-          leading &&
-          view.players[s].points >= 30000 &&
-          finalStage(view)));
+      (bestSt >= 1 ||
+        (leading && view.players[s].points >= 30000 && finalStage(view)));
     ranked.sort(
       (a, b) =>
         (defend ? a.danger - b.danger : 0) ||
@@ -104,13 +113,13 @@ export function chooseBot(view: MatchView): string {
       ) === 0;
     if (riichi && !defend && !(protectLead && dama)) return riichi.optionId;
     const kan = opts.find((o) => o.type === "ANKAN");
-    if (kan && !threat.length) return kan.optionId;
+    if (kan && (basic || !threat.length)) return kan.optionId;
     const kakan = opts.find((o) => o.type === "KAKAN");
-    if (kakan && !threat.length) return kakan.optionId;
+    if (kakan && (basic || !threat.length)) return kakan.optionId;
     return best.optionId;
   }
   const pass = opts.find((o) => o.type === "PASS")!;
-  if (threat.length) return pass.optionId;
+  if (threat.length && !basic) return pass.optionId;
   const before = shanten(tiles, melds, s);
   let best: Option = pass,
     bestSt = before;

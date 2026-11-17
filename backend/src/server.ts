@@ -36,6 +36,7 @@ import { Server, type Socket } from "socket.io";
 import { z } from "zod";
 import { Store, type Write } from "./store.ts";
 import { BotPool } from "./bot-pool.ts";
+import { botLevelOf } from "./bot.ts";
 import {
   uid,
   quad,
@@ -52,6 +53,9 @@ import {
   PROTOCOL,
   APP_VERSION,
   BOT_POLICY_VERSION,
+  BOT_LEVELS,
+  AUTOPILOT_BOT_LEVEL,
+  type BotLevel,
   type MatchFormat,
   type MatchMode,
   RULESET,
@@ -110,6 +114,12 @@ const bindings = new Map<
 const subscriptions = new Map<string, string>();
 const clocks = new Map<string, number>();
 const bots = new BotPool();
+const BOT_LEVEL_METRICS: Record<BotLevel, string> = {
+  BASIC: "botBasicMs",
+  STANDARD: "botStandardMs",
+  ADVANCED: "botAdvancedMs",
+  MASTER: "botMasterMs",
+};
 const botPending = new Set<string>();
 let tail: Promise<unknown> = Promise.resolve();
 function enqueue<T>(fn: () => Promise<T>): Promise<T> {
@@ -969,7 +979,7 @@ route("put", "/rooms/:roomId/slots/:slotId/bot", async (req, res) =>
     parse(
       z
         .object({
-          botLevel: z.enum(["BASIC", "STANDARD"]),
+          botLevel: z.enum(BOT_LEVELS as [BotLevel, ...BotLevel[]]),
           expectedRoomVersion: z.number().int(),
           lobbyGeneration: z.number().int().positive(),
         })
@@ -1132,7 +1142,8 @@ route("get", "/capabilities", async (_req, res) => {
       buildId: release.sourceSha256,
       protocolVersion: PROTOCOL,
       formats: ["EAST_ONLY", "HANCHAN"],
-      botLevels: ["BASIC", "STANDARD"],
+      botLevels: BOT_LEVELS,
+      autopilotBotLevel: AUTOPILOT_BOT_LEVEL,
       timePresetId: "standard-v1",
       maintenance: maintenance(),
       retentionDays: 30,
@@ -1761,9 +1772,7 @@ const interval = setInterval(
             .choose(input)
             .then(async (optionId) => {
               measure(
-                input.players[s].botLevel === "BASIC"
-                  ? "botBasicMs"
-                  : "botStandardMs",
+                BOT_LEVEL_METRICS[botLevelOf(input)],
                 started,
               );
               if (!optionId) return;

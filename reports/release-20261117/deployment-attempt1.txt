@@ -1,0 +1,10 @@
+{
+  "at": "2026-11-17T06:13:36.410800+00:00",
+  "previousRelease": "/opt/mahjong/releases/20261112-v42-production",
+  "release": "/opt/mahjong/releases/20261117-production-3c6b783",
+  "backup": "/opt/mahjong/backups/mahjong-production-stopped-20261117-3c6b783.dump",
+  "configBackup": "/opt/mahjong/backups/config-20261117-3c6b783",
+  "sourceSha256": "5bed6c1e530ac866c8ee791f07228dda8da79c62a5b2f156a83edf484bcf8f34",
+  "passed": false,
+  "error": "TypeError(\"__init__() got an unexpected keyword argument 'capture_output'\",)"
+}

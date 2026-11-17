@@ -1,0 +1,13 @@
+{
+  "at": "2026-11-17T06:15:43.009Z",
+  "browser": "157.0.8103.51",
+  "passed": [
+    "guest entry and refresh preserve identity",
+    "390px home has no horizontal overflow",
+    "create room and invite AI",
+    "leave waiting room"
+  ],
+  "pageErrors": [],
+  "failedRequests": [],
+  "physicalDevicesVerified": false
+}
