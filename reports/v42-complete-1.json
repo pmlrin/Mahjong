@@ -1,25 +1,25 @@
 {
-  "at": "2026-11-16T12:51:16.919Z",
+  "at": "2026-11-17T13:00:32.439Z",
   "humans": 1,
   "humanDescription": "scripted HUMAN; no real participants",
   "layer": "production controller + rule engine, in-memory transport; not a browser or public network match",
   "bots": 3,
-  "actions": 184,
+  "actions": 244,
   "hands": 4,
   "entries": {
     "quick": 12,
-    "keyboard": 9,
-    "autoDiscard": 14,
-    "noCall": 8,
+    "keyboard": 15,
+    "autoDiscard": 21,
+    "noCall": 10,
     "choice": 5
   },
   "points": [
-    33700,
-    25000,
-    11000,
-    30300
+    11900,
+    35000,
+    11200,
+    41900
   ],
   "reason": "SCHEDULE_COMPLETE",
-  "elapsedMs": 256,
+  "elapsedMs": 258,
   "invariants": "checked after every action, including before acknowledgements"
 }

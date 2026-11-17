@@ -5,7 +5,7 @@
 /* Hallmark · pre-emit critique: P4 H5 E4 S5 R4 V3 · weakest: V, the shell and the bone-on-felt language repeat by design because this is one product; every screen still leads with its own object (the hand, the table, the ledger) */
 /* Hallmark · dropped "EST. 2026", "GOOD COMPANY. GOOD GAME.", the tilted table art and its 東, sticks and circle · 66, 67 and 47c name them; the dealt hand replaces the art */
 /* Hallmark · answered F4 · the header's active bar and the rack's win button are state, not extra primaries; each screen has one filled primary */
-/* Hallmark · answered F6 · .tile-number sets the painted numeral on a mahjong tile and never compares in a column */
+/* Hallmark · answered F6 · .tile-glyph sets the painted numerals and honours on a mahjong tile and never compares in a column */
 /* Hallmark · answered F7 · inputs, wells and bare social buttons repeat on purpose so account and friends read as one tool */
 @import url("./tokens.css");
 @import url("./base.css");
@@ -361,17 +361,16 @@ input[type="range"] { accent-color: var(--color-accent); }
   border: var(--rule-hair) solid var(--tile-edge);
   border-bottom: 5px solid var(--tile-side);
   border-radius: var(--radius-tile);
-  background: var(--tile-face);
+  /* Ivory face: a touch brighter at the top, settling into the edge colour. */
+  background: linear-gradient(180deg, color-mix(in oklch, var(--tile-face), white 45%) 0%, var(--tile-face) 38%, color-mix(in oklch, var(--tile-face), var(--tile-edge) 45%) 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.75), 0 1px 2px rgb(0 0 0 / 0.18);
   color: var(--tile-ink);
   user-select: none;
 }
 .tile svg { display: block; width: 100%; height: 100%; }
-.tile-number, .tile-suit, .tile-honor { font-family: var(--font-display); text-anchor: middle; }
-.tile-number { font-size: 24px; font-weight: 700; }
-.tile-suit { font-size: 18px; }
-.tile-honor { font-size: 29px; font-weight: 700; }
+.tile-glyph { font-family: var(--font-display); text-anchor: middle; }
 .tile.small { width: 26px; min-width: 26px; height: 36px; border-bottom-width: 3px; border-radius: var(--radius-tile); }
-.tile.back { background: var(--tile-back); border-color: var(--tile-back-edge); border-bottom-color: var(--tile-back-side); }
+.tile.back { background: linear-gradient(180deg, color-mix(in oklch, var(--tile-back), white 18%), var(--tile-back) 55%); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3), 0 1px 2px rgb(0 0 0 / 0.18); border-color: var(--tile-back-edge); border-bottom-color: var(--tile-back-side); }
 .tile-back-mark { display: grid; place-items: center; width: 75%; height: 80%; border: var(--rule-hair) solid var(--tile-back-edge); border-radius: var(--space-3xs); color: var(--tile-back-ink); font-family: var(--font-display); font-size: var(--text-lg); }
 .tile.small .tile-back-mark { font-size: var(--text-2xs); }
 .aka-mark { position: absolute; right: var(--space-3xs); bottom: var(--space-3xs); color: var(--tile-red); font-size: var(--text-2xs); line-height: 1; }

@@ -2,15 +2,7 @@
 // Colours come from tokens.css so the 3D table matches the flat one.
 import { CanvasTexture, Color, SRGBColorSpace } from "three";
 import { kind, isRed, type MatchView } from "../../../shared/types";
-import {
-  HONORS,
-  NUMERALS,
-  PIP_POSITIONS,
-  TILE_VIEWBOX,
-  bambooPath,
-  honorInk,
-  pipInk,
-} from "../tile-glyphs";
+import { TILE_VIEWBOX, paintArt, tileArt } from "../tile-glyphs";
 
 const TOKENS = [
   "--color-felt",
@@ -81,61 +73,27 @@ export function createFaceAtlas(palette: Palette) {
   const ctx = canvas.getContext("2d")!;
   ctx.fillStyle = palette["--tile-face"];
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const ink = {
+  const inks = {
     red: palette["--tile-red"],
     green: palette["--tile-green"],
     blue: palette["--tile-blue"],
     ink: palette["--tile-ink"],
+    face: palette["--tile-face"],
   };
   for (let cell = 0; cell < 37; cell++) {
     const tile = representative(cell);
-    const k = kind(tile),
-      n = (k % 9) + 1,
-      suit = Math.floor(k / 9),
-      red = isRed(tile);
+    const red = isRed(tile);
     ctx.save();
     ctx.translate(
       (cell % columns) * cellWidth,
       Math.floor(cell / columns) * cellHeight,
     );
     ctx.scale(cellWidth / TILE_VIEWBOX.width, cellHeight / TILE_VIEWBOX.height);
-    ctx.textAlign = "center";
-    ctx.textBaseline = "alphabetic";
-    if (suit === 0) {
-      ctx.fillStyle = red ? ink.red : ink.ink;
-      ctx.font = `700 24px ${palette.displayFont}`;
-      ctx.fillText(NUMERALS[n - 1], 20, 27);
-      ctx.fillStyle = ink.red;
-      ctx.font = `18px ${palette.displayFont}`;
-      ctx.fillText("萬", 20, 49);
-    } else if (suit === 1) {
-      PIP_POSITIONS[n].forEach(([x, y], i) => {
-        const c = ink[pipInk(i, red)];
-        ctx.strokeStyle = c;
-        ctx.fillStyle = c;
-        ctx.lineWidth = n === 1 ? 2.8 : 1.8;
-        ctx.beginPath();
-        ctx.arc(x, y, n === 1 ? 11 : 4.6, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(x, y, n === 1 ? 5 : 1.3, 0, Math.PI * 2);
-        ctx.fill();
-      });
-    } else if (suit === 2) {
-      ctx.strokeStyle = red ? ink.red : ink.green;
-      ctx.lineWidth = 2.6;
-      ctx.lineCap = "round";
-      for (const [x, y] of PIP_POSITIONS[n])
-        ctx.stroke(new Path2D(bambooPath(x, y)));
-    } else {
-      ctx.fillStyle = ink[honorInk(k)];
-      ctx.font = `700 29px ${palette.displayFont}`;
-      ctx.fillText(HONORS[k - 27], 20, 39);
-    }
+    paintArt(ctx, tileArt(kind(tile), red), inks, palette.displayFont);
     if (red) {
-      ctx.fillStyle = ink.red;
+      ctx.fillStyle = inks.red;
       ctx.beginPath();
-      ctx.arc(35, 5, 2, 0, Math.PI * 2);
+      ctx.arc(36, 4, 1.6, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();

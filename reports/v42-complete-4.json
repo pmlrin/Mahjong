@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-16T12:51:17.176Z",
+  "at": "2026-11-17T13:00:32.698Z",
   "humans": 4,
   "humanDescription": "scripted HUMAN; no real participants",
   "layer": "production controller + rule engine, in-memory transport; not a browser or public network match",
@@ -20,6 +20,6 @@
     18000
   ],
   "reason": "SCHEDULE_COMPLETE",
-  "elapsedMs": 1025,
+  "elapsedMs": 878,
   "invariants": "checked after every action, including before acknowledgements"
 }
