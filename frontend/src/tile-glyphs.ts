@@ -5,8 +5,19 @@ export const TILE_VIEWBOX = { width: 40, height: 58 } as const;
 export const NUMERALS = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
 export const HONORS = ["東", "南", "西", "北", "白", "發", "中"];
 
-/** Inks resolve to the --tile-* tokens; "face" is the tile background. */
-export type Ink = "red" | "green" | "blue" | "ink" | "face";
+/**
+ * Inks resolve to the --tile-* tokens: "face" is the face background, and
+ * "back" / "backEdge" / "backInk" are the back's ground, rules and emblem.
+ */
+export type Ink =
+  | "red"
+  | "green"
+  | "blue"
+  | "ink"
+  | "face"
+  | "back"
+  | "backEdge"
+  | "backInk";
 export type Shape =
   | { t: "circle"; cx: number; cy: number; r: number; fill: Ink }
   | {
@@ -156,6 +167,7 @@ function stick(
   ink: Ink,
   deg = 0,
   w = 4,
+  ground: Ink = "face",
 ): Shape[] {
   const a = (deg * Math.PI) / 180;
   const ux = Math.sin(a),
@@ -180,12 +192,12 @@ function stick(
     {
       t: "path",
       d: line(at(-half + 0.6, -w * 0.16), at(half - 0.6, -w * 0.16)),
-      stroke: "face",
+      stroke: ground,
       width: 0.55,
       round: true,
     },
     node(0, w / 2 + 0.55, 1.5, ink),
-    node(0, w / 2 - 0.2, 0.45, "face"),
+    node(0, w / 2 - 0.2, 0.45, ground),
     node(-half - w / 2 + 0.7, w / 2 + 0.35, 1.3, ink),
     node(half + w / 2 - 0.7, w / 2 + 0.35, 1.3, ink),
   ];
@@ -359,4 +371,83 @@ export function paintArt(
       ctx.fillText(s.text, s.x, s.y);
     }
   }
+}
+
+// ---------- Back ----------
+/** Clip the segment a→b to a rectangle (Liang–Barsky); null when outside. */
+function clip(a: Pt, b: Pt, x0: number, y0: number, x1: number, y1: number) {
+  const dx = b[0] - a[0],
+    dy = b[1] - a[1];
+  let t0 = 0,
+    t1 = 1;
+  for (const [p, q] of [
+    [-dx, a[0] - x0],
+    [dx, x1 - a[0]],
+    [-dy, a[1] - y0],
+    [dy, y1 - a[1]],
+  ]) {
+    if (p === 0) {
+      if (q < 0) return null;
+    } else {
+      const r = q / p;
+      if (p < 0) t0 = Math.max(t0, r);
+      else t1 = Math.min(t1, r);
+    }
+  }
+  if (t0 >= t1) return null;
+  return line(
+    [a[0] + dx * t0, a[1] + dy * t0],
+    [a[0] + dx * t1, a[1] + dy * t1],
+  );
+}
+
+/**
+ * The tile back: a double frame around a fine diagonal lattice, with a
+ * bamboo medallion in the middle. Drawn over the --tile-back ground.
+ */
+export function backArt(): Shape[] {
+  const x0 = 6.6,
+    y0 = 6.6,
+    x1 = 33.4,
+    y1 = 51.4,
+    step = 3.6;
+  const lattice: string[] = [];
+  for (let c = -(y1 - y0); c <= x1 - x0; c += step) {
+    const down = clip([x0 + c, y0], [x0 + c + 60, y0 + 60], x0, y0, x1, y1);
+    const up = clip([x1 - c, y0], [x1 - c - 60, y0 + 60], x0, y0, x1, y1);
+    if (down) lattice.push(down);
+    if (up) lattice.push(up);
+  }
+  const leaf = (y: number, flip: number): Shape => ({
+    t: "path",
+    d: `M20,${y} Q${20 + flip * 3.6},${y - 3.8} ${20 + flip * 6},${y - 2.8} Q${20 + flip * 3.6},${y - 0.5} 20,${y} Z`,
+    fill: "backInk",
+  });
+  return [
+    { t: "path", d: lattice.join(""), stroke: "backEdge", width: 0.26 },
+    { t: "path", d: rect(3.2, 3.2, 33.6, 51.6, 3), stroke: "backEdge", width: 1.1 },
+    { t: "path", d: rect(5.6, 5.6, 28.8, 46.8, 1.6), stroke: "backEdge", width: 0.45 },
+    // medallion, clearing the lattice beneath it
+    { t: "circle", cx: 20, cy: 29, r: 10.2, fill: "back" },
+    { t: "circle", cx: 20, cy: 29, r: 9.4, fill: "backInk" },
+    { t: "circle", cx: 20, cy: 29, r: 8.5, fill: "back" },
+    { t: "circle", cx: 20, cy: 29, r: 7.8, fill: "backEdge" },
+    { t: "circle", cx: 20, cy: 29, r: 7.45, fill: "back" },
+    leaf(28, 1),
+    leaf(32.5, -1),
+    ...stick(20, 29, 13, "backInk", 0, 2.4, "back"),
+    // corner diamonds
+    ...([
+      [8.6, 8.6],
+      [31.4, 8.6],
+      [8.6, 49.4],
+      [31.4, 49.4],
+    ] as Pt[]).map(
+      ([x, y]): Shape => ({
+        t: "path",
+        d: `M${x},${y - 1.6}L${x + 1.6},${y}L${x},${y + 1.6}L${x - 1.6},${y}Z`,
+        fill: "backInk",
+      }),
+    ),
+  ];
 }

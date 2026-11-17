@@ -2,7 +2,7 @@
 // Colours come from tokens.css so the 3D table matches the flat one.
 import { CanvasTexture, Color, SRGBColorSpace } from "three";
 import { kind, isRed, type MatchView } from "../../../shared/types";
-import { TILE_VIEWBOX, paintArt, tileArt } from "../tile-glyphs";
+import { TILE_VIEWBOX, backArt, paintArt, tileArt } from "../tile-glyphs";
 
 const TOKENS = [
   "--color-felt",
@@ -22,6 +22,11 @@ const TOKENS = [
   "--tile-red",
   "--tile-green",
   "--tile-blue",
+  "--tile-back-ink",
+  "--table-rail",
+  "--table-rail-deep",
+  "--table-rail-light",
+  "--table-trim",
 ] as const;
 export type Token = (typeof TOKENS)[number];
 export type Palette = Record<Token, string> & {
@@ -52,8 +57,9 @@ export function readPalette(): Palette {
 export const srgb = (hex: string) => new Color().setStyle(hex, SRGBColorSpace);
 
 export const ATLAS = { columns: 8, rows: 5, cellWidth: 240, cellHeight: 348 };
-/** A plain bone-face cell (no glyph) and a white cell for vertex-coloured parts. */
+/** A plain bone-face cell (no glyph), the patterned back, and a white cell for vertex-coloured parts. */
 export const FACE_CELL = 37;
+export const BACK_CELL = 38;
 export const WHITE_CELL = 39;
 /** Atlas cell: kinds 0–33, then red 5m / 5p / 5s at 34–36. */
 export function atlasCell(tile: number) {
@@ -79,6 +85,9 @@ export function createFaceAtlas(palette: Palette) {
     blue: palette["--tile-blue"],
     ink: palette["--tile-ink"],
     face: palette["--tile-face"],
+    back: palette["--tile-back"],
+    backEdge: palette["--tile-back-edge"],
+    backInk: palette["--tile-back-ink"],
   };
   for (let cell = 0; cell < 37; cell++) {
     const tile = representative(cell);
@@ -98,6 +107,16 @@ export function createFaceAtlas(palette: Palette) {
     }
     ctx.restore();
   }
+  ctx.save();
+  ctx.translate(
+    (BACK_CELL % columns) * cellWidth,
+    Math.floor(BACK_CELL / columns) * cellHeight,
+  );
+  ctx.fillStyle = inks.back;
+  ctx.fillRect(0, 0, cellWidth, cellHeight);
+  ctx.scale(cellWidth / TILE_VIEWBOX.width, cellHeight / TILE_VIEWBOX.height);
+  paintArt(ctx, backArt(), inks, palette.displayFont);
+  ctx.restore();
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(
     (WHITE_CELL % columns) * cellWidth,
@@ -143,9 +162,11 @@ export function drawCenterPlate(
   const ctx = canvas.getContext("2d")!;
   ctx.fillStyle = palette["--color-felt-deep"];
   ctx.fillRect(0, 0, s, s);
-  ctx.strokeStyle = palette["--color-felt-rule"];
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = palette["--table-trim"];
+  ctx.lineWidth = 4;
   ctx.strokeRect(14, 14, s - 28, s - 28);
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(24, 24, s - 48, s - 48);
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = palette["--color-felt-ink"];
@@ -172,4 +193,84 @@ export function drawCenterPlate(
     ctx.fillText(wind, 0, s / 2 - 46);
     ctx.restore();
   });
+}
+
+/** A small deterministic PRNG, so the felt and grain look the same every load. */
+function rng(seed: number) {
+  return () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+}
+
+/**
+ * The felt top: lit brighter in the middle, a fine nap of light and dark
+ * flecks, and a double brass line a little in from the rail.
+ */
+export function createFeltTexture(palette: Palette) {
+  const s = 1024;
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = s;
+  const ctx = canvas.getContext("2d")!;
+  const glow = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s * 0.72);
+  glow.addColorStop(0, palette["--color-felt-raised"]);
+  glow.addColorStop(0.55, palette["--color-felt"]);
+  glow.addColorStop(1, palette["--color-felt-deep"]);
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, s, s);
+  const image = ctx.getImageData(0, 0, s, s);
+  const random = rng(7);
+  for (let i = 0; i < image.data.length; i += 4) {
+    const n = (random() - 0.5) * 14;
+    image.data[i] += n;
+    image.data[i + 1] += n;
+    image.data[i + 2] += n;
+  }
+  ctx.putImageData(image, 0, 0);
+  ctx.strokeStyle = palette["--table-trim"];
+  ctx.globalAlpha = 0.55;
+  ctx.lineWidth = 4;
+  ctx.strokeRect(s * 0.025, s * 0.025, s * 0.95, s * 0.95);
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(s * 0.036, s * 0.036, s * 0.928, s * 0.928);
+  ctx.globalAlpha = 1;
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  texture.anisotropy = 8;
+  return texture;
+}
+
+/** Walnut for the rail: long grain running along the texture's v axis. */
+export function createWoodTexture(palette: Palette) {
+  const w = 256,
+    h = 1024;
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = palette["--table-rail"];
+  ctx.fillRect(0, 0, w, h);
+  const random = rng(11);
+  for (let i = 0; i < 90; i++) {
+    const x = random() * w,
+      wave = 2 + random() * 6,
+      period = 120 + random() * 260,
+      phase = random() * Math.PI * 2;
+    ctx.strokeStyle =
+      random() < 0.6 ? palette["--table-rail-deep"] : palette["--table-rail-light"];
+    ctx.globalAlpha = 0.12 + random() * 0.28;
+    ctx.lineWidth = 0.6 + random() * 2.2;
+    ctx.beginPath();
+    for (let y = 0; y <= h; y += 8) {
+      const xx = x + Math.sin(y / period + phase) * wave;
+      if (y === 0) ctx.moveTo(xx, y);
+      else ctx.lineTo(xx, y);
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  texture.anisotropy = 8;
+  return texture;
 }

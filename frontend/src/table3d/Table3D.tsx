@@ -24,6 +24,7 @@ import { PlayerPlate, windName } from "../PlayerPlate";
 import { Tile } from "../Tile";
 import { LatestDiscard } from "../turn-feedback";
 import type { Anchor, AnchorStore } from "../hand-anchors";
+import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { createTile } from "./geometry";
 import { QUALITY, frameVerdict, type QualityLevel } from "./quality";
 import { useReducedMotion } from "../motion";
@@ -52,6 +53,8 @@ import {
   srgb,
   type CenterInfo,
   type Palette,
+  createFeltTexture,
+  createWoodTexture,
 } from "./textures";
 import "./table3d.css";
 
@@ -112,7 +115,7 @@ function tileGeometry(kit: Kit, glyph: number | null) {
   const k = glyph ?? -1;
   let g = kit.tiles.get(k);
   if (!g)
-    kit.tiles.set(k, (g = createTile(srgb(kit.palette["--tile-back"]), glyph)));
+    kit.tiles.set(k, (g = createTile(glyph)));
   return g;
 }
 
@@ -438,29 +441,47 @@ const FLIP = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), Math.PI);
 
 function TableBody({ palette }: { palette: Palette }) {
   const half = SCENE.tableHalf,
-    rail = 1.1;
-  const felt = useMemo(() => srgb(palette["--color-felt"]), [palette]);
-  const deep = useMemo(() => srgb(palette["--color-felt-deep"]), [palette]);
+    rail = 1.1,
+    railHeight = 0.9;
+  const felt = useMemo(() => createFeltTexture(palette), [palette]);
+  const wood = useMemo(() => createWoodTexture(palette), [palette]);
+  const railGeometry = useMemo(
+    () =>
+      new RoundedBoxGeometry(rail, railHeight, half * 2 + rail * 2, 3, 0.16),
+    [half],
+  );
+  useEffect(
+    () => () => {
+      felt.dispose();
+      wood.dispose();
+      railGeometry.dispose();
+    },
+    [felt, wood, railGeometry],
+  );
+  const trim = useMemo(() => srgb(palette["--table-trim"]), [palette]);
   return (
     <group>
       <mesh position={[0, -0.2, 0]} receiveShadow>
         <boxGeometry args={[half * 2, 0.4, half * 2]} />
-        <meshStandardMaterial color={felt} roughness={0.95} />
+        <meshStandardMaterial map={felt} roughness={0.95} />
       </mesh>
       {[0, 1, 2, 3].map((r) => (
-        <mesh
-          key={r}
-          position={new Vector3(
-            rail / 2 - half - rail,
-            0.05,
-            0,
-          ).applyQuaternion(seatQuaternion(r))}
-          quaternion={seatQuaternion(r)}
-          receiveShadow
-        >
-          <boxGeometry args={[rail, 0.9, half * 2 + rail * 2]} />
-          <meshStandardMaterial color={deep} roughness={0.7} />
-        </mesh>
+        <group key={r} quaternion={seatQuaternion(r)}>
+          {/* walnut rail */}
+          <mesh
+            position={[rail / 2 - half - rail, 0.05, 0]}
+            geometry={railGeometry}
+            castShadow
+            receiveShadow
+          >
+            <meshStandardMaterial map={wood} roughness={0.45} />
+          </mesh>
+          {/* brass inlay on the felt along the rail */}
+          <mesh position={[-half + 0.08, 0.012, 0]} receiveShadow>
+            <boxGeometry args={[0.1, 0.024, half * 2 - 0.02]} />
+            <meshStandardMaterial color={trim} metalness={0.55} roughness={0.3} />
+          </mesh>
+        </group>
       ))}
     </group>
   );

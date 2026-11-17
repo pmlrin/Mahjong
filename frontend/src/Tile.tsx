@@ -4,14 +4,46 @@ import type {
   PointerEventHandler,
 } from "react";
 import { kind, isRed, tileName } from "../../shared/types";
-import { tileArt, type Ink } from "./tile-glyphs";
+import { backArt, tileArt, type Ink, type Shape } from "./tile-glyphs";
 const INK: Record<Ink, string> = {
   red: "var(--tile-red)",
   green: "var(--tile-green)",
   blue: "var(--tile-blue)",
   ink: "var(--tile-ink)",
   face: "var(--tile-face)",
+  back: "var(--tile-back)",
+  backEdge: "var(--tile-back-edge)",
+  backInk: "var(--tile-back-ink)",
 };
+function shapes(list: Shape[]) {
+  return list.map((sh, i) =>
+    sh.t === "circle" ? (
+      <circle key={i} cx={sh.cx} cy={sh.cy} r={sh.r} fill={INK[sh.fill]} />
+    ) : sh.t === "path" ? (
+      <path
+        key={i}
+        d={sh.d}
+        fill={sh.fill ? INK[sh.fill] : "none"}
+        stroke={sh.stroke ? INK[sh.stroke] : undefined}
+        strokeWidth={sh.width}
+        strokeLinecap={sh.round ? "round" : undefined}
+        strokeLinejoin="round"
+      />
+    ) : (
+      <text
+        key={i}
+        x={sh.x}
+        y={sh.y}
+        className="tile-glyph"
+        fontSize={sh.size}
+        fontWeight={sh.weight}
+        fill={INK[sh.fill]}
+      >
+        {sh.text}
+      </text>
+    ),
+  );
+}
 export function Tile({
   tile,
   back = false,
@@ -37,37 +69,13 @@ export function Tile({
   const k = tile === undefined ? 0 : kind(tile),
     red = tile !== undefined && isRed(tile);
   const body = back ? (
-    <span className="tile-back-mark">竹</span>
+    <svg className="tile-back-art" viewBox="0 0 40 58" aria-hidden="true">
+      {shapes(backArt())}
+    </svg>
   ) : (
     <>
       <svg viewBox="0 0 40 58" aria-hidden="true">
-        {tileArt(k, red).map((sh, i) =>
-          sh.t === "circle" ? (
-            <circle key={i} cx={sh.cx} cy={sh.cy} r={sh.r} fill={INK[sh.fill]} />
-          ) : sh.t === "path" ? (
-            <path
-              key={i}
-              d={sh.d}
-              fill={sh.fill ? INK[sh.fill] : "none"}
-              stroke={sh.stroke ? INK[sh.stroke] : undefined}
-              strokeWidth={sh.width}
-              strokeLinecap={sh.round ? "round" : undefined}
-              strokeLinejoin="round"
-            />
-          ) : (
-            <text
-              key={i}
-              x={sh.x}
-              y={sh.y}
-              className="tile-glyph"
-              fontSize={sh.size}
-              fontWeight={sh.weight}
-              fill={INK[sh.fill]}
-            >
-              {sh.text}
-            </text>
-          ),
-        )}
+        {shapes(tileArt(k, red))}
       </svg>
       {red && <span className="aka-mark">赤</span>}
       {mark && <span className="draw-mark" />}
