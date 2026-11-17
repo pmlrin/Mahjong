@@ -1,0 +1,25 @@
+{
+  "release": "/opt/mahjong/releases/20261117-production-07fbed6",
+  "previousRelease": "/opt/mahjong/releases/20261117-production-3c6b783",
+  "archiveSha256": "533c778ecc476ec32e0768102aa84c3aefee4ac07e5661f84e2dbce478c29474",
+  "runtimeDependenciesUnchanged": true,
+  "migrationsUnchanged": true,
+  "retainedAssets": [
+    "GLTFLoader-AmIzW769.js",
+    "Table3D-5h8Sz9FA.js",
+    "three-vrm.module-CpoEHMdy.js",
+    "Table3D-SJy0qKEN.js",
+    "index-CR64KYo1.js",
+    "index-B8a1JgyM.js",
+    "index-BmuTKPlu.css",
+    "index-BFbC5QYl.css",
+    "index-zzvEzHCJ.js"
+  ],
+  "releaseMetadata": {
+    "version": "0.4.2",
+    "protocolVersion": "2.0",
+    "sourceSha256": "def0f687f066900c87fadb69aa28ece843611922640d5f42fff669308b2bef35",
+    "builtAt": "2026-11-17T12:42:52.132Z"
+  },
+  "passed": true
+}

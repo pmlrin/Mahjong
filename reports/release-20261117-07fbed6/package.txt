@@ -1,0 +1,4 @@
+
+> mahjong-friends@0.4.2 package
+> node --import tsx scripts/package.ts
+

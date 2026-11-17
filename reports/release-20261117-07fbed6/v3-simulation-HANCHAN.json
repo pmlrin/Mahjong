@@ -1,0 +1,1213 @@
+{
+  "at": "2026-11-17T12:43:41.861Z",
+  "version": "0.4.2",
+  "format": "HANCHAN",
+  "botPolicies": [
+    "BASIC",
+    "STANDARD"
+  ],
+  "matches": 100,
+  "elapsedMs": 21342,
+  "report": [
+    {
+      "seed": 1,
+      "hands": 14,
+      "actions": 777,
+      "points": [
+        35600,
+        39800,
+        21400,
+        3200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 2,
+      "hands": 9,
+      "actions": 499,
+      "points": [
+        24900,
+        26500,
+        10900,
+        37700
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 3,
+      "hands": 8,
+      "actions": 476,
+      "points": [
+        9000,
+        18000,
+        18000,
+        55000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 4,
+      "hands": 11,
+      "actions": 634,
+      "points": [
+        39000,
+        12900,
+        21100,
+        27000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 5,
+      "hands": 12,
+      "actions": 658,
+      "points": [
+        19700,
+        33800,
+        47000,
+        -500
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 6,
+      "hands": 4,
+      "actions": 270,
+      "points": [
+        58000,
+        -7000,
+        24000,
+        25000
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 7,
+      "hands": 12,
+      "actions": 630,
+      "points": [
+        13800,
+        24700,
+        33500,
+        28000
+      ],
+      "reason": "EXTENSION_TARGET_REACHED"
+    },
+    {
+      "seed": 8,
+      "hands": 12,
+      "actions": 663,
+      "points": [
+        34500,
+        25100,
+        40000,
+        400
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 9,
+      "hands": 7,
+      "actions": 345,
+      "points": [
+        46500,
+        19900,
+        -4200,
+        37800
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 10,
+      "hands": 13,
+      "actions": 672,
+      "points": [
+        31200,
+        16500,
+        44300,
+        8000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 11,
+      "hands": 12,
+      "actions": 709,
+      "points": [
+        28500,
+        42000,
+        21700,
+        7800
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 12,
+      "hands": 5,
+      "actions": 294,
+      "points": [
+        -3400,
+        32900,
+        37800,
+        32700
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 13,
+      "hands": 10,
+      "actions": 633,
+      "points": [
+        16100,
+        35900,
+        20800,
+        27200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 14,
+      "hands": 11,
+      "actions": 763,
+      "points": [
+        49700,
+        17200,
+        -7100,
+        40200
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 15,
+      "hands": 10,
+      "actions": 622,
+      "points": [
+        25100,
+        20400,
+        19700,
+        34800
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 16,
+      "hands": 10,
+      "actions": 573,
+      "points": [
+        16000,
+        33500,
+        25500,
+        25000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 17,
+      "hands": 3,
+      "actions": 142,
+      "points": [
+        24000,
+        -3200,
+        39000,
+        40200
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 18,
+      "hands": 10,
+      "actions": 691,
+      "points": [
+        20400,
+        50000,
+        12300,
+        17300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 19,
+      "hands": 7,
+      "actions": 414,
+      "points": [
+        48300,
+        -400,
+        21300,
+        30800
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 20,
+      "hands": 8,
+      "actions": 482,
+      "points": [
+        17200,
+        29500,
+        20900,
+        32400
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 21,
+      "hands": 13,
+      "actions": 720,
+      "points": [
+        35800,
+        30200,
+        18200,
+        15800
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 22,
+      "hands": 3,
+      "actions": 170,
+      "points": [
+        -3300,
+        48300,
+        33000,
+        22000
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 23,
+      "hands": 11,
+      "actions": 555,
+      "points": [
+        23900,
+        39900,
+        18500,
+        17700
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 24,
+      "hands": 13,
+      "actions": 844,
+      "points": [
+        26400,
+        5000,
+        43000,
+        25600
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 25,
+      "hands": 10,
+      "actions": 581,
+      "points": [
+        21900,
+        31200,
+        27100,
+        19800
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 26,
+      "hands": 9,
+      "actions": 563,
+      "points": [
+        25300,
+        36000,
+        13300,
+        25400
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 27,
+      "hands": 10,
+      "actions": 536,
+      "points": [
+        13600,
+        34600,
+        25100,
+        26700
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 28,
+      "hands": 9,
+      "actions": 452,
+      "points": [
+        30000,
+        19100,
+        8600,
+        42300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 29,
+      "hands": 9,
+      "actions": 568,
+      "points": [
+        20600,
+        31800,
+        32200,
+        15400
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 30,
+      "hands": 10,
+      "actions": 588,
+      "points": [
+        13000,
+        40200,
+        6200,
+        40600
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 31,
+      "hands": 8,
+      "actions": 423,
+      "points": [
+        19100,
+        61800,
+        -5700,
+        24800
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 32,
+      "hands": 9,
+      "actions": 512,
+      "points": [
+        17700,
+        32000,
+        17800,
+        32500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 33,
+      "hands": 11,
+      "actions": 651,
+      "points": [
+        36300,
+        34600,
+        22300,
+        6800
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 34,
+      "hands": 10,
+      "actions": 658,
+      "points": [
+        23600,
+        22900,
+        39400,
+        14100
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 35,
+      "hands": 12,
+      "actions": 705,
+      "points": [
+        43000,
+        36800,
+        700,
+        19500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 36,
+      "hands": 10,
+      "actions": 584,
+      "points": [
+        47900,
+        10400,
+        6400,
+        35300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 37,
+      "hands": 9,
+      "actions": 532,
+      "points": [
+        -6400,
+        28200,
+        47800,
+        30400
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 38,
+      "hands": 9,
+      "actions": 667,
+      "points": [
+        28600,
+        -7500,
+        34100,
+        44800
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 39,
+      "hands": 11,
+      "actions": 627,
+      "points": [
+        34600,
+        21700,
+        20200,
+        23500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 40,
+      "hands": 9,
+      "actions": 555,
+      "points": [
+        9100,
+        34300,
+        6300,
+        50300
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 41,
+      "hands": 2,
+      "actions": 109,
+      "points": [
+        53000,
+        23000,
+        -1000,
+        25000
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 42,
+      "hands": 8,
+      "actions": 429,
+      "points": [
+        25300,
+        32600,
+        5400,
+        36700
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 43,
+      "hands": 13,
+      "actions": 926,
+      "points": [
+        55600,
+        12500,
+        11000,
+        20900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 44,
+      "hands": 10,
+      "actions": 498,
+      "points": [
+        34700,
+        30400,
+        26000,
+        8900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 45,
+      "hands": 10,
+      "actions": 577,
+      "points": [
+        16900,
+        57200,
+        7200,
+        18700
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 46,
+      "hands": 7,
+      "actions": 466,
+      "points": [
+        40800,
+        24600,
+        -500,
+        35100
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 47,
+      "hands": 10,
+      "actions": 676,
+      "points": [
+        50500,
+        12000,
+        5600,
+        31900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 48,
+      "hands": 11,
+      "actions": 626,
+      "points": [
+        42500,
+        -11400,
+        31900,
+        37000
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 49,
+      "hands": 12,
+      "actions": 791,
+      "points": [
+        23000,
+        24300,
+        20900,
+        31800
+      ],
+      "reason": "EXTENSION_TARGET_REACHED"
+    },
+    {
+      "seed": 50,
+      "hands": 12,
+      "actions": 782,
+      "points": [
+        30400,
+        1500,
+        14700,
+        53400
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 51,
+      "hands": 12,
+      "actions": 688,
+      "points": [
+        -3300,
+        44000,
+        43600,
+        15700
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 52,
+      "hands": 13,
+      "actions": 746,
+      "points": [
+        -1200,
+        46600,
+        16100,
+        38500
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 53,
+      "hands": 9,
+      "actions": 504,
+      "points": [
+        10800,
+        37500,
+        20900,
+        30800
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 54,
+      "hands": 11,
+      "actions": 647,
+      "points": [
+        47300,
+        15600,
+        16800,
+        20300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 55,
+      "hands": 14,
+      "actions": 945,
+      "points": [
+        41900,
+        7900,
+        18000,
+        32200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 56,
+      "hands": 10,
+      "actions": 591,
+      "points": [
+        -5500,
+        40300,
+        22400,
+        42800
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 57,
+      "hands": 12,
+      "actions": 701,
+      "points": [
+        30700,
+        25000,
+        24200,
+        20100
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 58,
+      "hands": 9,
+      "actions": 511,
+      "points": [
+        53100,
+        15000,
+        8700,
+        23200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 59,
+      "hands": 6,
+      "actions": 386,
+      "points": [
+        -2300,
+        14900,
+        54500,
+        32900
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 60,
+      "hands": 9,
+      "actions": 543,
+      "points": [
+        38700,
+        42300,
+        -200,
+        19200
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 61,
+      "hands": 13,
+      "actions": 857,
+      "points": [
+        13100,
+        19800,
+        21300,
+        45800
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 62,
+      "hands": 14,
+      "actions": 903,
+      "points": [
+        24400,
+        31100,
+        23700,
+        20800
+      ],
+      "reason": "EXTENSION_TARGET_REACHED"
+    },
+    {
+      "seed": 63,
+      "hands": 11,
+      "actions": 666,
+      "points": [
+        31500,
+        29700,
+        12600,
+        26200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 64,
+      "hands": 10,
+      "actions": 650,
+      "points": [
+        18400,
+        32500,
+        20900,
+        28200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 65,
+      "hands": 11,
+      "actions": 724,
+      "points": [
+        25600,
+        10200,
+        28900,
+        35300
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 66,
+      "hands": 8,
+      "actions": 499,
+      "points": [
+        14800,
+        19100,
+        27200,
+        38900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 67,
+      "hands": 14,
+      "actions": 790,
+      "points": [
+        25600,
+        10000,
+        41500,
+        22900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 68,
+      "hands": 12,
+      "actions": 715,
+      "points": [
+        3200,
+        38200,
+        43600,
+        15000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 69,
+      "hands": 12,
+      "actions": 773,
+      "points": [
+        23600,
+        21800,
+        2800,
+        51800
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 70,
+      "hands": 8,
+      "actions": 419,
+      "points": [
+        32600,
+        16400,
+        31600,
+        19400
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 71,
+      "hands": 8,
+      "actions": 519,
+      "points": [
+        12300,
+        30000,
+        29400,
+        28300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 72,
+      "hands": 6,
+      "actions": 353,
+      "points": [
+        50400,
+        25100,
+        -2700,
+        27200
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 73,
+      "hands": 11,
+      "actions": 650,
+      "points": [
+        7900,
+        22400,
+        47700,
+        22000
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 74,
+      "hands": 12,
+      "actions": 692,
+      "points": [
+        24400,
+        35200,
+        14200,
+        26200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 75,
+      "hands": 9,
+      "actions": 559,
+      "points": [
+        -1400,
+        26600,
+        31000,
+        43800
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 76,
+      "hands": 5,
+      "actions": 306,
+      "points": [
+        46300,
+        31300,
+        -900,
+        23300
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 77,
+      "hands": 12,
+      "actions": 604,
+      "points": [
+        23700,
+        45400,
+        16600,
+        14300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 78,
+      "hands": 8,
+      "actions": 469,
+      "points": [
+        45400,
+        17600,
+        26500,
+        10500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 79,
+      "hands": 8,
+      "actions": 463,
+      "points": [
+        -700,
+        47500,
+        22500,
+        30700
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 80,
+      "hands": 8,
+      "actions": 511,
+      "points": [
+        22600,
+        32200,
+        25700,
+        19500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 81,
+      "hands": 8,
+      "actions": 428,
+      "points": [
+        39000,
+        15100,
+        34000,
+        11900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 82,
+      "hands": 13,
+      "actions": 806,
+      "points": [
+        9200,
+        21900,
+        23800,
+        45100
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 83,
+      "hands": 14,
+      "actions": 894,
+      "points": [
+        27100,
+        50800,
+        14800,
+        7300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 84,
+      "hands": 9,
+      "actions": 424,
+      "points": [
+        17600,
+        22900,
+        23000,
+        36500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 85,
+      "hands": 9,
+      "actions": 590,
+      "points": [
+        52700,
+        20200,
+        9500,
+        17600
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 86,
+      "hands": 16,
+      "actions": 1001,
+      "points": [
+        53000,
+        20700,
+        12800,
+        13500
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 87,
+      "hands": 4,
+      "actions": 223,
+      "points": [
+        44100,
+        42400,
+        -7900,
+        21400
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 88,
+      "hands": 12,
+      "actions": 730,
+      "points": [
+        62700,
+        19600,
+        -4900,
+        22600
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 89,
+      "hands": 10,
+      "actions": 621,
+      "points": [
+        9100,
+        25400,
+        16900,
+        48600
+      ],
+      "reason": "DEALER_AGARI_YAME"
+    },
+    {
+      "seed": 90,
+      "hands": 11,
+      "actions": 587,
+      "points": [
+        25600,
+        33100,
+        27400,
+        13900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 91,
+      "hands": 10,
+      "actions": 628,
+      "points": [
+        48900,
+        28800,
+        11200,
+        11100
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 92,
+      "hands": 9,
+      "actions": 494,
+      "points": [
+        14500,
+        19300,
+        17600,
+        48600
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 93,
+      "hands": 14,
+      "actions": 882,
+      "points": [
+        25600,
+        39700,
+        13100,
+        21600
+      ],
+      "reason": "EXTENSION_TARGET_REACHED"
+    },
+    {
+      "seed": 94,
+      "hands": 9,
+      "actions": 617,
+      "points": [
+        17400,
+        38600,
+        21800,
+        22200
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 95,
+      "hands": 8,
+      "actions": 497,
+      "points": [
+        -14900,
+        45500,
+        33600,
+        35800
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 96,
+      "hands": 10,
+      "actions": 608,
+      "points": [
+        27600,
+        23900,
+        -500,
+        49000
+      ],
+      "reason": "BANKRUPTCY"
+    },
+    {
+      "seed": 97,
+      "hands": 13,
+      "actions": 861,
+      "points": [
+        30000,
+        35100,
+        28300,
+        6600
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 98,
+      "hands": 10,
+      "actions": 608,
+      "points": [
+        40200,
+        8200,
+        32300,
+        19300
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 99,
+      "hands": 15,
+      "actions": 899,
+      "points": [
+        8200,
+        18000,
+        42900,
+        30900
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    },
+    {
+      "seed": 100,
+      "hands": 11,
+      "actions": 617,
+      "points": [
+        39100,
+        13800,
+        35400,
+        11700
+      ],
+      "reason": "SCHEDULE_COMPLETE"
+    }
+  ]
+}

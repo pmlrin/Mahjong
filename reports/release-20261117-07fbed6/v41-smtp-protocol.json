@@ -1,0 +1,11 @@
+{
+  "at": "2026-11-17T12:42:55.869Z",
+  "transport": "Local TLS SMTP server with test CA",
+  "tls": true,
+  "certificateValidation": true,
+  "rejectsUntrustedCertificate": true,
+  "rejectsWrongPassword": true,
+  "acceptedMessages": 1,
+  "realDirectMail": false,
+  "realQQDelivery": false
+}

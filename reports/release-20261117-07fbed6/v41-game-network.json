@@ -1,0 +1,44 @@
+{
+  "at": "2026-11-17T12:43:42.100Z",
+  "passed": true,
+  "version": "0.4.2",
+  "protocol": "2.0",
+  "rematches": 3,
+  "formats": [
+    "EAST_ONLY",
+    "HANCHAN"
+  ],
+  "combinations": [
+    "4+0",
+    "3+1",
+    "2+2",
+    "1+3"
+  ],
+  "restart": "SIGKILL",
+  "aiDiscardGapsMs": [
+    2003,
+    2002
+  ],
+  "serverLog": [
+    "{\"event\":\"DIAGNOSTIC\",\"diagnosticId\":\"761bb636-d07d-47f6-a13b-ae77b7551554\",\"appVersion\":\"0.4.2\",\"protocolVersion\":\"2.0\",\"rulesetId\":\"riichi-4p-v1.0\",\"roomId\":\"60e65e35-d8d4-44d5-833d-0e08289e3d14\",\"matchId\":\"0c6f9ac5-efd1-4aee-9ee4-658601191c57\",\"handId\":\"d682554b-f42b-4b0d-954d-51394c5e48a7\",\"phase\":\"MATCH_RESULT\",\"viewSeq\":508,\"serverEpoch\":1,\"serverTime\":1794919396542}",
+    "{\"event\":\"DIAGNOSTIC\",\"diagnosticId\":\"fc96ac93-39ce-4fe9-ad65-1fabed233f1c\",\"appVersion\":\"0.4.2\",\"protocolVersion\":\"2.0\",\"rulesetId\":\"riichi-4p-v1.0\",\"roomId\":\"60e65e35-d8d4-44d5-833d-0e08289e3d14\",\"matchId\":\"203f9698-a6c4-42e1-908f-12ad1a99d21b\",\"handId\":\"8fdbeb64-2054-49d9-ad09-80d9dfb7581c\",\"phase\":\"MATCH_RESULT\",\"viewSeq\":596,\"serverEpoch\":1,\"serverTime\":1794919400057}",
+    "{\"event\":\"SERVER_BUILD\",\"version\":\"0.4.2\",\"protocol\":\"2.0\",\"sourceSha256\":\"development\"}",
+    "{\"event\":\"HISTORY_BACKFILL\",\"indexed\":0,\"issues\":0,\"alreadyApplied\":true}",
+    "{\"event\":\"AUTH_MIGRATION\",\"alreadyApplied\":true,\"users\":0,\"sessions\":0,\"conflicts\":0}",
+    "Mahjong server http://127.0.0.1:3101",
+    "{\"event\":\"SERVER_BUILD\",\"version\":\"0.4.2\",\"protocol\":\"2.0\",\"sourceSha256\":\"development\"}",
+    "{\"event\":\"HISTORY_BACKFILL\",\"indexed\":0,\"issues\":0,\"alreadyApplied\":true}",
+    "{\"event\":\"AUTH_MIGRATION\",\"alreadyApplied\":true,\"users\":0,\"sessions\":0,\"conflicts\":0}",
+    "{\"event\":\"MATCH_ABORTED\",\"matchId\":\"affa1347-7454-4f5e-bbe9-5dbb4504625b\",\"reason\":\"TILE_CONSERVATION 137/136\"}",
+    "Mahjong server http://127.0.0.1:3101",
+    "{\"event\":\"SERVER_BUILD\",\"version\":\"0.4.2\",\"protocol\":\"2.0\",\"sourceSha256\":\"development\"}",
+    "{\"event\":\"HISTORY_BACKFILL\",\"indexed\":0,\"issues\":0,\"alreadyApplied\":true}",
+    "{\"event\":\"AUTH_MIGRATION\",\"alreadyApplied\":true,\"users\":0,\"sessions\":0,\"conflicts\":0}",
+    "Mahjong server http://127.0.0.1:3101",
+    "{\"event\":\"SERVER_BUILD\",\"version\":\"0.4.2\",\"protocol\":\"2.0\",\"sourceSha256\":\"development\"}",
+    "{\"event\":\"HISTORY_BACKFILL\",\"indexed\":0,\"issues\":0,\"alreadyApplied\":true}",
+    "{\"event\":\"AUTH_MIGRATION\",\"alreadyApplied\":true,\"users\":0,\"sessions\":0,\"conflicts\":0}",
+    "Mahjong server http://127.0.0.1:3101",
+    ""
+  ]
+}
