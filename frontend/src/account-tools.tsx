@@ -2,7 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { api } from "./api";
 import { Avatar } from "./Avatar";
 import { AvatarUpload } from "./avatar-upload";
-import type { SocialProfile, SocialCapabilities } from "../../shared/social";
+import {
+  uploadedAvatarSchema,
+  type SocialProfile,
+  type SocialCapabilities,
+} from "../../shared/social";
+const DAY = 86_400_000;
 export function AccountTools({
   userId,
   capabilities,
@@ -21,7 +26,8 @@ export function AccountTools({
     [password, setPassword] = useState(""),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [message, setMessage] = useState("");
+    [message, setMessage] = useState(""),
+    [clockSkew, setClockSkew] = useState(0);
   const flowId = useRef(crypto.randomUUID());
   const live = useRef(true),
     pending = useRef(new Map<string, { body: string; id: string }>());
@@ -32,17 +38,45 @@ export function AccountTools({
       live.current = false;
     };
   }, [userId]);
-  async function load() {
+  /** `reset` drops unsaved edits; an avatar upload keeps a half-typed name. */
+  async function load(reset = true) {
     try {
       const p = await api<SocialProfile>("/profile");
       if (!live.current) return;
       setProfile(p);
-      setName(p.displayName);
-      setAvatar(p.avatarId);
+      setClockSkew(Date.now() - p.serverTime);
+      if (reset) {
+        setName(p.displayName);
+        setAvatar(p.avatarId);
+      }
     } catch (e) {
       if (live.current) setError((e as Error).message);
     }
   }
+  function openEditor() {
+    if (!profile) return;
+    setName(profile.displayName);
+    setAvatar(profile.avatarId);
+    setError("");
+    setMessage("");
+    setUploading(false);
+    setEditing(true);
+    void load();
+  }
+  const renameUntil =
+      profile?.lastNicknameChangedAt == null
+        ? 0
+        : profile.lastNicknameChangedAt + DAY + clockSkew,
+    renameLocked = renameUntil > Date.now(),
+    renameAt = new Date(renameUntil).toLocaleString("zh-CN", {
+      month: "numeric",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    changed =
+      !!profile &&
+      (name.trim() !== profile.displayName || avatar !== profile.avatarId);
   async function run(fn: () => Promise<void>) {
     if (busy) return;
     setBusy(true);
@@ -83,46 +117,31 @@ export function AccountTools({
       {message && <p role="status">{message}</p>}
       {profile && (
         <>
-          <div className="person-line">
-            <Avatar id={profile.avatarId} />
-            <strong>{profile.displayName}</strong>
+          <div className="profile-head">
+            <Avatar id={profile.avatarId} label="我的头像" />
+            <div>
+              <strong>{profile.displayName}</strong>
+              <p>
+                好友码{" "}
+                <code>{profile.friendCode.match(/.{4}/g)?.join("-")}</code>{" "}
+                <button
+                  className="text-button"
+                  onClick={() =>
+                    run(async () => {
+                      await navigator.clipboard.writeText(profile.friendCode);
+                      setMessage("好友码已复制");
+                    })
+                  }
+                >
+                  复制
+                </button>
+              </p>
+            </div>
           </div>
-          <p>
-            好友码 <code>{profile.friendCode.match(/.{4}/g)?.join("-")}</code>{" "}
-            <button
-              className="text-button"
-              onClick={() =>
-                run(async () => {
-                  await navigator.clipboard.writeText(profile.friendCode);
-                  setMessage("好友码已复制");
-                })
-              }
-            >
-              复制
-            </button>
-          </p>
           <div className="social-actions">
-            {capabilities.profileEditing && (
-              <button
-                className="secondary"
-                onClick={() => {
-                  setEditing((v) => !v);
-                  setUploading(false);
-                }}
-              >
-                改名字或头像
-              </button>
-            )}
-            {capabilities.profileEditing && (
-              <button
-                className="secondary"
-                disabled={busy}
-                onClick={() => {
-                  setUploading((v) => !v);
-                  setEditing(false);
-                }}
-              >
-                上传照片做头像
+            {capabilities.profileEditing && !editing && (
+              <button className="secondary" onClick={openEditor}>
+                编辑资料
               </button>
             )}
             {capabilities.sessionManagement && (
@@ -137,11 +156,27 @@ export function AccountTools({
               </button>
             )}
           </div>
-          {editing && (
+          {editing && uploading && (
+            <AvatarUpload
+              version={profile.profileVersion}
+              onRefresh={() => load(false)}
+              onCancel={() => setUploading(false)}
+              onSaved={async (id) => {
+                await load(false);
+                if (!live.current) return;
+                setAvatar(id);
+                await onUpdated();
+                setUploading(false);
+                setMessage("头像已换好");
+              }}
+            />
+          )}
+          {editing && !uploading && (
             <form
               className="profile-editor"
               onSubmit={(e) => {
                 e.preventDefault();
+                if (!changed) return;
                 void run(async () => {
                   await call(
                     "/profile",
@@ -164,15 +199,35 @@ export function AccountTools({
                 名字
                 <input
                   value={name}
+                  maxLength={32}
+                  disabled={renameLocked}
                   onChange={(e) => setName(e.target.value)}
                   autoComplete="nickname"
                 />
               </label>
               <p className="muted">
-                名字每 24 小时可改一次；在房间或对局中时暂不能改。
+                {renameLocked
+                  ? `名字每 24 小时可改一次，${renameAt} 之后可以再改。`
+                  : `${[...name.trim()].length}/16 字。名字每 24 小时可改一次。`}
               </p>
               <div className="avatar-grid" role="group" aria-label="选一个头像">
-                {profile.avatars.map((a) => (
+                <button
+                  type="button"
+                  className="avatar-add"
+                  onClick={() => {
+                    setMessage("");
+                    setUploading(true);
+                  }}
+                >
+                  <span aria-hidden="true">＋</span>
+                  <span>上传照片</span>
+                </button>
+                {[
+                  ...(uploadedAvatarSchema.safeParse(profile.avatarId).success
+                    ? [{ id: profile.avatarId, name: "我的照片" }]
+                    : []),
+                  ...profile.avatars,
+                ].map((a) => (
                   <button
                     type="button"
                     key={a.id}
@@ -180,29 +235,30 @@ export function AccountTools({
                     aria-pressed={avatar === a.id}
                     onClick={() => setAvatar(a.id)}
                   >
-                    <Avatar id={a.id} />
+                    <Avatar id={a.id} label="" />
                     <span>{a.name}</span>
                   </button>
                 ))}
               </div>
-              <button className="primary" disabled={busy}>
-                保存
-              </button>
+              <p className="muted">在牌桌里时，资料要等离开后才能改。</p>
+              <div className="actions">
+                <button className="primary" disabled={busy || !changed}>
+                  {busy ? "正在保存…" : "保存"}
+                </button>
+                <button
+                  type="button"
+                  className="text-button"
+                  disabled={busy}
+                  onClick={() => {
+                    setEditing(false);
+                    setName(profile.displayName);
+                    setAvatar(profile.avatarId);
+                  }}
+                >
+                  取消
+                </button>
+              </div>
             </form>
-          )}
-          {uploading && (
-            <AvatarUpload
-              version={profile.profileVersion}
-              onRefresh={load}
-              onCancel={() => setUploading(false)}
-              onSaved={async () => {
-                await load();
-                if (!live.current) return;
-                await onUpdated();
-                setUploading(false);
-                setMessage("头像已换好");
-              }}
-            />
           )}
         </>
       )}

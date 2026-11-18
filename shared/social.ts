@@ -26,7 +26,8 @@ export const uploadedAvatarSchema = z
 export const avatarSchema = z.union([presetAvatarSchema, uploadedAvatarSchema]);
 export const AVATAR_SIZE = 256;
 export const AVATAR_MAX_UPLOAD_BYTES = 300 * 1024;
-export const AVATAR_MAX_SOURCE_BYTES = 5 * 1024 * 1024;
+/** Source photos are only decoded and cropped in the browser, so phone originals are fine. */
+export const AVATAR_MAX_SOURCE_BYTES = 30 * 1024 * 1024;
 export const nicknameSchema = z
   .string()
   .max(256)
