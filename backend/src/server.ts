@@ -47,6 +47,7 @@ import {
   advanceResult,
   assertInvariants,
   log,
+  handOverToAi,
   type GameState,
 } from "./engine.ts";
 import {
@@ -1075,6 +1076,7 @@ route("post", "/rooms/:roomId/leave", async (req, res) =>
       const { g, s } = await gameFor(r.matchId!, u.userId);
       g.players[s].desiredControl = "AI";
       log(g, "CONTROL_CHANGED", { seat: s, mode: "AI" });
+      handOverToAi(g, s);
       await save(g, null);
       return { left: true };
     }
@@ -1575,6 +1577,7 @@ ns.on("connection", (socket) => {
           fail("MATCH_NOT_RUNNING", "这场已经打完了");
         g.players[s].desiredControl = p.mode;
         log(g, "CONTROL_CHANGED", { seat: s, mode: p.mode });
+        if (p.mode === "AI") handOverToAi(g, s);
         const record = { hash, status: 200, data: { mode: p.mode } };
         await save(g, null, [{ kind: "http", id: key, data: record }]);
         httpReceipts.set(key, record);

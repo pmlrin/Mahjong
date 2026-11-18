@@ -334,6 +334,18 @@ function makeDecision(
     blocked: false,
   };
 }
+/**
+ * An explicit 托管 hands the seat's open, unanswered decision to the AI at once,
+ * instead of leaving it human-owned until the window times out.
+ */
+export function handOverToAi(g: GameState, s: Seat) {
+  const d = g.decisions[s];
+  if (!d || d.owner === "AI" || d.choice) return;
+  d.owner = "AI";
+  d.canSubmit = false;
+  d.disabledReason = "AI_OWNED";
+  d.blocked = false;
+}
 function selfWindow(g: GameState, s: Seat, afterCall: boolean, now: number) {
   g.phase = "SELF_ACTION";
   g.activeSeat = s;
