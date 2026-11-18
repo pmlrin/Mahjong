@@ -13,6 +13,7 @@ import {
   advanceResult,
 } from "../backend/src/engine.ts";
 import { chooseBot } from "../backend/src/bot.ts";
+import { MASTER_TUNE } from "../backend/src/bot-strong.ts";
 import {
   BOT_LEVELS,
   BOT_LEVEL_LABELS,
@@ -26,6 +27,9 @@ const count = Number(process.argv[2] ?? 200),
   format = (process.argv[3] ?? "EAST_ONLY") as MatchFormat,
   lineup = (process.argv[4]?.split(",") ?? BOT_LEVELS) as BotLevel[];
 if (!["EAST_ONLY", "HANCHAN"].includes(format)) throw Error("Unknown format");
+// Tuning: MASTER_TUNE='{"tax":0.02}' overrides MASTER's weights for this run.
+if (process.env.MASTER_TUNE)
+  Object.assign(MASTER_TUNE, JSON.parse(process.env.MASTER_TUNE));
 if (lineup.length !== 4 || lineup.some((l) => !BOT_LEVELS.includes(l)))
   throw Error("Lineup needs four levels");
 const levels = BOT_LEVELS.filter((l) => lineup.includes(l));

@@ -140,10 +140,10 @@ test("高级不为便宜的断幺拆掉门前一向听；初级、中级见能�
   for (const l of BOT_LEVELS) assert.equal(play(pon, l), "PON", l);
 });
 
-test("大师级知道立直后通过的牌是安全牌；高级只能拆字牌", () => {
-  // 对家第三巡立直。之后上家切过五索，没被荣和。
+test("大师级知道立直后通过的牌是安全牌；高级不知道", () => {
+  // 对家第三巡立直。之后上家切过五索、六筒，没被荣和。手里没有现物，只有六筒是通过的牌。
   const p: Position = {
-    hand: "m2378p46s23467z6" + "s5",
+    hand: "m2378p46s23467m5" + "s5",
     discards: {
       2: "z1z3m9s9z2z4",
       3: "z1z2z3m1s5p6",
@@ -152,15 +152,15 @@ test("大师级知道立直后通过的牌是安全牌；高级只能拆字牌",
     riichi: [2],
     riichiAt: { 2: 2 },
   };
-  assert.equal(play(p, "ADVANCED"), "DISCARD z6");
-  assert.equal(play(p, "MASTER"), "DISCARD s5");
-  // 若五索是立直之前切的，就不算安全。
+  assert.equal(play(p, "MASTER"), "DISCARD p6");
+  assert.notEqual(play(p, "ADVANCED"), "DISCARD p6");
+  // 若六筒是立直之前切的，就不算安全。
   const early: Position = {
     ...p,
     discards: { ...p.discards, 3: "s5p6z1z2z3m1" },
     riichiAt: { 2: 5 },
   };
-  assert.notEqual(play(early, "MASTER"), "DISCARD s5");
+  assert.notEqual(play(early, "MASTER"), "DISCARD p6");
 });
 
 test("大师级读壁：四张八筒都见了，九筒只剩单骑和双碰能中", () => {
@@ -249,4 +249,25 @@ test("四档同桌可以把半庄和东风战打完，点数与牌守恒，单�
     // The worker pool gives up on a decision after 3 s.
     assert(slowest < 1000, `slowest decision ${Math.round(slowest)}ms`);
   }
+});
+
+test("大师级用牌谱学到的放铳率：现物为零，筋与壁更安全，越到后面越危险", async () => {
+  const { learnedDanger, learnedTenpai, learnedLoss } =
+    await import("../backend/src/bot-learned.ts");
+  const seen = Array(34).fill(0);
+  seen[12] = 1;
+  // 五筒（kind 13）：两边都开、筋的一半、现物。
+  const open = learnedDanger(seen, new Set(), 13, 6)!,
+    half = learnedDanger(seen, new Set([10]), 13, 6)!,
+    genbutsu = learnedDanger(seen, new Set([13]), 13, 6);
+  assert(open > half, "筋的一半比两边都开安全");
+  assert.equal(genbutsu, 0);
+  assert(
+    learnedDanger(seen, new Set(), 13, 14)! > open,
+    "同一张牌，立直者舍牌越多越危险",
+  );
+  // 副露越多、舍牌越多，越可能已经听牌；庄家的立直更贵。
+  assert(learnedTenpai(2, 12) > learnedTenpai(1, 12));
+  assert(learnedTenpai(1, 12) > learnedTenpai(1, 3));
+  assert(learnedLoss.riichi(true) > learnedLoss.riichi(false));
 });
