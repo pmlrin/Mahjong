@@ -61,6 +61,7 @@ function App() {
     [network, setNetwork] = useState(false),
     [takeover, setTakeover] = useState(false),
     [sound, setSound] = useState(readLocalPreference("mj_sound") === "true"),
+    [music, setMusic] = useState(readLocalPreference("mj_music") === "true"),
     [replayTarget, setReplayTarget] = useState<{
       id: string;
       handId?: string;
@@ -443,6 +444,12 @@ function App() {
   useEffect(() => {
     if (sound) void loadSounds();
   }, [sound]);
+  function toggleMusic() {
+    setMusic((v) => {
+      writeLocalPreference("mj_music", String(!v));
+      return !v;
+    });
+  }
   function openReplay(id: string, handId?: string) {
     setReplayTarget({ id, handId });
     setScreen("replay");
@@ -615,6 +622,28 @@ function App() {
               ) : (
                 <path d="m16 9.5 5 5m0-5-5 5" />
               )}
+            </svg>
+          </button>
+          <button
+            className="icon-button"
+            onClick={toggleMusic}
+            aria-label={music ? "关闭牌桌音乐" : "打开牌桌音乐"}
+            aria-pressed={music}
+            title={music ? "牌桌音乐：开" : "牌桌音乐：关"}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 17.5V6l10-2v11.5" />
+              <circle cx="6.5" cy="17.5" r="2.5" />
+              <circle cx="16.5" cy="15.5" r="2.5" />
+              {!music && <path d="m3.5 3.5 17 17" />}
             </svg>
           </button>
         </div>
@@ -1049,6 +1078,7 @@ function App() {
           onRematch={room?.hostUserId === me?.userId ? rematch : undefined}
           onReplay={() => openReplay(view.matchId)}
           sound={sound}
+          music={music}
         />
       ) : screen === "rules" ? (
         <Rules onBack={() => setScreen(view ? "game" : "home")} />

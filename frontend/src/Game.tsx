@@ -21,6 +21,8 @@ import { frameEvents } from "./match-events";
 import { useReducedMotion } from "./motion";
 import { CallStamps, type PlayStep } from "./CallStamps";
 import { playEvents, playSound } from "./sounds";
+import { duckMusic, setMusicMood, startMusic, stopMusic } from "./music";
+import { musicMood } from "./music-score";
 import { DISCARD_LANDS_AFTER, RESULT_HOLD } from "./table3d/timing";
 import { CallChoices, ResponseSource } from "./turn-feedback";
 import { responseTarget } from "../../shared/game-feedback";
@@ -75,6 +77,7 @@ export function Game({
   onRematch,
   onReplay,
   sound = false,
+  music = false,
 }: {
   view: MatchView;
   userId: string;
@@ -90,6 +93,8 @@ export function Game({
   onReplay: () => void;
   /** Table sounds are on (the player's setting; off by default). */
   sound?: boolean;
+  /** Table music is on (the player's setting; off by default). */
+  music?: boolean;
 }) {
   const controls = useTableActions({
     frame,
@@ -106,6 +111,13 @@ export function Game({
   // Each step of play, read from what changed since the last view: it drives
   // the stamps and the sounds.
   const heard = useRef(frame);
+  const mood = musicMood(v);
+  useEffect(() => setMusicMood(mood), [mood]);
+  useEffect(() => {
+    if (!music) return;
+    startMusic();
+    return stopMusic;
+  }, [music]);
   const reduce = useReducedMotion();
   const [step, setStep] = useState<PlayStep | null>(null);
   // While a hand's end plays out, its result panel waits (handId held).
@@ -140,6 +152,8 @@ export function Game({
       );
     }
     if (!sound) return;
+    if (events.some((e) => ["riichi", "win", "draw"].includes(e.type)))
+      duckMusic();
     // On the moving 3D table a discard sounds as the tile lands.
     const flying = table.active === "3d" && !reduce;
     const land = events.some((e) => e.type === "discard")
