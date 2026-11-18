@@ -1,0 +1,25 @@
+{
+  "at": "2026-11-18T05:49:30.836Z",
+  "humans": 4,
+  "humanDescription": "scripted HUMAN; no real participants",
+  "layer": "production controller + rule engine, in-memory transport; not a browser or public network match",
+  "bots": 0,
+  "actions": 340,
+  "hands": 4,
+  "entries": {
+    "quick": 64,
+    "keyboard": 85,
+    "autoDiscard": 121,
+    "noCall": 30,
+    "choice": 38
+  },
+  "points": [
+    39700,
+    19400,
+    22900,
+    18000
+  ],
+  "reason": "SCHEDULE_COMPLETE",
+  "elapsedMs": 973,
+  "invariants": "checked after every action, including before acknowledgements"
+}

@@ -1,0 +1,39 @@
+{
+  "at": "2026-11-18T05:47:19.358Z",
+  "scope": "real browser events against production Game with deterministic authority/transport fixture",
+  "browsers": [
+    {
+      "name": "chromium",
+      "version": "157.0.8103.79",
+      "passed": [
+        "defaults and normal select-confirm",
+        "quick click exact red copy; double click and duplicate frame stay locked",
+        "quick riichi selects then confirms",
+        "keyboard always selects then Enter; held Enter cannot cross decision",
+        "keys work with nothing focused, without a click first",
+        "keyboard native tile activation selects without quick discard or dual activation",
+        "call opens first, arrows choose physical consumption, new Enter confirms",
+        "W and Space confirmations, cancel default and Escape never PASS",
+        "input focus, composing input and modifiers isolate shortcuts",
+        "pointer drag >8px, cross-tile, cancel, secondary and multi-touch never discard",
+        "auto-discard waits 500ms; manual selection cancels without rerender rearming",
+        "no-call PASS, RON preservation and disabled call entries",
+        "special choices and near-deadline do not auto-discard",
+        "blur and disconnect disable automatic modes, and resume never reenables",
+        "lost ack plus receipt 404 never unlocks or generates another intent",
+        "quick preference survives remount while automatic modes reset",
+        "unavailable browser preference and recovery storage still allow manual play",
+        "touchscreen tap exact physical tile at 390px (emulated)"
+      ],
+      "count": 18,
+      "consoleErrors": []
+    },
+    {
+      "name": "webkit",
+      "available": false,
+      "reason": "Error: browserType.launch: Executable doesn't exist at /Users/yangjm/Library/Caches/ms-playwright/webkit-2336/pw_run.sh"
+    }
+  ],
+  "devices": "emulation only; no physical device or Windows verification",
+  "deployment": false
+}

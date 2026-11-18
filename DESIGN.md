@@ -5,19 +5,19 @@
 ## System
 - Genre: playful
 - Shape of the first page: app screen
-- Theme: custom（靛染：靛蓝桌面配杏色点缀，2026-11-10 由项目负责人从三套真实页面候选中选定）
-- Axes: light/roman-serif/cool · posture: committed（靛蓝是唯一的大面积色）
+- Theme: custom（海天：深海青桌面配向日葵黄点缀，2026-11-18 由项目负责人改用 yangjm.cn 站点配色；此前为 2026-11-10 选定的靛染）
+- Axes: light/roman-serif/cool · posture: committed（深海青是唯一的大面积色）
 
 ## Tokens
 `frontend/src/tokens.css` 是唯一来源。角色如下：
 ```css
 :root {
-  --color-paper: oklch(96.5% 0.012 80);  --color-paper-2: oklch(93.5% 0.016 80);  --color-paper-3: oklch(89.5% 0.02 80);
-  --color-ink: oklch(26% 0.04 262);  --color-ink-2: oklch(37% 0.045 260);  --color-muted: oklch(48% 0.035 255);  --color-rule: oklch(87% 0.018 85);
-  --color-accent: oklch(40% 0.1 262);  --color-accent-ink: oklch(97% 0.012 85);  --color-focus: oklch(50% 0.13 55);
-  --color-felt: oklch(37% 0.085 258);  --color-felt-deep: oklch(26% 0.06 262);  --color-felt-ink: oklch(96% 0.012 85);
-  --color-signal: oklch(80% 0.125 68);  --color-seal: oklch(54% 0.17 35);
-  --tile-face: oklch(97.5% 0.012 85);  --tile-side: oklch(72% 0.09 70);  --tile-back: oklch(72% 0.1 68);
+  --color-paper: oklch(98.7% 0.006 215);  --color-paper-2: oklch(96% 0.017 215);  --color-paper-3: oklch(92.8% 0.027 215);
+  --color-ink: oklch(25% 0.05 240);  --color-ink-2: oklch(37% 0.045 238);  --color-muted: oklch(49% 0.035 232);  --color-rule: oklch(88.5% 0.022 220);
+  --color-accent: oklch(49% 0.12 228);  --color-accent-ink: oklch(98.7% 0.006 215);  --color-focus: oklch(50% 0.16 232);
+  --color-felt: oklch(41% 0.085 222);  --color-felt-deep: oklch(25% 0.05 238);  --color-felt-ink: oklch(98.7% 0.006 215);
+  --color-signal: oklch(87% 0.16 92);  --color-seal: oklch(56% 0.17 32);
+  --tile-face: oklch(98.5% 0.008 95);  --tile-side: oklch(82% 0.12 90);  --tile-back: oklch(80% 0.13 88);
   --font-display: "Songti SC", "Noto Serif CJK SC", serif;  --font-body: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
   --radius-card: 8px;  --radius-control: 6px;  --radius-tile: 4px;  --radius-table: 16px;  --rule-hair: 1px;
 }
@@ -25,15 +25,15 @@
 间距、字号、缓动和时长也都在 `tokens.css`。不引入外部字体，中文走系统字栈。
 
 ## 用色规则
-- 靛蓝只给牌桌本身：首页舞台、房间桌面、对局桌面、回放和牌形示例；深海军蓝是桌沿、导航和中央局况。
-- 主色和点缀色都收住饱和度（靛蓝 C≈0.085，杏色 C≈0.125），不要把两个高饱和色贴在一起大面积使用。
-- 杏色只表示“该你、选中、桌沿内的主操作、已准备”，也是牌背和牌的底层；柿红只表示立直、和牌和告急。
+- 深海青只给牌桌本身：首页舞台、房间桌面、对局桌面、回放和牌形示例；夜海军蓝是桌沿、导航和中央局况。
+- 主色和点缀色都收住饱和度（深海青 C≈0.085，向日葵黄只做小面积点缀），不要把两个高饱和色贴在一起大面积使用。
+- 向日葵黄只表示“该你、选中、桌沿内的主操作、已准备”，也是牌背和牌的底层；柿红只表示立直、和牌和告急。
 - 放在牌毡或导航上的区域把 `--color-focus` 换成近白的 `--color-focus-felt`，放回纸面时换回 `--color-focus-paper`。
-- 选中牌靠抬起加杏色底条，键盘焦点靠近白外圈，两者不能只靠颜色区分。
+- 选中牌靠抬起加黄色底条，键盘焦点靠近白外圈，两者不能只靠颜色区分。
 - 改配色时检查界面文案里有没有提到具体颜色（规则页里有）。
 
 ## Controls
-- Primary：靛蓝填充，牌桌操作区内为杏色，和牌按钮为柿红；圆角 `--radius-control`；高度 `--control-h`（40px，粗指针 44px）
+- Primary：海蓝填充，牌桌操作区内为向日葵黄，和牌按钮为柿红；圆角 `--radius-control`；高度 `--control-h`（40px，粗指针 44px）
 - Secondary：描边，同圆角同高度
 - 每屏一个填充主按钮；禁用态同时改填充、墨色和指针
 

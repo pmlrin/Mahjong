@@ -110,7 +110,7 @@ export function RulesPage({ onBack }: { onBack: () => void }) {
             winning: "m4",
           }}
         />
-        <p>四组面子加一对雀头。杏色标记的是和牌的那张；这副牌还满足断幺九、平和。</p>
+        <p>四组面子加一对雀头。黄色标记的是和牌的那张；这副牌还满足断幺九、平和。</p>
       </section>
       <button
         className="yaku-toggle primary"
@@ -133,7 +133,7 @@ export function RulesPage({ onBack }: { onBack: () => void }) {
             <div>
               <h2>全部役种，一副牌看懂</h2>
               <p>
-                示例牌可能同时成立别的役，标出的番数只算这一役。杏色底的一组是副露；杠虽四张，仍算一组面子。
+                示例牌可能同时成立别的役，标出的番数只算这一役。黄底的一组是副露；杠虽四张，仍算一组面子。
               </p>
             </div>
             <label>

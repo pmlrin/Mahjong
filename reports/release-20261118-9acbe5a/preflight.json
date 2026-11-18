@@ -1,0 +1,12 @@
+{
+  "instance_id": "i-m5e4p130e52sfxmngh08",
+  "session_id": "s-1lvx74aaewz8w9i5p",
+  "request_id": "r-1794980865074692000",
+  "command": "test ! -e /opt/mahjong/releases/20261118-production-9acbe5a && test ! -e /tmp/mahjong-20261118-production-9acbe5a.tgz && test ! -e /opt/mahjong/maintenance-v3-production && systemctl show mahjong.service -p DropInPaths -p ReadWritePaths",
+  "exit_code": 0,
+  "stdout": "ReadWritePaths=/opt/mahjong/releases/20261117-production-07fbed6 /opt/mahjong/mail-budget\nDropInPaths=/etc/systemd/system/mahjong.service.d/v3-20261101.conf /etc/systemd/system/mahjong.service.d/v4-20261102.conf /etc/systemd/system/mahjong.service.d/v41-20261102.conf /etc/systemd/system/mahjong.service.d/v42-20261112.conf /etc/systemd/system/mahjong.service.d/z-release-20261117.conf /etc/systemd/system/mahjong.service.d/zz-release-20261117-07fbed6.conf\n",
+  "output": "ReadWritePaths=/opt/mahjong/releases/20261117-production-07fbed6 /opt/mahjong/mail-budget\nDropInPaths=/etc/systemd/system/mahjong.service.d/v3-20261101.conf /etc/systemd/system/mahjong.service.d/v4-20261102.conf /etc/systemd/system/mahjong.service.d/v41-20261102.conf /etc/systemd/system/mahjong.service.d/v42-20261112.conf /etc/systemd/system/mahjong.service.d/z-release-20261117.conf /etc/systemd/system/mahjong.service.d/zz-release-20261117-07fbed6.conf\n",
+  "stderr": "",
+  "started_at": "2026-11-18T14:47:45+09:00",
+  "duration": "407ms"
+}

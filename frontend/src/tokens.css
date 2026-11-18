@@ -5,38 +5,40 @@
   --text-hero: clamp(2.75rem, 1.8rem + 3.6vw, 4.75rem);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
-  --color-error: oklch(48% 0.16 30); --color-success: oklch(44% 0.09 160);
+  --color-error: oklch(48% 0.16 30); --color-success: oklch(44% 0.09 165);
   --container: 1360px; --gutter: 64px; --gap-columns: 32px; --section-gap-s: 120px; --section-gap: 144px; --section-gap-l: 176px;
   --z-base: 1; --z-raised: 10; --z-dropdown: 100; --z-sticky: 200; --z-sticky-nav: 300; --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
 
-  /* Paper: warm cream carrying information, inked in navy. */
-  --color-paper: oklch(96.5% 0.012 80); --color-paper-2: oklch(93.5% 0.016 80); --color-paper-3: oklch(89.5% 0.02 80);
-  --color-ink: oklch(26% 0.04 262); --color-ink-2: oklch(37% 0.045 260); --color-muted: oklch(48% 0.035 255);
-  --color-rule: oklch(87% 0.018 85);
-  --color-accent: oklch(40% 0.1 262); --color-accent-hover: oklch(34% 0.09 262); --color-accent-ink: oklch(97% 0.012 85); --color-focus: oklch(50% 0.13 55); --color-focus-paper: oklch(50% 0.13 55);
-  --color-link: oklch(37% 0.1 262);
+  /* Paper: sky-washed white carrying information, inked in deep sea navy (yangjm.cn palette). */
+  --color-paper: oklch(98.7% 0.006 215); --color-paper-2: oklch(96% 0.017 215); --color-paper-3: oklch(92.8% 0.027 215);
+  --color-surface: oklch(99.6% 0.003 215);
+  --color-ink: oklch(25% 0.05 240); --color-ink-2: oklch(37% 0.045 238); --color-muted: oklch(49% 0.035 232);
+  --color-rule: oklch(88.5% 0.022 220);
+  --color-accent: oklch(49% 0.12 228); --color-accent-hover: oklch(43% 0.11 230); --color-accent-ink: oklch(98.7% 0.006 215); --color-focus: oklch(50% 0.16 232); --color-focus-paper: oklch(50% 0.16 232);
+  --color-link: oklch(46% 0.12 228);
 
-  /* The table is indigo; its rail, the nav and the centre plate are deep navy. */
-  --color-felt: oklch(37% 0.085 258); --color-felt-deep: oklch(26% 0.06 262); --color-felt-raised: oklch(44% 0.08 258); --color-felt-rule: oklch(65% 0.07 255);
-  --color-felt-ink: oklch(96% 0.012 85); --color-felt-ink-2: oklch(87% 0.03 250);
-  --color-focus-felt: oklch(96% 0.02 85);
-  /* The table's walnut rail and the brass line that trims the felt. */
-  --table-rail: oklch(39% 0.065 48); --table-rail-deep: oklch(27% 0.05 42); --table-rail-light: oklch(50% 0.07 55); --table-trim: oklch(77% 0.1 82);
-  --color-nav-ink-2: oklch(87% 0.03 250);
+  /* The table is deep sea teal; its rail, the nav and the centre plate are night navy. */
+  --color-felt: oklch(41% 0.085 222); --color-felt-deep: oklch(25% 0.05 238); --color-felt-raised: oklch(48% 0.085 218); --color-felt-rule: oklch(70% 0.08 212);
+  --color-felt-ink: oklch(98.7% 0.006 215); --color-felt-ink-2: oklch(86% 0.04 212);
+  --color-focus-felt: oklch(82% 0.13 205);
+  --color-sky: oklch(80% 0.11 210);
+  /* The table's walnut rail and the sunflower line that trims the felt. */
+  --table-rail: oklch(39% 0.065 48); --table-rail-deep: oklch(27% 0.05 42); --table-rail-light: oklch(50% 0.07 55); --table-trim: oklch(84% 0.13 90);
+  --color-nav-ink-2: oklch(86% 0.04 212);
 
-  /* Signals: apricot marks yours or chosen; persimmon is riichi, the win and the last seconds. */
-  --color-signal: oklch(80% 0.125 68); --color-signal-hover: oklch(85% 0.11 70); --color-signal-ink: oklch(26% 0.06 262); --color-signal-wash: oklch(93% 0.045 75); --color-signal-deep: oklch(52% 0.12 55);
-  --color-seal: oklch(54% 0.17 35); --color-seal-hover: oklch(59% 0.17 35); --color-seal-ink: oklch(98% 0.01 80);
-  --color-riichi: oklch(54% 0.17 35); --color-riichi-ink: oklch(98% 0.01 80);
-  --color-warn-wash: oklch(93% 0.045 75); --color-warn-ink: oklch(36% 0.07 55);
-  --color-error-wash: oklch(94% 0.03 35); --color-success-wash: oklch(93% 0.04 160);
-  --color-scrim: oklch(18% 0.04 262 / 0.66);
-  --color-shadow: oklch(22% 0.04 262 / 0.18);
+  /* Signals: sunflower marks yours or chosen; persimmon is riichi, the win and the last seconds. */
+  --color-signal: oklch(87% 0.16 92); --color-signal-hover: oklch(90% 0.14 94); --color-signal-ink: oklch(24% 0.05 75); --color-signal-wash: oklch(95.5% 0.06 95); --color-signal-deep: oklch(55% 0.12 80);
+  --color-seal: oklch(56% 0.17 32); --color-seal-hover: oklch(61% 0.17 32); --color-seal-ink: oklch(98.7% 0.006 215);
+  --color-riichi: oklch(56% 0.17 32); --color-riichi-ink: oklch(98.7% 0.006 215);
+  --color-warn-wash: oklch(95.5% 0.06 95); --color-warn-ink: oklch(38% 0.07 75);
+  --color-error-wash: oklch(95% 0.03 30); --color-success-wash: oklch(95% 0.04 165);
+  --color-scrim: oklch(17% 0.028 240 / 0.66);
+  --color-shadow: oklch(25% 0.05 240 / 0.16);
 
-  /* Tiles: bone face over an apricot bamboo layer, suits in muted lacquer inks. */
-  --tile-face: oklch(97.5% 0.012 85); --tile-face-dim: oklch(89% 0.014 85); --tile-edge: oklch(84% 0.018 85); --tile-side: oklch(72% 0.09 70);
-  --tile-back: oklch(72% 0.1 68); --tile-back-edge: oklch(60% 0.1 65); --tile-back-side: oklch(50% 0.09 60); --tile-back-ink: oklch(52% 0.09 60);
-  --tile-ink: oklch(28% 0.03 262); --tile-red: oklch(52% 0.16 30); --tile-green: oklch(46% 0.09 165); --tile-blue: oklch(38% 0.09 258);
+  /* Tiles: bone face over a sunflower bamboo layer, suits in lacquer inks. */
+  --tile-face: oklch(98.5% 0.008 95); --tile-face-dim: oklch(90% 0.012 95); --tile-edge: oklch(86% 0.016 95); --tile-side: oklch(82% 0.12 90);
+  --tile-back: oklch(80% 0.13 88); --tile-back-edge: oklch(68% 0.12 82); --tile-back-side: oklch(56% 0.1 78); --tile-back-ink: oklch(58% 0.1 78);
+  --tile-ink: oklch(25% 0.05 240); --tile-red: oklch(52% 0.17 28); --tile-green: oklch(47% 0.1 165); --tile-blue: oklch(42% 0.11 232);
 
   --font-display: "Songti SC", "STSong", "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", ui-serif, serif;
   --font-body: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC", ui-sans-serif, system-ui, sans-serif;
