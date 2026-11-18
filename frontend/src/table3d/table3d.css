@@ -284,3 +284,14 @@
     top: calc(var(--hand-top) - 34px);
   }
 }
+
+/* Fullscreen play (use-fullscreen.ts): no site header above, so the canvas
+   takes everything under the top line. */
+.table-fullscreen .play-stage {
+  --table-3d-h: min(max(420px, calc(100dvh - 52px)), calc(100cqw / 1.45));
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  .table-fullscreen .play-stage {
+    --table-3d-h: max(240px, calc(100dvh - 36px));
+  }
+}

@@ -392,6 +392,9 @@ input[type="range"] { accent-color: var(--color-accent); }
 .game-topline > span:first-child { display: flex; align-items: center; gap: var(--space-xs); }
 .game-topline .text-button { min-height: 36px; font-size: var(--text-xs); }
 .portrait-hint { display: none; }
+/* Fullscreen play: the site header steps aside and the table takes the whole screen. */
+.table-fullscreen .game-app > .header { display: none; }
+.table-fullscreen .play-page { max-width: none; padding-bottom: var(--space-xs); }
 
 .game-table.table-layout {
   --river-max: clamp(22px, 3.3vh, 28px);

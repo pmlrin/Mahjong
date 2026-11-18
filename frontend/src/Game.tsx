@@ -16,6 +16,7 @@ import {
 import { Avatar } from "./Avatar";
 import { Tile } from "./Tile";
 import { TableView, useTableMode } from "./TableView";
+import { useFullscreen } from "./use-fullscreen";
 import { createAnchorStore, handTop } from "./hand-anchors";
 import { frameEvents } from "./match-events";
 import { useReducedMotion } from "./motion";
@@ -108,6 +109,7 @@ export function Game({
   });
   const a = controls.actions;
   const table = useTableMode(userId);
+  const fullscreen = useFullscreen();
   // Each step of play, read from what changed since the last view: it drives
   // the stamps and the sounds.
   const heard = useRef(frame);
@@ -256,6 +258,13 @@ export function Game({
             {table.active === "3d" ? "换成平面牌桌" : "换成 3D 牌桌"}
           </button>
         )}
+        <button
+          className="text-button"
+          aria-pressed={fullscreen.on}
+          onClick={() => fullscreen.toggle()}
+        >
+          {fullscreen.on ? "退出全屏" : "全屏打牌"}
+        </button>
         <button
           className="text-button"
           onClick={() => {
