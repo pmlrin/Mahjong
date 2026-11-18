@@ -503,6 +503,33 @@ test(
         },
       );
       await checkedTest(
+        "switching to AI 托管 hands the open decision to the AI at once",
+        async () => {
+          const c = client();
+          await c.login("hand-over");
+          const { matchId } = await makeRoom([c]);
+          await until(() => !!c.frame?.state.self.decision?.canSubmit, 30000);
+          const open = c.frame!.state.self.decision!;
+          const r = await c.emit("game:control", {
+            matchId,
+            bindingId: c.binding,
+            mode: "AI",
+          });
+          assert.equal(r.data.mode, "AI");
+          // The window lasts 15s; waiting for its timeout would fail this bound.
+          await until(
+            () => c.frame!.state.self.decision?.decisionId !== open.decisionId,
+            5000,
+          );
+          await c.emit("game:control", {
+            matchId,
+            bindingId: c.binding,
+            mode: "HUMAN",
+          });
+          c.close();
+        },
+      );
+      await checkedTest(
         "1+3 / 2+2 / 3+1 humans and bots complete full matches",
         async () => {
           await Promise.all(
