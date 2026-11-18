@@ -556,9 +556,9 @@ function App() {
     <div className={`app ${screen === "game" ? "game-app" : ""}`}>
       <header className="header">
         <button className="brand" onClick={() => setScreen("home")}>
-          <span className="brand-seal">一</span>
+          <span className="brand-seal">烛</span>
           <span>
-            一桌<span className="brand-en">Ichitaku</span>
+            明烛<span className="brand-en">Mingzhu</span>
           </span>
         </button>
         <nav>
@@ -691,21 +691,21 @@ function App() {
         </p>
       )}
       {boot ? (
-        <main className="loading">正在为你留座…</main>
+        <main className="loading">掸掸雪，正在为你留座…</main>
       ) : screen === "home" ? (
         <main className="lounge">
           <section className="lounge-stage">
             <div className="lounge-inner">
               <div className="hero-copy">
                 <h1>
-                  好牌局，
+                  山上落雪，
                   <br />
-                  从一桌开始。
+                  桌边点灯。
                 </h1>
                 <p className="intro">
-                  邀上朋友，打开即玩；
+                  发一条链接，朋友推门就坐；
                   <br />
-                  人不够，AI 补位。
+                  缺一家，请假想妖来凑。
                 </p>
               </div>
               {!me ? (
@@ -716,7 +716,7 @@ function App() {
                     login();
                   }}
                 >
-                  <h2>留个名字，就能入座</h2>
+                  <h2>留个名字，进屋坐</h2>
                   <div className="entry-row">
                     <input
                       id="nickname"
@@ -731,7 +731,7 @@ function App() {
                       入座
                     </button>
                   </div>
-                  <small>不必注册。关掉页面再回来，座位还在。</small>
+                  <small>不必注册。关了页面再回来，灯和座位都还在。</small>
                   <div className="account-shortcuts">
                     <button
                       type="button"
@@ -745,13 +745,13 @@ function App() {
                 </form>
               ) : (
                 <div className="entry-card">
-                  <h2>今天，打一桌？</h2>
+                  <h2>灯还亮着，来一局？</h2>
                   <p className="guest-hint">
                     {me.identityKind === "ACCOUNT" ? (
-                      `${me.displayName}，欢迎回来。`
+                      `${me.displayName}，回来啦，座位给你焐着。`
                     ) : (
                       <>
-                        以游客身份入座。
+                        你现在是游客。
                         {capabilities?.auth?.registration && (
                           <>
                             <button
@@ -776,7 +776,7 @@ function App() {
                       capabilities.maintenance
                     }
                   >
-                    开一桌
+                    点灯开桌
                   </button>
                   <div className="join-line">
                     <input
@@ -824,21 +824,21 @@ function App() {
           </section>
           <div className="lounge-bottom">
             <div className="lounge-note">
-              <h2>把时间留给牌局</h2>
-              <p>不必下载，不必久等。</p>
+              <h2>把夜晚留给牌局</h2>
+              <p>不必下载，不必久等。外头风雪再大，这里总有一盏灯。</p>
             </div>
             <div className="lounge-feature">
-              <h3>一条链接，即可入座</h3>
+              <h3>一条链接，推门就坐</h3>
               <p>
-                开桌后把邀请链接发给朋友，点开便坐到你身边。少一个人，就请 AI
-                补上。
+                开桌后把邀请链接发给朋友，点开便坐到你身边。缺一家，就请假想妖补上：它们是会打牌的
+                AI，朋友一到就让座。
               </p>
             </div>
             <div className="lounge-feature">
               <h3>一张有纵深的牌桌</h3>
               <p>
                 横屏即是 3D
-                牌桌。快速出牌、自动摸切、不鸣牌，一键开关，手里从容。
+                牌桌。快速出牌、自动摸切、不鸣牌，一键开关，出牌像变一个练熟了的小魔术。
               </p>
             </div>
           </div>
@@ -846,7 +846,11 @@ function App() {
       ) : screen === "room" && room ? (
         <main className="room-page">
           <div className="page-title">
-            <h1>这一桌，等你到齐。</h1>
+            <h1>
+              灯点着，
+              <br />
+              等你们到齐。
+            </h1>
           </div>
           <div className="seats">
             <div className="room-center">
@@ -915,7 +919,7 @@ function App() {
                 <div className="seat-avatar">
                   {m ? (
                     m.participantKind === "BOT" ? (
-                      "竹"
+                      "妖"
                     ) : (
                       <Avatar id={m.avatarId} />
                     )
@@ -927,9 +931,9 @@ function App() {
                 <p>
                   {m
                     ? m.participantKind === "BOT"
-                      ? `AI 牌友，${botLevelLabel(m.botLevel)}`
+                      ? `假想妖，${botLevelLabel(m.botLevel)}`
                       : `${m.userId === room.hostUserId ? "房主，" : ""}${m.userId === me?.userId ? "你" : m.connected ? "在线" : "暂离"}`
-                    : "邀一位朋友，或请 AI 入座"}
+                    : "邀一位朋友，或请假想妖来坐"}
                 </p>
                 <div className="seat-controls">
                   {m ? (
@@ -943,7 +947,7 @@ function App() {
                             <label>
                               档位{" "}
                               <select
-                                aria-label={`${i + 1} 号位 AI 档位`}
+                                aria-label={`${i + 1} 号位假想妖档位`}
                                 value={m.botLevel ?? "STANDARD"}
                                 disabled={busy}
                                 onChange={(e) =>
@@ -977,7 +981,7 @@ function App() {
                       <label>
                         档位{" "}
                         <select
-                          aria-label={`${i + 1} 号位请 AI 入座的档位`}
+                          aria-label={`${i + 1} 号位请假想妖入座的档位`}
                           value={inviteLevels[i] ?? "STANDARD"}
                           disabled={busy}
                           onChange={(e) =>
@@ -1006,11 +1010,11 @@ function App() {
                           })
                         }
                       >
-                        请 AI 入座
+                        请假想妖入座
                       </button>
                     </>
                   ) : (
-                    <span className="muted">等朋友入座</span>
+                    <span className="muted">等朋友推门</span>
                   )}
                 </div>
               </section>
@@ -1075,7 +1079,7 @@ function App() {
             )}
           </div>
           <p className="room-footnote">
-            众人准备后，由房主开局。换人、改赛制或调 AI 档位后，需重新准备。
+            众人准备后，由房主开局。换人、改赛制或调假想妖档位后，需重新准备。
           </p>
         </main>
       ) : screen === "game" && view ? (
@@ -1165,7 +1169,7 @@ function App() {
       )}
       {screen !== "game" && (
         <footer>
-          <span>一桌，与好友的四人立直麻将。</span>
+          <span>明烛，雪夜里和朋友打的四人立直麻将。</span>
         </footer>
       )}
     </div>
@@ -1301,8 +1305,8 @@ function Replay({
           <h1>牌谱</h1>
           <p className="page-sub">
             {data
-              ? formatName(data.format ?? "EAST_ONLY") + "，再看一次那时的选择"
-              : "再看一次那时的选择"}
+              ? formatName(data.format ?? "EAST_ONLY") + "，灯下再看一遍那时的选择"
+              : "灯下再看一遍那时的选择"}
           </p>
         </div>
       </div>

@@ -26,13 +26,13 @@ export function seatStatus(v: MatchView, s: Seat) {
   return hand.phase === "SELF_ACTION" &&
     hand.activeSeat === s &&
     p.effectiveControl === "AI"
-    ? `${level} AI 思考中…`
+    ? `${level}假想妖思考中…`
     : p.participantKind === "BOT"
-      ? `AI 牌友 · ${level}`
+      ? `假想妖 · ${level}`
       : !p.connected
-        ? `暂离，${level} AI 托管中`
+        ? `暂离，${level}假想妖托管中`
         : p.effectiveControl === "AI"
-          ? `${level} AI 托管中`
+          ? `${level}假想妖托管中`
           : "在线";
 }
 
@@ -61,7 +61,7 @@ export function PlayerPlate({
         {p.displayName}
         <small>
           {self
-            ? `你${v.self.desiredControl === "AI" ? `，${seatBotLevel(v, s)} AI 托管中` : ""}${h.riichi !== "NONE" ? "，已立直" : ""}`
+            ? `你${v.self.desiredControl === "AI" ? `，${seatBotLevel(v, s)}假想妖托管中` : ""}${h.riichi !== "NONE" ? "，已立直" : ""}`
             : seatStatus(v, s)}
         </small>
       </span>

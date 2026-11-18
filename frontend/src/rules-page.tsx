@@ -59,8 +59,8 @@ export function RulesPage({ onBack }: { onBack: () => void }) {
       <button className="text-button" onClick={onBack}>
         返回
       </button>
-      <h1>几分钟，认识这一桌</h1>
-      <p className="page-sub">落座之前</p>
+      <h1>几分钟，认识这副牌</h1>
+      <p className="page-sub">落座之前，先暖暖手</p>
       <p className="rules-lead">
         四人立直麻将：把手牌凑成和牌形，且至少有一个役，就能和牌。
       </p>
@@ -216,7 +216,7 @@ export function RulesPage({ onBack }: { onBack: () => void }) {
       )}
       <div className="rules-note">
         <p>
-          出牌限时 15 秒，吃碰杠与荣和的应答 8 秒。掉线不会让牌局停下，期间由中级 AI 托管，重连后即可接着打。AI 牌友分初级、中级、高级、大师级四档，开桌时由房主选定。
+          出牌限时 15 秒，吃碰杠与荣和的应答 8 秒。掉线不会让牌局停下，期间由中级假想妖托管，重连后即可接着打。假想妖就是 AI 牌友，分初级、中级、高级、大师级四档，开桌时由房主选定。
         </p>
         <p>一场打完，同桌的人都能看完整牌谱，保存 30 天。</p>
       </div>

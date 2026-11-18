@@ -221,7 +221,7 @@ export function Game({
       : pending || d?.submittedRequestId
         ? "已出手，静候结果"
         : d?.owner === "AI"
-          ? "AI 代你思考…"
+          ? "假想妖替你想着…"
           : d?.disabledReason === "CONTROL_PENDING"
             ? "下一手起由你接手"
             : can
@@ -235,7 +235,7 @@ export function Game({
               : hand.phase === "HAND_RESULT"
                 ? "这一局，落定"
                 : hand.phase === "SELF_ACTION" && hand.activeSeat !== null
-                  ? `${v.players[hand.activeSeat].displayName}${v.players[hand.activeSeat].effectiveControl === "AI" ? "（AI）" : ""}思考中…`
+                  ? `${v.players[hand.activeSeat].displayName}${v.players[hand.activeSeat].effectiveControl === "AI" ? "（假想妖）" : ""}思考中…`
                   : "静候他家应答…";
   return (
     <main className="play-page">
@@ -270,16 +270,16 @@ export function Game({
           }}
         >
           {v.self.desiredControl === "AI"
-            ? `收回托管（${botLevelLabel(AUTOPILOT_BOT_LEVEL)} AI 代打中）`
-            : `交给 AI 托管（${botLevelLabel(AUTOPILOT_BOT_LEVEL)}）`}
+            ? `收回托管（${botLevelLabel(AUTOPILOT_BOT_LEVEL)}假想妖代打中）`
+            : `交给假想妖托管（${botLevelLabel(AUTOPILOT_BOT_LEVEL)}）`}
         </button>
       </div>
       <div className="portrait-hint">横过来，牌桌更舒展</div>
       {v.status === "ABORTED" && (
         <div className="takeover">
-          <p>本场意外中止，不计入战绩。再开一桌吧。</p>
+          <p>灯被风吹灭了。这一场不计入战绩，再点一盏吧。</p>
           <button className="primary" onClick={onNew}>
-            再开一桌
+            重新点灯开桌
           </button>
         </div>
       )}
@@ -673,7 +673,7 @@ export function Game({
         <div className="modal-shade">
           <section className="modal final-modal">
             <h2>一场终了</h2>
-            <p className="modal-sub">谢谢同桌</p>
+            <p className="modal-sub">灯还亮着，谢谢同桌</p>
             <p className="muted">{endNames[v.matchResult.reason]}</p>
             <div className="rankings">
               {[...v.players]
@@ -713,7 +713,7 @@ export function Game({
                 <p>等房主再开一场</p>
               )}
               <button className="text-button" onClick={onNew}>
-                换一桌
+                换张桌子
               </button>
             </div>
           </section>

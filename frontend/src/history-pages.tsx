@@ -14,7 +14,7 @@ import type {
 } from "../../shared/types";
 export const formatName = (f: string) =>
   f === "HANCHAN" ? "半庄战" : "东风战";
-const modeName = (m: string) => (m === "AI_PRACTICE" ? "AI 练习" : "好友场");
+const modeName = (m: string) => (m === "AI_PRACTICE" ? "假想妖陪练" : "好友场");
 const botName = (level: string | null | undefined) =>
   `${botLevelLabel(level as BotLevel | null)} AI`;
 const signed = (n: number) => `${n > 0 ? "+" : ""}${n.toLocaleString()}`;
@@ -47,7 +47,7 @@ function Filters({
       >
         <option value="">全部场次</option>
         <option value="FRIENDS">好友场</option>
-        <option value="AI_PRACTICE">AI 练习</option>
+        <option value="AI_PRACTICE">假想妖陪练</option>
       </select>
     </div>
   );
@@ -169,7 +169,7 @@ export function History({
   return (
     <main className="history-page">
       <h1>{detail ? "这一场" : "战绩"}</h1>
-      <p className="page-sub">每一桌，都有来处</p>
+      <p className="page-sub">雪地上的脚印，都还在</p>
       {err && <p role="alert">{err}</p>}
       {detail ? (
         <>
@@ -305,7 +305,7 @@ export function History({
             })}
           </div>
           {!loading && !items.length && (
-            <p>这里还空着。打完一场，就会留下记录。</p>
+            <p>雪地还是平的。打完一场，就会留下脚印。</p>
           )}
           {cursor && (
             <button className="secondary" disabled={loading} onClick={next}>

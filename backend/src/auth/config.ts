@@ -42,7 +42,7 @@ export function authConfig(env: NodeJS.ProcessEnv = process.env): AuthConfig {
       env.SMTP_SECURE === "1",
     smtpUser: env.SMTP_USER ?? "noreply@notify.yangjm.cn",
     smtpPassword: env.SMTP_PASSWORD ?? "",
-    fromName: env.MAIL_FROM_NAME ?? "一桌麻将",
+    fromName: env.MAIL_FROM_NAME ?? "明烛麻将",
     fromAddress: env.MAIL_FROM_ADDRESS ?? "noreply@notify.yangjm.cn",
     applicationURL:
       (env.PUBLIC_ORIGIN ?? "http://127.0.0.1:3000") +

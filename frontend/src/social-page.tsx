@@ -230,7 +230,7 @@ export function SocialPage({
         返回
       </button>
       <h1>好友</h1>
-      <p className="page-sub">把常一起打的人，留在这里</p>
+      <p className="page-sub">常围着一盏灯的人，记在这里</p>
       {stale && (
         <p className="account-notice">
           连接中断，在线状态可能不是最新的；恢复后会自动刷新。
@@ -270,7 +270,7 @@ export function SocialPage({
                     const link = friendLink(location.origin, myCode);
                     if (navigator.share)
                       await navigator
-                        .share({ title: "加我好友，一起打麻将", url: link })
+                        .share({ title: "加我好友，来明烛一起打牌", url: link })
                         .catch(() => navigator.clipboard.writeText(link));
                     else await navigator.clipboard.writeText(link);
                     setMessage("好友链接已复制，发给朋友，对方点开即可加你");
@@ -422,7 +422,7 @@ export function SocialPage({
           )}
           {room && invitesEnabled && (
             <p className="muted">
-              邀请不占座；有空位时才能邀请，AI 占着的座位请先请离。
+              邀请不占座；有空位时才能邀请，假想妖占着的座位请先请离。
             </p>
           )}
           <button
@@ -441,7 +441,7 @@ export function SocialPage({
           {!receivedInvites.length &&
             !receivedRequests.length &&
             !sentInvites.length &&
-            !sentRequests.length && <p>暂时没有需要处理的。</p>}
+            !sentRequests.length && <p>暂时没有人敲门。</p>}
           {receivedInvites.length > 0 && (
             <section>
               <h2>邀你入座</h2>

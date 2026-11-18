@@ -1010,7 +1010,7 @@ export class SocialService {
       if (room.roomVersion !== input.expectedRoomVersion)
         error("ROOM_VERSION_CONFLICT", "房间已更新，请刷新");
       if (!room.slots.includes(null))
-        error("ROOM_FULL", "须先由房主腾出真实空位，AI不算空位");
+        error("ROOM_FULL", "须先由房主腾出真实空位，假想妖占着的不算空位");
       const old = await tx.one(
         "SELECT * FROM room_invitations WHERE sender_id=? AND recipient_id=? AND room_id=? AND lobby_generation=? AND state='PENDING'",
         [s.userId, other, room.roomId, room.lobbyGeneration],

@@ -1015,7 +1015,7 @@ route("delete", "/rooms/:roomId/slots/:slotId/bot", async (req, res) =>
     const r = waiting(req, u, true),
       slot = parse(z.coerce.number().int().min(0).max(3), req.params.slotId);
     if (r.slots[slot]?.participantKind !== "BOT")
-      fail("FORBIDDEN", "只能请离 AI", 403);
+      fail("FORBIDDEN", "只能请离假想妖", 403);
     r.slots[slot] = null;
     clearReady(r);
     roomChanged(r);

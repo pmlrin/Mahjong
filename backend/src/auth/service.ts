@@ -545,9 +545,9 @@ export class AuthService {
               this.config.environment === "preview" ? "【预览环境】" : "";
           const message = {
             to: target.address,
-            subject: `${prefix}一桌麻将 · ${label}验证码`,
-            text: `一桌麻将${prefix}\n你正在${label}，验证码为 ${code}，自申请起十分钟内有效。仅用于 ${this.config.applicationURL} 。\n若非本人操作，请忽略此邮件。`,
-            html: `<div lang="zh-CN"><h2>${prefix}一桌麻将 · ${label}</h2><p>验证码：<strong>${code}</strong></p><p>自申请起十分钟内有效，仅用于${this.config.environment === "preview" ? "预览页面" : "正式页面"}的本次${label}。若非本人操作，请忽略此邮件。</p></div>`,
+            subject: `${prefix}明烛麻将 · ${label}验证码`,
+            text: `明烛麻将${prefix}\n你正在${label}，验证码为 ${code}，自申请起十分钟内有效。仅用于 ${this.config.applicationURL} 。\n若非本人操作，请忽略此邮件。`,
+            html: `<div lang="zh-CN"><h2>${prefix}明烛麻将 · ${label}</h2><p>验证码：<strong>${code}</strong></p><p>自申请起十分钟内有效，仅用于${this.config.environment === "preview" ? "预览页面" : "正式页面"}的本次${label}。若非本人操作，请忽略此邮件。</p></div>`,
           };
           await tx.query(
             "INSERT INTO auth_mail_jobs(job_id,challenge_id,purpose,environment,masked_recipient,ciphertext,status,attempts,next_attempt_at,lease_until,last_error,provider_id,created_at,expires_at) VALUES(?,?,?,?,?,?,'QUEUED',0,?,NULL,NULL,NULL,?,?)",

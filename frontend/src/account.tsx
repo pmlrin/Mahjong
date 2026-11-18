@@ -242,7 +242,7 @@ export function AccountPanel({
         <section className="account-release">
           <h2>先离开牌桌</h2>
           <p>
-            进行中的对局会交给 AI
+            进行中的对局会交给假想妖
             托管，座位和点数都保留；还没开局的话，会先离开房间。
           </p>
           <button
