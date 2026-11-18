@@ -6,6 +6,7 @@
 - 牌面为本项目 SVG／文字绘制，牌背、桌面和首页插画使用 CSS；无外部照片、商标或收费素材。
 - 出牌、翻宝牌和配牌的牌声取自 [Open Tabletop](https://github.com/optimuspryne/open-tabletop) 的 ceramic-tile 系列（CC0 1.0，作者程序合成，非实录），另附本项目转出的 AAC 版本；来源提交与转换方式见 `frontend/src/assets/sounds/SOURCE.md`。鸣牌、立直、立直棒、和牌与流局仍为本项目 Web Audio 合成。音效默认关闭。
 - 字体使用设备已有的系统字体，不分发第三方字体文件。
+- 大师级 AI 的放铳率、听牌概率与放铳代价表（`backend/src/bot-learned-data.ts`）由本项目脚本 `scripts/learn-tenhou.ts` 从[天鳳](https://tenhou.net/)鳳凰卓公开牌谱统计得出，只含汇总数字。牌谱本身不入库、不分发（天鳳条款不允许转载），来源与方法见 `docs/AI档位设计与自对局对比.md` 第 6 节。
 
 - V4 的 12 款预设头像位于 `frontend/public/avatars/`，为本项目自制 SVG 色块、圆环与文字图案，固定 ID 映射；不引用外部图片、不分发字体。
 

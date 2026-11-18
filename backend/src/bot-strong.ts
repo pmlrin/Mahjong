@@ -8,6 +8,7 @@ import {
   type Seat,
 } from "../../shared/types.ts";
 import { shanten, hand, terminal, closed, score, waits } from "./rules.ts";
+import { learnedDanger, learnedLoss, learnedTenpai } from "./bot-learned.ts";
 
 /**
  * 高级 ADVANCED and 大师级 MASTER.
@@ -24,9 +25,30 @@ import { shanten, hand, terminal, closed, score, waits } from "./rules.ts";
  * deal in × what it would cost), so pushing and folding is a matter of degree.
  * It also knows more: tiles that passed a riichi are safe, a 壁 kills a two-sided
  * wait, an open hand with two or more sets is a threat with a price, and an open
- * hand of its own only advances along a route that still has a yaku.
+ * hand of its own only advances along a route that still has a yaku. Its deal-in
+ * rates, the chance that a player without riichi is already tenpai and what a
+ * deal-in costs come from Tenhou 鳳凰卓 game records (bot-learned.ts).
  */
 export type StrongLevel = "ADVANCED" | "MASTER";
+
+/**
+ * MASTER's weights, tuned by self-play (scripts/ai-ladder.ts reads overrides
+ * from the MASTER_TUNE environment variable; the server never does).
+ */
+export const MASTER_TUNE = {
+  /** Players less likely than this to be tenpai are not counted as threats. */
+  threatMin: 0.1,
+  /** Points lost to danger per turn still to push, per unit of threat and expected loss. */
+  tax: 0.0135,
+  /** Share of a hand's attack value a folding discard keeps. */
+  foldKeep: 0.08,
+  /** Each dora in the discarded tile raises the expected loss this much. */
+  doraLoss: 0.4,
+  /** A ready hand that already wins this much without riichi stays quiet. */
+  damaKeep: 11600,
+  /** Scales every learned deal-in cost. */
+  lossScale: 1,
+};
 
 export function finalStage(view: MatchView): boolean {
   return (
@@ -143,27 +165,40 @@ function context(view: MatchView, level: StrongLevel): Ctx {
     const dealer = h.dealerSeat === p.seat;
     let prob = 0,
       loss = 0;
+    const master = level === "MASTER";
     if (riichi) {
       prob = 1;
-      loss = (dealer ? 10900 : 7500) + h.honba * 300;
+      loss =
+        (master
+          ? learnedLoss.riichi(dealer) * MASTER_TUNE.lossScale
+          : dealer
+            ? 10900
+            : 7500) +
+        h.honba * 300;
+    } else if (master) {
+      // Learned from records: how often a hand like this is already tenpai, and
+      // what it costs by the han its sets show.
+      const wind = (p.seat - h.dealerSeat + 4) % 4;
+      let han = 0;
+      for (const m of p.melds) {
+        const k = kind(m.tiles[0]);
+        if (m.type !== "CHI" && k >= 27)
+          han +=
+            Number(k >= 31) +
+            Number(k === 27 + wind) +
+            Number(k === 27 + roundWind);
+        for (const t of m.tiles) han += doraOf(c, t);
+      }
+      prob = learnedTenpai(open.length, p.discards.length);
+      loss =
+        (open.length
+          ? learnedLoss.open(han, dealer)
+          : learnedLoss.dama(dealer)) *
+          MASTER_TUNE.lossScale +
+        h.honba * 300;
     } else if (open.length) {
-      const n = open.length,
-        d = p.discards.length;
       // ADVANCED only respects a hand that is visibly almost complete.
-      if (level === "ADVANCED") prob = n >= 3 ? 0.8 : 0;
-      else
-        prob =
-          n >= 4
-            ? 0.95
-            : n === 3
-              ? 0.75
-              : n === 2
-                ? d >= 9
-                  ? 0.5
-                  : 0.25
-                : d >= 12
-                  ? 0.2
-                  : 0;
+      prob = open.length >= 3 ? 0.8 : 0;
       const wind = (p.seat - h.dealerSeat + 4) % 4;
       let han = 0.5;
       for (const m of open) {
@@ -187,7 +222,8 @@ function context(view: MatchView, level: StrongLevel): Ctx {
                 : 12000;
       loss = pts * (dealer ? 1.5 : 1) + h.honba * 300;
     }
-    if (prob < 0.2) continue;
+    // MASTER weighs every likely hand; ADVANCED only clear threats.
+    if (prob < (master ? MASTER_TUNE.threatMin : 0.2)) continue;
     const safe = new Set(p.discards.map((x) => kind(x.tile)));
     const declared = p.discards.findIndex((x) => x.riichiDeclaration);
     if (level === "MASTER" && riichi && declared >= 0) {
@@ -338,10 +374,17 @@ function risk(c: Ctx, tile: number): Risk {
     loss = 0;
   const k = kind(tile);
   for (const t of c.threats) {
-    const p =
-      t.prob * dangerRate(c.seen, t.safe, k, t.discards, c.level === "MASTER");
+    const master = c.level === "MASTER";
+    const rate = master
+      ? (learnedDanger(c.seen, t.safe, k, t.discards) ??
+        dangerRate(c.seen, t.safe, k, t.discards))
+      : dangerRate(c.seen, t.safe, k, t.discards, false);
+    const p = t.prob * rate;
     keep *= 1 - p;
-    loss += p * t.loss * (1 + 0.4 * doraOf(c, tile));
+    loss +=
+      p *
+      t.loss *
+      (1 + (master ? MASTER_TUNE.doraLoss : 0.4) * doraOf(c, tile));
   }
   return { p: 1 - keep, loss };
 }
@@ -621,14 +664,19 @@ function discard(c: Ctx): string {
             ? 3.5
             : 6;
       const tax =
-        Math.min(c.turnsLeft, more) * strong * 0.045 * avgLoss * weight * 0.3;
+        Math.min(c.turnsLeft, more) *
+        strong *
+        MASTER_TUNE.tax *
+        avgLoss *
+        weight;
       // Among tiles that keep the hand moving, efficiency decides; risk is priced on top.
       const attack = top.attack * Math.max(0, (x.eff - base) / scale);
       const pushEv =
         x.sh.st === minSt
           ? (1 - x.risk.p) * (attack - tax) - x.risk.loss * weight
           : -Infinity;
-      const foldEv = -x.risk.loss * weight + (strong ? 0.08 : 0) * x.attack;
+      const foldEv =
+        -x.risk.loss * weight + (strong ? MASTER_TUNE.foldKeep : 0) * x.attack;
       x.ev = strong ? Math.max(pushEv, foldEv) : pushEv;
     }
     best = [...cands].sort((a, b) => b.ev - a.ev || byTile(a, b))[0];
@@ -671,7 +719,7 @@ function declare(c: Ctx, x: Candidate, protect: boolean): boolean {
     return true;
   }
   // Against this field a declared riichi pays; only a hand that is already big stays quiet.
-  return !(tp.ronYaku && tp.dama >= 11600);
+  return !(tp.ronYaku && tp.dama >= MASTER_TUNE.damaKeep);
 }
 
 function fakeMeld(
