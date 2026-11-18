@@ -315,54 +315,6 @@ export function isJump(
   return moved > 6;
 }
 
-/** Something another player just did with their hands, for their arm to show. */
-export type ArmCue =
-  /** A tile into the river from the concealed hand. */
-  | { kind: "discard"; seat: Seat; tile: TilePlacement }
-  /** A tile into the concealed hand, taken from `wall`. */
-  | { kind: "draw"; seat: Seat; tile: TilePlacement; wall: TilePlacement }
-  /** A discard taken from `river` into the player's new meld. */
-  | { kind: "call"; seat: Seat; tile: TilePlacement; river: TilePlacement }
-  /** The hand laid down at the hand's result, tiles in order along the row. */
-  | { kind: "reveal"; seat: Seat; row: TilePlacement[] };
-
-/**
- * What the other players (not the viewer) did between two layouts of one
- * step of play. `revealing`: the hand's result has just been shown.
- */
-export function armCues(
-  before: ReadonlyMap<string, TilePlacement>,
-  after: TilePlacement[],
-  viewer: Seat,
-  revealing: boolean,
-): ArmCue[] {
-  const cues: ArmCue[] = [];
-  const keys = new Set(after.map((p) => p.key));
-  // The wall tile a draw took, if this step took one.
-  const wall = [...before.values()].find(
-    (p) =>
-      (p.group === "wall" || p.group === "dead") &&
-      !p.faceUp &&
-      !keys.has(p.key),
-  );
-  const rows = new Map<Seat, TilePlacement[]>();
-  for (const p of after) {
-    if (p.seat === viewer || p.group === "wall") continue;
-    const old = before.get(p.key);
-    if (!old) {
-      if (p.group === "river")
-        cues.push({ kind: "discard", seat: p.seat, tile: p });
-      else if (p.group === "hand" && p.tile === null && wall)
-        cues.push({ kind: "draw", seat: p.seat, tile: p, wall });
-      else if (p.group === "hand" && p.tile !== null && revealing)
-        rows.set(p.seat, [...(rows.get(p.seat) ?? []), p]);
-    } else if (old.group === "river" && p.group === "meld")
-      cues.push({ kind: "call", seat: p.seat, tile: p, river: old });
-  }
-  for (const [seat, row] of rows) cues.push({ kind: "reveal", seat, row });
-  return cues;
-}
-
 /** Where a seat's concealed hand sits, standing: the start of tiles it plays. */
 export function seatHandOrigin(relative: number) {
   const sq = seatQuaternion(relative);

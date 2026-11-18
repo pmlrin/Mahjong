@@ -24,7 +24,6 @@
   },
   "dependencies": {
     "@kobalab/majiang-core": "^1.4.1",
-    "@pixiv/three-vrm": "3.5.5",
     "@react-three/fiber": "9.8.2",
     "express": "^5.1.0",
     "nodemailer": "^10.3.1",

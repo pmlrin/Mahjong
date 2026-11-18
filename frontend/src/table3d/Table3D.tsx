@@ -28,13 +28,11 @@ import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeom
 import { createTile } from "./geometry";
 import { QUALITY, frameVerdict, type QualityLevel } from "./quality";
 import { useReducedMotion } from "../motion";
-import { ARM, DISCARD_FLIGHT, REVEAL, armedSeats } from "./timing";
-import { Figure, useFigures, canReach, type Reach } from "./arms";
+import { DISCARD_FLIGHT, REVEAL } from "./timing";
 import {
   SCENE,
   SELF_HAND,
   TILE,
-  armCues,
   isJump,
   layoutTable,
   selfHandUp,
@@ -544,14 +542,11 @@ function RiichiStick({
   viewer,
   palette,
   animate,
-  delay = 0,
 }: {
   seat: number;
   viewer: number;
   palette: Palette;
   animate: boolean;
-  /** Seconds to wait where it was laid down (while an arm reaches for it). */
-  delay?: number;
 }) {
   const ref = useRef<Group>(null);
   const slide = useRef<{ from: Vector3; start: number } | null>(null);
@@ -563,7 +558,7 @@ function RiichiStick({
     // Laid down from the player's side of the table, sliding in to the centre.
     if (!animate) return;
     const from = riichiStickFrom(rel);
-    slide.current = { from, start: now() + delay };
+    slide.current = { from, start: now() };
     ref.current!.position.copy(from);
     invalidate();
   }, []);
@@ -597,13 +592,10 @@ function RiichiSticks({
   view,
   palette,
   animate,
-  delays,
 }: {
   view: MatchView;
   palette: Palette;
   animate: boolean;
-  /** Per seat: seconds a new stick waits before sliding in. */
-  delays: Map<number, number>;
 }) {
   return (
     <>
@@ -616,7 +608,6 @@ function RiichiSticks({
             viewer={view.viewerSeat}
             palette={palette}
             animate={animate}
-            delay={delays.get(s)}
           />
         ) : null,
       )}
@@ -770,11 +761,6 @@ function FrameMonitor({ onSlow }: { onSlow: () => void }) {
   return null;
 }
 
-/** Seats, relative to the viewer, whose arms are shown: everyone else's. */
-const ARMED = [1, 2, 3];
-/** Arc of a drawn tile lifted from the wall into the hand. */
-const DRAW_ARC = 0.8;
-
 function Scene({
   view,
   kit,
@@ -807,27 +793,13 @@ function Scene({
     byKey: Map<string, TilePlacement>;
     riichi: string[];
   } | null>(null);
-  // The other players' figures, seated out of shot; their arms take their
-  // discards and draws. Not at the cheapest quality step.
-  const figures = useFigures(quality !== QUALITY[QUALITY.length - 1]);
-  useEffect(() => {
-    if (!figures) return;
-    for (const rel of ARMED) armedSeats.add(rel);
-    return () => ARMED.forEach((rel) => armedSeats.delete(rel));
-  }, [figures]);
-  const { animate, origins, delays, reaches, stickDelays } = useMemo(() => {
+  const { animate, origins, delays } = useMemo(() => {
     const before = previous.current;
     const origins = new Map<string, Origin>();
     const delays = new Map<string, number>();
-    const reaches = new Map<number, Reach>();
-    const stickDelays = new Map<number, number>();
     if (reduce || !before || before.handId !== view.hand.handId)
-      return { animate: false, origins, delays, reaches, stickDelays };
+      return { animate: false, origins, delays };
     const viewer = view.viewerSeat;
-    const figureOf = (seat: number) => {
-      const rel = relativeSeat(seat, viewer);
-      return rel > 0 ? figures?.[rel - 1] : undefined;
-    };
     for (const p of placements)
       if (p.group !== "wall" && !before.byKey.has(p.key)) {
         const o = originOf(p, viewer);
@@ -835,75 +807,6 @@ function Scene({
       }
     const revealing =
       before.phase !== "HAND_RESULT" && view.hand.phase === "HAND_RESULT";
-    for (const cue of armCues(before.byKey, placements, viewer, revealing)) {
-      const figure = figureOf(cue.seat);
-      const rel = relativeSeat(cue.seat, viewer);
-      if (!figure) continue;
-      // The arm takes `tile` from `from`; the tile waits there until it does.
-      const to = (p: TilePlacement) => new Vector3(...p.position);
-      const take = (tile: TilePlacement, from: Vector3, carry: number) => {
-        reaches.set(rel, {
-          key: tile.key,
-          from,
-          to: to(tile),
-          start: now(),
-          carry,
-        });
-        delays.set(tile.key, ARM.reach);
-      };
-      if (cue.kind === "discard")
-        take(
-          cue.tile,
-          origins.get(cue.tile.key)!.position.clone(),
-          DISCARD_FLIGHT.duration,
-        );
-      else if (cue.kind === "draw" || cue.kind === "call") {
-        // Only within reach; a draw's tile then flies from the wall.
-        const from = to(cue.kind === "draw" ? cue.wall : cue.river);
-        if (reaches.has(rel) || !canReach(figure, from, to(cue.tile))) continue;
-        take(cue.tile, from, travelTime(from.distanceTo(to(cue.tile))));
-        if (cue.kind === "draw")
-          origins.set(cue.tile.key, {
-            position: from,
-            quaternion: new Quaternion(...cue.wall.quaternion),
-            arc: DRAW_ARC,
-          });
-      } else if (cue.row.length > 1) {
-        // Both hands push the shown hand down, arriving as the first tile
-        // starts to fall. Along the row is to the owner's right.
-        const first = to(cue.row[0]),
-          last = to(cue.row[cue.row.length - 1]);
-        reaches.set(rel, {
-          key: cue.row[0].key,
-          from: first.clone().lerp(last, 0.75),
-          start: now() + REVEAL.pause - ARM.reach,
-          carry: (cue.row.length - 1) * REVEAL.stagger + travelTime(0.5),
-          push: {
-            left: first.clone().lerp(last, 0.25),
-            right: first.clone().lerp(last, 0.75),
-          },
-        });
-      }
-    }
-    // Riichi: the arm lays the stick down and slides it to the centre.
-    view.hand.seats.forEach((h, seat) => {
-      const rel = relativeSeat(seat, viewer);
-      if (
-        h.riichi !== "ESTABLISHED" ||
-        before.riichi[seat] === "ESTABLISHED" ||
-        !figureOf(seat) ||
-        reaches.has(rel)
-      )
-        return;
-      reaches.set(rel, {
-        key: `riichi-${seat}`,
-        from: riichiStickFrom(rel),
-        to: riichiStickAt(rel),
-        start: now(),
-        carry: RIICHI_STICK_SLIDE,
-      });
-      stickDelays.set(seat, ARM.reach);
-    });
     // The hand just ended: after a beat the revealed hands fall one tile
     // after another, the winning tile rises, then any ura dora turn over.
     if (revealing) {
@@ -924,15 +827,8 @@ function Scene({
           delays.set(p.key, REVEAL.ura + ura++ * REVEAL.uraStagger);
       }
     }
-    const animate = !isJump(before.byKey, placements);
-    return {
-      animate,
-      origins,
-      delays,
-      reaches: animate ? reaches : new Map<number, Reach>(),
-      stickDelays,
-    };
-  }, [placements, reduce, figures]);
+    return { animate: !isJump(before.byKey, placements), origins, delays };
+  }, [placements, reduce]);
   useEffect(() => {
     previous.current = {
       handId: view.hand.handId,
@@ -965,12 +861,7 @@ function Scene({
       />
       <TableBody palette={kit.palette} />
       <CenterPlate info={info} palette={kit.palette} />
-      <RiichiSticks
-        view={view}
-        palette={kit.palette}
-        animate={animate}
-        delays={stickDelays}
-      />
+      <RiichiSticks view={view} palette={kit.palette} animate={animate} />
       {placements.map((p) => (
         <TileMesh
           key={p.key}
@@ -983,14 +874,6 @@ function Scene({
           animate={animate}
           origin={origins.get(p.key)}
           delay={delays.get(p.key)}
-        />
-      ))}
-      {figures?.map((vrm, i) => (
-        <Figure
-          key={i}
-          vrm={vrm}
-          relative={i + 1}
-          reach={reaches.get(i + 1) ?? null}
         />
       ))}
       <CameraRig />

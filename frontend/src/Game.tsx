@@ -21,7 +21,7 @@ import { frameEvents } from "./match-events";
 import { useReducedMotion } from "./motion";
 import { CallStamps, type PlayStep } from "./CallStamps";
 import { playEvents, playSound } from "./sounds";
-import { RESULT_HOLD, discardLandsAfter } from "./table3d/timing";
+import { DISCARD_LANDS_AFTER, RESULT_HOLD } from "./table3d/timing";
 import { CallChoices, ResponseSource } from "./turn-feedback";
 import { responseTarget } from "../../shared/game-feedback";
 import { formatName } from "./history-pages";
@@ -142,14 +142,9 @@ export function Game({
     if (!sound) return;
     // On the moving 3D table a discard sounds as the tile lands.
     const flying = table.active === "3d" && !reduce;
-    const land = Math.max(
-      0,
-      ...events.map((e) =>
-        e.type === "discard"
-          ? discardLandsAfter((e.seat - v.viewerSeat + 4) % 4)
-          : 0,
-      ),
-    );
+    const land = events.some((e) => e.type === "discard")
+      ? DISCARD_LANDS_AFTER
+      : 0;
     playEvents(events, flying ? land : 0);
   }, [frame]);
   const { selected, riichi, modal, pending } = a;
