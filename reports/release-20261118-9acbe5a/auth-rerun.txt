@@ -1,0 +1,15 @@
+▶ V3 HTTP/Socket: upgrade, cross-browser ownership, explicit release, reset and password-change revoke active connections
+  ✔ T02/T10/T12/T27: register keeps old identity, snapshots and bookmark; logout closes one session only (53.057333ms)
+  ✔ T13/T18: controlling a match blocks direct identity changes; accepted moves remain durable (89.45ms)
+  ✔ T14/T16/T18: anonymous reset revokes the active other device, keeps seat, points, mode and original receipt (22015.498417ms)
+  ✔ T17/T30: password change rotates current cookie, revokes other sessions; feature off preserves account authentication (310.723792ms)
+  ✔ T28/T32: two registered accounts complete East game after half game and revocation tests (2084.255584ms)
+✔ V3 HTTP/Socket: upgrade, cross-browser ownership, explicit release, reset and password-change revoke active connections (24799.857375ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 24946.462708

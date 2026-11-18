@@ -40,7 +40,8 @@ let loading: Promise<void> | undefined;
 let audio: AudioContext | undefined;
 let noiseBuffer: AudioBuffer | undefined;
 
-function context() {
+/** The page's one audio context, shared with the table music. */
+export function context() {
   audio ??= new AudioContext();
   if (audio.state === "suspended") void audio.resume();
   return audio;

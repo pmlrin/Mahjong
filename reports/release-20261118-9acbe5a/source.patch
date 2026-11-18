@@ -1,0 +1,164 @@
+diff --git a/DESIGN.md b/DESIGN.md
+index cb17fc5..de7716e 100644
+--- a/DESIGN.md
++++ b/DESIGN.md
+@@ -5,19 +5,19 @@
+ ## System
+ - Genre: playful
+ - Shape of the first page: app screen
+-- Theme: custom（靛染：靛蓝桌面配杏色点缀，2026-11-10 由项目负责人从三套真实页面候选中选定）
+-- Axes: light/roman-serif/cool · posture: committed（靛蓝是唯一的大面积色）
++- Theme: custom（海天：深海青桌面配向日葵黄点缀，2026-11-18 由项目负责人改用 yangjm.cn 站点配色；此前为 2026-11-10 选定的靛染）
++- Axes: light/roman-serif/cool · posture: committed（深海青是唯一的大面积色）
+ 
+ ## Tokens
+ `frontend/src/tokens.css` 是唯一来源。角色如下：
+ ```css
+ :root {
+-  --color-paper: oklch(96.5% 0.012 80);  --color-paper-2: oklch(93.5% 0.016 80);  --color-paper-3: oklch(89.5% 0.02 80);
+-  --color-ink: oklch(26% 0.04 262);  --color-ink-2: oklch(37% 0.045 260);  --color-muted: oklch(48% 0.035 255);  --color-rule: oklch(87% 0.018 85);
+-  --color-accent: oklch(40% 0.1 262);  --color-accent-ink: oklch(97% 0.012 85);  --color-focus: oklch(50% 0.13 55);
+-  --color-felt: oklch(37% 0.085 258);  --color-felt-deep: oklch(26% 0.06 262);  --color-felt-ink: oklch(96% 0.012 85);
+-  --color-signal: oklch(80% 0.125 68);  --color-seal: oklch(54% 0.17 35);
+-  --tile-face: oklch(97.5% 0.012 85);  --tile-side: oklch(72% 0.09 70);  --tile-back: oklch(72% 0.1 68);
++  --color-paper: oklch(98.7% 0.006 215);  --color-paper-2: oklch(96% 0.017 215);  --color-paper-3: oklch(92.8% 0.027 215);
++  --color-ink: oklch(25% 0.05 240);  --color-ink-2: oklch(37% 0.045 238);  --color-muted: oklch(49% 0.035 232);  --color-rule: oklch(88.5% 0.022 220);
++  --color-accent: oklch(49% 0.12 228);  --color-accent-ink: oklch(98.7% 0.006 215);  --color-focus: oklch(50% 0.16 232);
++  --color-felt: oklch(41% 0.085 222);  --color-felt-deep: oklch(25% 0.05 238);  --color-felt-ink: oklch(98.7% 0.006 215);
++  --color-signal: oklch(87% 0.16 92);  --color-seal: oklch(56% 0.17 32);
++  --tile-face: oklch(98.5% 0.008 95);  --tile-side: oklch(82% 0.12 90);  --tile-back: oklch(80% 0.13 88);
+   --font-display: "Songti SC", "Noto Serif CJK SC", serif;  --font-body: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+   --radius-card: 8px;  --radius-control: 6px;  --radius-tile: 4px;  --radius-table: 16px;  --rule-hair: 1px;
+ }
+@@ -25,15 +25,15 @@
+ 间距、字号、缓动和时长也都在 `tokens.css`。不引入外部字体，中文走系统字栈。
+ 
+ ## 用色规则
+-- 靛蓝只给牌桌本身：首页舞台、房间桌面、对局桌面、回放和牌形示例；深海军蓝是桌沿、导航和中央局况。
+-- 主色和点缀色都收住饱和度（靛蓝 C≈0.085，杏色 C≈0.125），不要把两个高饱和色贴在一起大面积使用。
+-- 杏色只表示“该你、选中、桌沿内的主操作、已准备”，也是牌背和牌的底层；柿红只表示立直、和牌和告急。
++- 深海青只给牌桌本身：首页舞台、房间桌面、对局桌面、回放和牌形示例；夜海军蓝是桌沿、导航和中央局况。
++- 主色和点缀色都收住饱和度（深海青 C≈0.085，向日葵黄只做小面积点缀），不要把两个高饱和色贴在一起大面积使用。
++- 向日葵黄只表示“该你、选中、桌沿内的主操作、已准备”，也是牌背和牌的底层；柿红只表示立直、和牌和告急。
+ - 放在牌毡或导航上的区域把 `--color-focus` 换成近白的 `--color-focus-felt`，放回纸面时换回 `--color-focus-paper`。
+-- 选中牌靠抬起加杏色底条，键盘焦点靠近白外圈，两者不能只靠颜色区分。
++- 选中牌靠抬起加黄色底条，键盘焦点靠近白外圈，两者不能只靠颜色区分。
+ - 改配色时检查界面文案里有没有提到具体颜色（规则页里有）。
+ 
+ ## Controls
+-- Primary：靛蓝填充，牌桌操作区内为杏色，和牌按钮为柿红；圆角 `--radius-control`；高度 `--control-h`（40px，粗指针 44px）
++- Primary：海蓝填充，牌桌操作区内为向日葵黄，和牌按钮为柿红；圆角 `--radius-control`；高度 `--control-h`（40px，粗指针 44px）
+ - Secondary：描边，同圆角同高度
+ - 每屏一个填充主按钮；禁用态同时改填充、墨色和指针
+ 
+diff --git a/frontend/index.html b/frontend/index.html
+index 1115196..0a2d379 100644
+--- a/frontend/index.html
++++ b/frontend/index.html
+@@ -1 +1 @@
+-<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><meta name="theme-color" content="#142240"/><meta name="description" content="和朋友打一桌四人立直麻将。打开即玩，发链接即可入座，人不够有 AI 补位。"/><title>一桌｜好友立直麻将</title></head><body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>
++<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><meta name="theme-color" content="#062437"/><meta name="description" content="和朋友打一桌四人立直麻将。打开即玩，发链接即可入座，人不够有 AI 补位。"/><title>一桌｜好友立直麻将</title></head><body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>
+diff --git a/frontend/src/rules-page.tsx b/frontend/src/rules-page.tsx
+index c62c474..8448874 100644
+--- a/frontend/src/rules-page.tsx
++++ b/frontend/src/rules-page.tsx
+@@ -110,7 +110,7 @@ export function RulesPage({ onBack }: { onBack: () => void }) {
+             winning: "m4",
+           }}
+         />
+-        <p>四组面子加一对雀头。杏色标记的是和牌的那张；这副牌还满足断幺九、平和。</p>
++        <p>四组面子加一对雀头。黄色标记的是和牌的那张；这副牌还满足断幺九、平和。</p>
+       </section>
+       <button
+         className="yaku-toggle primary"
+@@ -133,7 +133,7 @@ export function RulesPage({ onBack }: { onBack: () => void }) {
+             <div>
+               <h2>全部役种，一副牌看懂</h2>
+               <p>
+-                示例牌可能同时成立别的役，标出的番数只算这一役。杏色底的一组是副露；杠虽四张，仍算一组面子。
++                示例牌可能同时成立别的役，标出的番数只算这一役。黄底的一组是副露；杠虽四张，仍算一组面子。
+               </p>
+             </div>
+             <label>
+diff --git a/frontend/src/style.css b/frontend/src/style.css
+index fe5a7f3..0f5f960 100644
+--- a/frontend/src/style.css
++++ b/frontend/src/style.css
+@@ -1,5 +1,5 @@
+ /* Hallmark · shape: app screen · genre: playful · theme: custom (vibe: "indigo table, apricot tile backs, chosen by the owner") · redesign: restyle
+- * paper: oklch(96.5% 0.012 80) · accent: oklch(40% 0.1 262) · display: Songti SC · body: PingFang SC
++ * paper: oklch(98.7% 0.006 215) · accent: oklch(49% 0.12 228) · display: Songti SC · body: PingFang SC
+  * nav: slim top bar, seal and wordmark left, text links, identity right · signature: the dealt hand of real tiles on the felt, the table rail as the play surface · states: loading, empty, error, disconnected, submitted, unknown receipt
+  * axes: light/roman-serif/cool · posture: committed (indigo is the field; apricot and persimmon stay signals) · contrast: pass · finish-review: in-thread, no subagent in this session · 3 findings · 3 resolved · gap: none · v2.0.0 */
+ /* Hallmark · pre-emit critique: P4 H5 E4 S5 R4 V3 · weakest: V, the shell and the bone-on-felt language repeat by design because this is one product; every screen still leads with its own object (the hand, the table, the ledger) */
+diff --git a/frontend/src/tokens.css b/frontend/src/tokens.css
+index 35a3558..36fe842 100644
+--- a/frontend/src/tokens.css
++++ b/frontend/src/tokens.css
+@@ -5,38 +5,40 @@
+   --text-hero: clamp(2.75rem, 1.8rem + 3.6vw, 4.75rem);
+   --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+   --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
+-  --color-error: oklch(48% 0.16 30); --color-success: oklch(44% 0.09 160);
++  --color-error: oklch(48% 0.16 30); --color-success: oklch(44% 0.09 165);
+   --container: 1360px; --gutter: 64px; --gap-columns: 32px; --section-gap-s: 120px; --section-gap: 144px; --section-gap-l: 176px;
+   --z-base: 1; --z-raised: 10; --z-dropdown: 100; --z-sticky: 200; --z-sticky-nav: 300; --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
+ 
+-  /* Paper: warm cream carrying information, inked in navy. */
+-  --color-paper: oklch(96.5% 0.012 80); --color-paper-2: oklch(93.5% 0.016 80); --color-paper-3: oklch(89.5% 0.02 80);
+-  --color-ink: oklch(26% 0.04 262); --color-ink-2: oklch(37% 0.045 260); --color-muted: oklch(48% 0.035 255);
+-  --color-rule: oklch(87% 0.018 85);
+-  --color-accent: oklch(40% 0.1 262); --color-accent-hover: oklch(34% 0.09 262); --color-accent-ink: oklch(97% 0.012 85); --color-focus: oklch(50% 0.13 55); --color-focus-paper: oklch(50% 0.13 55);
+-  --color-link: oklch(37% 0.1 262);
++  /* Paper: sky-washed white carrying information, inked in deep sea navy (yangjm.cn palette). */
++  --color-paper: oklch(98.7% 0.006 215); --color-paper-2: oklch(96% 0.017 215); --color-paper-3: oklch(92.8% 0.027 215);
++  --color-surface: oklch(99.6% 0.003 215);
++  --color-ink: oklch(25% 0.05 240); --color-ink-2: oklch(37% 0.045 238); --color-muted: oklch(49% 0.035 232);
++  --color-rule: oklch(88.5% 0.022 220);
++  --color-accent: oklch(49% 0.12 228); --color-accent-hover: oklch(43% 0.11 230); --color-accent-ink: oklch(98.7% 0.006 215); --color-focus: oklch(50% 0.16 232); --color-focus-paper: oklch(50% 0.16 232);
++  --color-link: oklch(46% 0.12 228);
+ 
+-  /* The table is indigo; its rail, the nav and the centre plate are deep navy. */
+-  --color-felt: oklch(37% 0.085 258); --color-felt-deep: oklch(26% 0.06 262); --color-felt-raised: oklch(44% 0.08 258); --color-felt-rule: oklch(65% 0.07 255);
+-  --color-felt-ink: oklch(96% 0.012 85); --color-felt-ink-2: oklch(87% 0.03 250);
+-  --color-focus-felt: oklch(96% 0.02 85);
+-  /* The table's walnut rail and the brass line that trims the felt. */
+-  --table-rail: oklch(39% 0.065 48); --table-rail-deep: oklch(27% 0.05 42); --table-rail-light: oklch(50% 0.07 55); --table-trim: oklch(77% 0.1 82);
+-  --color-nav-ink-2: oklch(87% 0.03 250);
++  /* The table is deep sea teal; its rail, the nav and the centre plate are night navy. */
++  --color-felt: oklch(41% 0.085 222); --color-felt-deep: oklch(25% 0.05 238); --color-felt-raised: oklch(48% 0.085 218); --color-felt-rule: oklch(70% 0.08 212);
++  --color-felt-ink: oklch(98.7% 0.006 215); --color-felt-ink-2: oklch(86% 0.04 212);
++  --color-focus-felt: oklch(82% 0.13 205);
++  --color-sky: oklch(80% 0.11 210);
++  /* The table's walnut rail and the sunflower line that trims the felt. */
++  --table-rail: oklch(39% 0.065 48); --table-rail-deep: oklch(27% 0.05 42); --table-rail-light: oklch(50% 0.07 55); --table-trim: oklch(84% 0.13 90);
++  --color-nav-ink-2: oklch(86% 0.04 212);
+ 
+-  /* Signals: apricot marks yours or chosen; persimmon is riichi, the win and the last seconds. */
+-  --color-signal: oklch(80% 0.125 68); --color-signal-hover: oklch(85% 0.11 70); --color-signal-ink: oklch(26% 0.06 262); --color-signal-wash: oklch(93% 0.045 75); --color-signal-deep: oklch(52% 0.12 55);
+-  --color-seal: oklch(54% 0.17 35); --color-seal-hover: oklch(59% 0.17 35); --color-seal-ink: oklch(98% 0.01 80);
+-  --color-riichi: oklch(54% 0.17 35); --color-riichi-ink: oklch(98% 0.01 80);
+-  --color-warn-wash: oklch(93% 0.045 75); --color-warn-ink: oklch(36% 0.07 55);
+-  --color-error-wash: oklch(94% 0.03 35); --color-success-wash: oklch(93% 0.04 160);
+-  --color-scrim: oklch(18% 0.04 262 / 0.66);
+-  --color-shadow: oklch(22% 0.04 262 / 0.18);
++  /* Signals: sunflower marks yours or chosen; persimmon is riichi, the win and the last seconds. */
++  --color-signal: oklch(87% 0.16 92); --color-signal-hover: oklch(90% 0.14 94); --color-signal-ink: oklch(24% 0.05 75); --color-signal-wash: oklch(95.5% 0.06 95); --color-signal-deep: oklch(55% 0.12 80);
++  --color-seal: oklch(56% 0.17 32); --color-seal-hover: oklch(61% 0.17 32); --color-seal-ink: oklch(98.7% 0.006 215);
++  --color-riichi: oklch(56% 0.17 32); --color-riichi-ink: oklch(98.7% 0.006 215);
++  --color-warn-wash: oklch(95.5% 0.06 95); --color-warn-ink: oklch(38% 0.07 75);
++  --color-error-wash: oklch(95% 0.03 30); --color-success-wash: oklch(95% 0.04 165);
++  --color-scrim: oklch(17% 0.028 240 / 0.66);
++  --color-shadow: oklch(25% 0.05 240 / 0.16);
+ 
+-  /* Tiles: bone face over an apricot bamboo layer, suits in muted lacquer inks. */
+-  --tile-face: oklch(97.5% 0.012 85); --tile-face-dim: oklch(89% 0.014 85); --tile-edge: oklch(84% 0.018 85); --tile-side: oklch(72% 0.09 70);
+-  --tile-back: oklch(72% 0.1 68); --tile-back-edge: oklch(60% 0.1 65); --tile-back-side: oklch(50% 0.09 60); --tile-back-ink: oklch(52% 0.09 60);
+-  --tile-ink: oklch(28% 0.03 262); --tile-red: oklch(52% 0.16 30); --tile-green: oklch(46% 0.09 165); --tile-blue: oklch(38% 0.09 258);
++  /* Tiles: bone face over a sunflower bamboo layer, suits in lacquer inks. */
++  --tile-face: oklch(98.5% 0.008 95); --tile-face-dim: oklch(90% 0.012 95); --tile-edge: oklch(86% 0.016 95); --tile-side: oklch(82% 0.12 90);
++  --tile-back: oklch(80% 0.13 88); --tile-back-edge: oklch(68% 0.12 82); --tile-back-side: oklch(56% 0.1 78); --tile-back-ink: oklch(58% 0.1 78);
++  --tile-ink: oklch(25% 0.05 240); --tile-red: oklch(52% 0.17 28); --tile-green: oklch(47% 0.1 165); --tile-blue: oklch(42% 0.11 232);
+ 
+   --font-display: "Songti SC", "STSong", "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", ui-serif, serif;
+   --font-body: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC", ui-sans-serif, system-ui, sans-serif;

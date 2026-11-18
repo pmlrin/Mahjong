@@ -1,0 +1,22 @@
+{
+  "at": "2026-11-18T05:52:23.690477+00:00",
+  "current": "/opt/mahjong/releases/20261118-production-9acbe5a",
+  "health": {
+    "ok": true,
+    "version": "0.4.2",
+    "buildId": "79c1efe588cf3d3144ecfb37971780a8becae20d9632970e78c7f3fe07ea1bfd",
+    "activeTables": 0
+  },
+  "maintenance": false,
+  "services": {
+    "mahjong.service": "NRestarts=0\nMemoryCurrent=107421696\nActiveState=active\nSubState=running\nActiveEnterTimestamp=Wed 2026-11-18 13:50:49 CST",
+    "mahjong-v2-preview.service": "NRestarts=0\nMemoryCurrent=77541376\nActiveState=active\nSubState=running\nActiveEnterTimestamp=Mon 2026-11-02 17:38:49 CST",
+    "astrbot.service": "NRestarts=6\nMemoryCurrent=324235264\nActiveState=active\nSubState=running\nActiveEnterTimestamp=Thu 2026-11-12 00:39:12 CST",
+    "napcat.service": "NRestarts=1\nMemoryCurrent=161120256\nActiveState=active\nSubState=running\nActiveEnterTimestamp=Sun 2026-11-01 11:41:45 CST"
+  },
+  "timers": {
+    "mahjong-backup.timer": "NextElapseUSecRealtime=Thu 2026-11-19 03:00:00 CST\nActiveState=active",
+    "mahjong-v2-preview-backup.timer": "NextElapseUSecRealtime=Thu 2026-11-19 03:10:00 CST\nActiveState=active"
+  },
+  "journal": "-- Logs begin at Sat 2026-08-15 11:37:54 CST, end at Wed 2026-11-18 13:51:56 CST. --\n2026-11-18T13:50:40+0800 iZm5e4p130e52sfxmngh08Z systemd[1]: Stopping Ichitaku Mahjong...\n2026-11-18T13:50:40+0800 iZm5e4p130e52sfxmngh08Z systemd[1]: mahjong.service: Succeeded.\n2026-11-18T13:50:40+0800 iZm5e4p130e52sfxmngh08Z systemd[1]: Stopped Ichitaku Mahjong.\n2026-11-18T13:50:49+0800 iZm5e4p130e52sfxmngh08Z systemd[1]: Started Ichitaku Mahjong.\n2026-11-18T13:50:51+0800 iZm5e4p130e52sfxmngh08Z node[3264478]: {\"event\":\"SERVER_BUILD\",\"version\":\"0.4.2\",\"protocol\":\"2.0\",\"sourceSha256\":\"79c1efe588cf3d3144ecfb37971780a8becae20d9632970e78c7f3fe07ea1bfd\"}\n2026-11-18T13:50:51+0800 iZm5e4p130e52sfxmngh08Z node[3264478]: {\"event\":\"HISTORY_BACKFILL\",\"indexed\":0,\"issues\":0,\"alreadyApplied\":true}\n2026-11-18T13:50:51+0800 iZm5e4p130e52sfxmngh08Z node[3264478]: {\"event\":\"AUTH_MIGRATION\",\"alreadyApplied\":true,\"users\":0,\"sessions\":0,\"conflicts\":0}\n2026-11-18T13:50:51+0800 iZm5e4p130e52sfxmngh08Z node[3264478]: Mahjong server http://127.0.0.1:8029"
+}
