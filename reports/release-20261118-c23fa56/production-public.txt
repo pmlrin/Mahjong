@@ -1,0 +1,1 @@
+{"passed":true,"health":{"ok":true,"version":"0.4.2","buildId":"cecc4698047f7e50aa2c29c2ea08ae7722f6309c7a4ec6eca3844cbe063c8959","activeTables":0},"existingGuestSessionPreserved":true,"verifiedFiles":39,"previewVersion":"0.4.1"}

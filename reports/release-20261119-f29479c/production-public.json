@@ -1,0 +1,223 @@
+{
+  "at": "2026-11-18T15:18:02.537Z",
+  "origin": "https://mahjong.yangjm.cn",
+  "health": {
+    "ok": true,
+    "version": "0.4.2",
+    "buildId": "02d8a88ddf860cf61a07d51926ca926eaca7d657a81f0928e39185a8ef1aaeab",
+    "activeTables": 1
+  },
+  "maintenance": false,
+  "botLevels": [
+    "BASIC",
+    "STANDARD",
+    "ADVANCED",
+    "MASTER"
+  ],
+  "autopilotBotLevel": "STANDARD",
+  "existingGuestSessionPreserved": true,
+  "preview": {
+    "ok": true,
+    "version": "0.4.1",
+    "buildId": "02726a6c8fe0d5c53e622dc35b89fc64200b52fc32b19df4dae1ba544f3ee707",
+    "activeTables": 0
+  },
+  "assets": [
+    {
+      "url": "/assets/Table3D-DQpbVc3v.css",
+      "bytes": 5108,
+      "sha256": "818ad83122eec1271949cf2e4afba954189e3d1b13cccd80985766f39c469a04"
+    },
+    {
+      "url": "/assets/ceramic-tile-drop-1-B2RJlfwP.ogg",
+      "bytes": 5514,
+      "sha256": "f35a94fe1b0642d11573abf93910f1332af005b88a39aadad89787947a77ed77"
+    },
+    {
+      "url": "/assets/Table3D-Oi_S-owC.js",
+      "bytes": 955198,
+      "sha256": "1172eff00195fa371caea0f6e550e1192c02727fcd474c559f6d9d5a1e524311"
+    },
+    {
+      "url": "/assets/ambient-pr1uzMwX.m4a",
+      "bytes": 718083,
+      "sha256": "9b84e3ca392702adc65f6a5edc50c4d84500a021fc5284c68ac78b54b0c3879b"
+    },
+    {
+      "url": "/assets/ambient-CNe7OKNO.ogg",
+      "bytes": 913769,
+      "sha256": "73a0f5ef19ed9f64599c0425b1fb52d857acfc42c0fd5eab85c4577ace18f0ed"
+    },
+    {
+      "url": "/assets/ceramic-tile-drop-2-6cff0txK.m4a",
+      "bytes": 5306,
+      "sha256": "a8c4f263d81006a84f4bad4673633144b762f42f0280682007a33ac3938904c2"
+    },
+    {
+      "url": "/assets/ceramic-tile-drop-1-BM9sbTCS.m4a",
+      "bytes": 5442,
+      "sha256": "73e474fd414ddbf9562f8b3136728604ebc9a896a5a8cec59a7840c00c48cd15"
+    },
+    {
+      "url": "/assets/ceramic-tile-drop-2-CusB9r_6.ogg",
+      "bytes": 4972,
+      "sha256": "c3a70234c958fbd718e4d5c354ea9e9129caef76da39cdde2ca056f377b8cbb1"
+    },
+    {
+      "url": "/assets/ceramic-tile-drop-3-B8CuRIO7.m4a",
+      "bytes": 5422,
+      "sha256": "b749903ffc4e565e453ab68aa6382d8a3270515a8cd03054c384a64913ab2401"
+    },
+    {
+      "url": "/assets/ceramic-tile-drop-3-C781Wtst.ogg",
+      "bytes": 5457,
+      "sha256": "d5e21d44626859bc261848154ace5090c2ea3af7fa67a75f6ea56fc063db5be3"
+    },
+    {
+      "url": "/assets/ceramic-tile-drop-4-BHST-3sD.ogg",
+      "bytes": 5461,
+      "sha256": "cec163ce604936e3403fad5beaaecd3ddd3f27c13fcfa7b4ba7fd56d566b9d15"
+    },
+    {
+      "url": "/assets/ceramic-tile-drop-4-BKgMSNGx.m4a",
+      "bytes": 5435,
+      "sha256": "9bdb67b7a706d6e6bafbf585cc0560d5fc1736b3bcf4b281e4fcf0e656f7d8e3"
+    },
+    {
+      "url": "/assets/ceramic-tile-flip-1-BAkrYUgp.m4a",
+      "bytes": 5851,
+      "sha256": "8ccc82380f5b9a4dfcc7d6c9e2ce90268973536f5408a372197a64109c4c44a5"
+    },
+    {
+      "url": "/assets/ceramic-tile-flip-1-BpwNk46O.ogg",
+      "bytes": 5540,
+      "sha256": "3fa3c3c4c42d9e1d312cde2d77ca0bfd505bc305ddbdee6ee6f2aa4fa907a255"
+    },
+    {
+      "url": "/assets/ceramic-tile-flip-2-BhWwXdjK.ogg",
+      "bytes": 5945,
+      "sha256": "c0826062406a3b0cee2bb6bacdcde03bf4e2146a7be92965464da2fcb4aadd8e"
+    },
+    {
+      "url": "/assets/ceramic-tile-flip-2-DnqVXatl.m4a",
+      "bytes": 6050,
+      "sha256": "0e95b2ca119923b3410b94bddb2afd5f9c954a5b41cdb11452b6a7dc2e29b462"
+    },
+    {
+      "url": "/assets/ceramic-tile-flip-3-BhS5xEf-.ogg",
+      "bytes": 5970,
+      "sha256": "a7e436d08da3d0891da53d2d1d2a24d22d874f06648a308ef5e1ff58edea4a22"
+    },
+    {
+      "url": "/assets/ceramic-tile-flip-3-C7P0lDS2.m4a",
+      "bytes": 6029,
+      "sha256": "4830fa120ea851e1ad4bbb337b7073a5db08825882841cbd21bf9d7c227b9417"
+    },
+    {
+      "url": "/assets/ceramic-tile-shuffle-1-DNmqZQvl.m4a",
+      "bytes": 18735,
+      "sha256": "1ca8ff36ab82bf92580018eab4a1958b4438ebe72b45ee7c1587d9cc30526a9b"
+    },
+    {
+      "url": "/assets/ceramic-tile-shuffle-1-rU6VgtCZ.ogg",
+      "bytes": 21942,
+      "sha256": "17441a8de4b008f77338b0f06cb88ab38a551d252c1931d2555ca4f00850192a"
+    },
+    {
+      "url": "/assets/ceramic-tile-shuffle-2-BHXoGQ0z.m4a",
+      "bytes": 19207,
+      "sha256": "f320f65180820cc08d0ed1afc2dd9eefc59befa47a89d84fcd01e8fa9a2f2cc1"
+    },
+    {
+      "url": "/assets/ceramic-tile-shuffle-2-BdfYcj0t.ogg",
+      "bytes": 22479,
+      "sha256": "ec4d1f9efc99da0f42a3fbf3f87c64ed3b9a11f8d84ff7b657e5f3a055543fa3"
+    },
+    {
+      "url": "/assets/ceramic-tile-shuffle-3-Derg7cRV.m4a",
+      "bytes": 18989,
+      "sha256": "a6e600bb217da8680b2698892dd6e30c47ead41de99e95c7cae39c788ef878d1"
+    },
+    {
+      "url": "/assets/ceramic-tile-shuffle-3-myIZJgLS.ogg",
+      "bytes": 22053,
+      "sha256": "c96df0086fbbb0b55cad0e2bad549e744c7a01ea53ab591e1a86c12d966e93b8"
+    },
+    {
+      "url": "/assets/index-BDZ76koS.css",
+      "bytes": 71861,
+      "sha256": "95d1d92a08074a203a293fafe51f5126d504545b686e51d6861b09c4c6d69144"
+    },
+    {
+      "url": "/avatars/bamboo.svg",
+      "bytes": 302,
+      "sha256": "237932d74a2352c823be12843b9b996627017a997e85046f3e25a141a7e939dc"
+    },
+    {
+      "url": "/avatars/chrysanthemum.svg",
+      "bytes": 302,
+      "sha256": "2ce757bde9a21c6457258c85873ca2a9f2ed0a41f7c9aa1386fcb5b49f04864c"
+    },
+    {
+      "url": "/avatars/cloud.svg",
+      "bytes": 302,
+      "sha256": "27a41b8086afb066506be8bcebf0ea5cc3953e2d2c454799d6e30ec03adc0869"
+    },
+    {
+      "url": "/avatars/crane.svg",
+      "bytes": 302,
+      "sha256": "1fadc3f1c49f568882791ddaf19f022e87fbab0cb767028afe8dd023a9468530"
+    },
+    {
+      "url": "/assets/index-CVlmeSZz.js",
+      "bytes": 504670,
+      "sha256": "a741b135fc810777e0608c350d2707311d683b19625af48b8d538bff011ecd82"
+    },
+    {
+      "url": "/avatars/mountain.svg",
+      "bytes": 302,
+      "sha256": "796d2af1a4b905e3db1f710214b9e561ea3f2d17e2c0a3decaa6bbbe38fdadfb"
+    },
+    {
+      "url": "/avatars/moon.svg",
+      "bytes": 302,
+      "sha256": "63621b80ee29494fa4a3cf318b3b2602cb92200c03d0c7d712089a05d76510be"
+    },
+    {
+      "url": "/avatars/orchid.svg",
+      "bytes": 302,
+      "sha256": "eaf211bfc933e2d2928356ea2138a17ef7f3c105ae5b3cac6b524871a67e6166"
+    },
+    {
+      "url": "/avatars/pine.svg",
+      "bytes": 302,
+      "sha256": "78603bb620311933a0daf6c47a23cb14ae54b6af5e1b276dc99194a885584582"
+    },
+    {
+      "url": "/avatars/plum.svg",
+      "bytes": 302,
+      "sha256": "52f8f4c4f1ac6f4aa5f2476df79003a79870b4dff6909498717c822179b3d5e9"
+    },
+    {
+      "url": "/index.html",
+      "bytes": 631,
+      "sha256": "da778688194058b4301392a7e282212397843b6d41302ac1862c6051821050d2"
+    },
+    {
+      "url": "/avatars/river.svg",
+      "bytes": 302,
+      "sha256": "8685e1deb6ba2dcc4dead0519ef3de7e41d91dbf8f6269953f3cd229b32eb3be"
+    },
+    {
+      "url": "/avatars/snow.svg",
+      "bytes": 302,
+      "sha256": "f17f42530492c74657ec04e72cb3fa3b021db5682ddc9880e0dba016a96f8f76"
+    },
+    {
+      "url": "/avatars/sun.svg",
+      "bytes": 302,
+      "sha256": "c4ae2dfe8b04feb3874792a907ebca6a8117d78ebb4d32dad6c191164d3ad6a0"
+    }
+  ],
+  "passed": true
+}

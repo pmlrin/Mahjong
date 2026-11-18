@@ -1,0 +1,4 @@
+Public match started: 2b0ee6d8-0ad3-4000-ab35-11033364bb4e with 4 human sessions
+Production Chrome rendered 3D and switched to flat and back: [ '/assets/Table3D-Oi_S-owC.js' ]
+AI took over the open turn in 238 ms
+Public full-match smoke test passed: [ 23500, 39300, 28000, 9200 ] elapsed 78387 ms

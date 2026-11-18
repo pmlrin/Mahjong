@@ -1,0 +1,45 @@
+{
+  "sourceCommit": "f29479ce633293e8ee79b06f47994c33f62723fc",
+  "sourceSha256": "02d8a88ddf860cf61a07d51926ca926eaca7d657a81f0928e39185a8ef1aaeab",
+  "testsPassed": 195,
+  "chromeScenariosPassed": 18,
+  "publicFilesMatched": 39,
+  "productionMatch": {
+    "origin": "https://mahjong.yangjm.cn",
+    "at": "2026-11-18T15:19:15.049Z",
+    "elapsedMs": 78386,
+    "humanSessions": 4,
+    "aiSeats": 0,
+    "matchId": "2b0ee6d8-0ad3-4000-ab35-11033364bb4e",
+    "points": [
+      23500,
+      39300,
+      28000,
+      9200
+    ],
+    "replayEvents": 545,
+    "handoverMs": 238,
+    "verifiedProduction3D": true,
+    "browserErrors": [],
+    "browserAssets": [
+      "/assets/Table3D-Oi_S-owC.js"
+    ],
+    "passed": true
+  },
+  "previous3DAssetMatched": true,
+  "existingGuestSessionPreserved": true,
+  "backupRestore": {
+    "database": "mahjong_release_restore_20261119_f29479c",
+    "tables": 29,
+    "allRowsAndDigestsMatch": true,
+    "temporaryDatabaseRemoved": true
+  },
+  "mailSenderBrand": "明烛麻将",
+  "health": {
+    "ok": true,
+    "version": "0.4.2",
+    "buildId": "02d8a88ddf860cf61a07d51926ca926eaca7d657a81f0928e39185a8ef1aaeab",
+    "activeTables": 0
+  },
+  "passed": true
+}

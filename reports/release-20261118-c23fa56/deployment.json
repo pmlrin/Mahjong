@@ -1,0 +1,160 @@
+{
+  "at": "2026-11-18T08:27:35.643054+00:00",
+  "previousRelease": "/opt/mahjong/releases/20261118-production-9acbe5a",
+  "release": "/opt/mahjong/releases/20261118-production-c23fa56",
+  "backup": "/opt/mahjong/backups/mahjong-production-stopped-20261118-c23fa56.dump",
+  "configBackup": "/opt/mahjong/backups/config-20261118-c23fa56",
+  "sourceSha256": "cecc4698047f7e50aa2c29c2ea08ae7722f6309c7a4ec6eca3844cbe063c8959",
+  "passed": true,
+  "beforeTables": {
+    "auth_accounts": {
+      "rows": 3,
+      "md5": "bd46d72c0e6489229bae1e7a82cccef0"
+    },
+    "auth_audit": {
+      "rows": 13,
+      "md5": "4d61e7bc936336b4a733e117b965cda0"
+    },
+    "auth_challenges": {
+      "rows": 5,
+      "md5": "11ad4895398ac32e1c083fdc48c39fc5"
+    },
+    "auth_environment": {
+      "rows": 1,
+      "md5": "d7d83afdc9563349b7d7c56f4a83de4f"
+    },
+    "auth_grants": {
+      "rows": 3,
+      "md5": "755f2ed7fc60683940034929075f775f"
+    },
+    "auth_limits": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "auth_mail_jobs": {
+      "rows": 4,
+      "md5": "1c936ff99ee6d81d6ed57cacc274ccde"
+    },
+    "auth_migration_issues": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "auth_migrations": {
+      "rows": 1,
+      "md5": "6fb3ec450eecc2ff8b6f89c8eee36e58"
+    },
+    "auth_receipts": {
+      "rows": 14,
+      "md5": "befcf3098cca1f79057c295bf2cad4f2"
+    },
+    "auth_sessions": {
+      "rows": 63,
+      "md5": "90c3f0358206c120c71d3032440d8f5c"
+    },
+    "auth_users": {
+      "rows": 59,
+      "md5": "39ff7b88822b70b8d760a33a186104b4"
+    },
+    "avatar_assets": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "blocks": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "documents": {
+      "rows": 5373,
+      "md5": "b4219408e6eff02d8f190a38106473f0"
+    },
+    "friend_requests": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "friendships": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "history_members": {
+      "rows": 57,
+      "md5": "ac8f9b8202deb4362368eae89b45ef67"
+    },
+    "history_summaries": {
+      "rows": 22,
+      "md5": "f10ddd30e736059f13b445864a9fa4a6"
+    },
+    "migration_issues": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "replay_positions": {
+      "rows": 3,
+      "md5": "01dbf6aa8ecbc16cc3546ec87375d8af"
+    },
+    "room_invitations": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "social_audit": {
+      "rows": 3,
+      "md5": "73c5b50b277cf65ee6905bb61695b308"
+    },
+    "social_cooldowns": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "social_limits": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "social_profiles": {
+      "rows": 3,
+      "md5": "daee8ce065377b2a79bbbd6e5a652096"
+    },
+    "social_receipts": {
+      "rows": 3,
+      "md5": "e03520fb25290b5d5940a7338d6eabbd"
+    },
+    "social_sessions": {
+      "rows": 7,
+      "md5": "6058e03a9238779e3ea3a5665eaacd6d"
+    },
+    "social_user_state": {
+      "rows": 3,
+      "md5": "ec131018738c6b6e13866139ba224987"
+    }
+  },
+  "backupBytes": 1615540,
+  "backupRestore": {
+    "database": "mahjong_release_restore_20261118_c23fa56",
+    "tables": 29,
+    "allRowsAndDigestsMatch": true,
+    "temporaryDatabaseRemoved": true
+  },
+  "health": {
+    "ok": true,
+    "version": "0.4.2",
+    "buildId": "cecc4698047f7e50aa2c29c2ea08ae7722f6309c7a4ec6eca3844cbe063c8959",
+    "activeTables": 0
+  },
+  "preservedUserTables": [
+    "auth_users",
+    "auth_accounts",
+    "avatar_assets",
+    "social_profiles",
+    "friendships",
+    "friend_requests",
+    "blocks",
+    "history_summaries",
+    "history_members",
+    "replay_positions"
+  ],
+  "originalConfigurationUnchanged": true,
+  "nginxAvatarUpload": {
+    "route": "/api/v2/profile/avatar",
+    "proxyBodyLimit": "320k",
+    "validated": true,
+    "previousConfig": "/opt/mahjong/backups/config-20261118-c23fa56/mahjong.yangjm.cn.conf"
+  },
+  "maintenance": false
+}

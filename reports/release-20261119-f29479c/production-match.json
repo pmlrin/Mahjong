@@ -1,0 +1,22 @@
+{
+  "origin": "https://mahjong.yangjm.cn",
+  "at": "2026-11-18T15:19:15.049Z",
+  "elapsedMs": 78386,
+  "humanSessions": 4,
+  "aiSeats": 0,
+  "matchId": "2b0ee6d8-0ad3-4000-ab35-11033364bb4e",
+  "points": [
+    23500,
+    39300,
+    28000,
+    9200
+  ],
+  "replayEvents": 545,
+  "handoverMs": 238,
+  "verifiedProduction3D": true,
+  "browserErrors": [],
+  "browserAssets": [
+    "/assets/Table3D-Oi_S-owC.js"
+  ],
+  "passed": true
+}

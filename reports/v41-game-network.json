@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-16T12:51:53.738Z",
+  "at": "2026-11-18T15:33:37.696Z",
   "passed": true,
   "version": "0.4.2",
   "protocol": "2.0",
@@ -16,7 +16,7 @@
   ],
   "restart": "SIGKILL",
   "aiDiscardGapsMs": [
-    2007,
+    3202,
     3202
   ],
   "serverLog": [
@@ -36,9 +36,9 @@
     "    at Socket.onclose (file:///Users/yangjm/Documents/Mahjong/node_modules/.pnpm/socket.io-client@4.8.4/node_modules/socket.io-client/build/esm-debug/socket.js:465:14)",
     "    at Socket.disconnect (file:///Users/yangjm/Documents/Mahjong/node_modules/.pnpm/socket.io-client@4.8.4/node_modules/socket.io-client/build/esm-debug/socket.js:677:18)",
     "    at Client.close (/Users/yangjm/Documents/Mahjong/tests/network.test.ts:173:18)",
-    "    at <anonymous> (/Users/yangjm/Documents/Mahjong/tests/network.test.ts:930:13)",
+    "    at <anonymous> (/Users/yangjm/Documents/Mahjong/tests/network.test.ts:957:13)",
     "    at async TestContext.<anonymous> (/Users/yangjm/Documents/Mahjong/tests/network.test.ts:244:11)",
     "    at async Test.run (node:internal/test_runner/test:1409:7)",
-    "    at async TestContext.<anonymous> (/Users/yangjm/Documents/Mahjong/tests/network.test.ts:900:7)"
+    "    at async TestContext.<anonymous> (/Users/yangjm/Documents/Mahjong/tests/network.test.ts:927:7)"
   ]
 }

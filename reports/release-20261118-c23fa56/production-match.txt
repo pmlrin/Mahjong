@@ -1,0 +1,3 @@
+Public match started: 3b069fa4-3dde-486a-87c8-7f9cce62636e with 4 human sessions
+AI took over the open turn in 1296 ms
+Public full-match smoke test passed: [ 23600, 20200, 37300, 18900 ] elapsed 122540 ms

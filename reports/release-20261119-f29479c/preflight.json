@@ -1,0 +1,12 @@
+{
+  "instance_id": "i-m5e4p130e52sfxmngh08",
+  "session_id": "s-8fihxkhugp9e0cgvl",
+  "request_id": "r-1795014883799252000",
+  "command": "test ! -e /tmp/mahjong-20261119-production-f29479c.tgz && test ! -e /opt/mahjong/releases/20261119-production-f29479c && test ! -e /opt/mahjong/maintenance-v3-production && python3 -c 'import pathlib,subprocess; pid=subprocess.check_output([\"systemctl\",\"show\",\"mahjong.service\",\"--property=MainPID\",\"--value\"]).decode().strip(); vals=[s.split(b\"=\",1)[1].decode() for s in pathlib.Path(\"/proc/\"+pid+\"/environ\").read_bytes().split(bytes([0])) if s.startswith(b\"MAIL_FROM_NAME=\")]; print(\"mailFromName=\"+(\"default\" if not vals else \"old_brand\" if vals[0]==\"一桌麻将\" else \"new_brand\" if vals[0]==\"明烛麻将\" else \"custom\"))'",
+  "exit_code": 0,
+  "stdout": "mailFromName=old_brand\n",
+  "output": "mailFromName=old_brand\n",
+  "stderr": "",
+  "started_at": "2026-11-19T00:14:43+09:00",
+  "duration": "413ms"
+}
