@@ -131,7 +131,7 @@ test("V4 T11: random code unique conflict retries and repeat migration preserve 
     f.codes,
   );
 });
-test("V4 T12/T13/T14: minimal lookup, duplicate and crossed requests, explicit accept and replay", async (t) => {
+test("V4 T12/T13/T14: minimal lookup, duplicate and crossed requests (crossed means friends), accept replay", async (t) => {
   const f = await fixture();
   t.after(() => f.close());
   const found = await f.social.lookup(f.ctx(0), f.codes[1]);
@@ -150,7 +150,7 @@ test("V4 T12/T13/T14: minimal lookup, duplicate and crossed requests, explicit a
     f.social.sendRequest(f.ctx(1), f.codes[0]),
   ]);
   assert.equal(a.requestId, b.requestId);
-  assert.equal((await f.social.snapshot(f.ctx(0))).friends.length, 0);
+  assert.equal((await f.social.snapshot(f.ctx(0))).friends.length, 1);
   const ctx = f.ctx(1);
   await f.social.requestAction(ctx, a.requestId, "ACCEPTED", 1);
   await f.social.requestAction(ctx, a.requestId, "ACCEPTED", 1);
@@ -607,4 +607,39 @@ test("V4 T31: inactive expiration, cleanup and restart preserve relations withou
     code("NOT_FOUND"),
   );
   assert.equal((await f.social.snapshot(ctx)).friends.length, 1);
+});
+test("Adding someone who already asked you makes you friends at once", async (t) => {
+  const f = await fixture();
+  t.after(() => f.close());
+  await f.social.sendRequest(f.ctx(0), f.codes[1]);
+  const r = await f.social.sendRequest(f.ctx(1), f.codes[0]);
+  assert.equal(r.becameFriends, true);
+  const snap = await f.social.snapshot(f.ctx(0));
+  assert.equal(snap.friends.length, 1);
+  assert.equal(snap.sentRequests.length, 0);
+});
+test("Suggestions list recent account tablemates who are not friends yet", async (t) => {
+  const f = await fixture();
+  t.after(() => f.close());
+  const users = [0, 1, 2].map((i) => f.member(i).userId);
+  const at = 1800000000000;
+  await f.store.transaction(async (tx) => {
+    for (const [seat, userId] of users.entries())
+      await tx.query(
+        "INSERT INTO history_members(user_id,match_id,seat,finished_at,format,mode,status,rank,net_points) VALUES(?,?,?,?,?,?,?,?,?)",
+        [userId, "m1", seat, at, "EAST_ONLY", "FRIENDS", "FINISHED", seat + 1, 0],
+      );
+  });
+  await f.friend(0, 2);
+  await f.social.block(f.ctx(3), f.codes[0]);
+  const { items } = await f.social.suggestions(f.ctx(0));
+  assert.deepEqual(
+    items.map((p) => [p.friendCode, p.relationship]),
+    [[f.codes[1], "NONE"]],
+  );
+  await f.social.sendRequest(f.ctx(0), f.codes[1]);
+  assert.equal(
+    (await f.social.suggestions(f.ctx(0))).items[0].relationship,
+    "OUTGOING",
+  );
 });

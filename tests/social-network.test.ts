@@ -215,6 +215,7 @@ test(
       b = await connect(1);
     let notifications = 0;
     b.on("social:changed", () => notifications++);
+    assert.deepEqual(await ok(0, "/friends/suggestions"), { items: [] });
     const request = await ok(0, "/friend-requests", "POST", {
       friendCode: profiles[1].friendCode,
     });

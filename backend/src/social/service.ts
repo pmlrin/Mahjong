@@ -734,13 +734,24 @@ export class SocialService {
           "SELECT * FROM friend_requests WHERE pair_key=? AND state='PENDING'",
           [key],
         );
-        if (existing)
+        if (existing) {
+          // Both sides want it: adding someone who already asked you accepts their request.
+          if (existing.recipient_id === s.userId) {
+            await this.acceptPending(tx, existing, w);
+            return {
+              requestId: existing.request_id,
+              state: "ACCEPTED",
+              becameFriends: true,
+              version: Number(existing.version) + 1,
+            };
+          }
           return {
             requestId: existing.request_id,
             state: "PENDING",
-            incoming: existing.recipient_id === s.userId,
+            incoming: false,
             version: Number(existing.version),
           };
+        }
         await this.cooldown(tx, "pair:" + key);
         await this.cooldown(tx, "sender:" + key + ":" + s.userId);
         if (
@@ -801,27 +812,75 @@ export class SocialService {
           error("REQUEST_STATE_CONFLICT", "申请状态已变化，请刷新");
         if (await this.blocked(tx, r.sender_id, r.recipient_id))
           error("REQUEST_STATE_CONFLICT", "申请状态已变化，请刷新");
-        if (action === "ACCEPTED") {
-          if (
-            (await this.friendCount(tx, r.sender_id)) >= this.limits.friends ||
-            (await this.friendCount(tx, r.recipient_id)) >= this.limits.friends
-          )
-            error("FRIEND_LIMIT_REACHED", "双方任一好友数量已达上限");
-          const [low, high] = [r.sender_id, r.recipient_id].sort();
-          await tx.query(
-            "INSERT INTO friendships(pair_key,low_id,high_id,created_at) VALUES(?,?,?,?) ON CONFLICT DO NOTHING",
-            [r.pair_key, low, high, this.now()],
-          );
-        } else
+        if (action === "ACCEPTED") await this.acceptPending(tx, r, w);
+        else {
           await this.cooldown(
             tx,
             "sender:" + r.pair_key + ":" + r.sender_id,
             this.now() + DAY,
           );
-        await this.finish(tx, "friend_requests", "request_id", id, action, w);
+          await this.finish(tx, "friend_requests", "request_id", id, action, w);
+        }
         return { requestId: id, state: action, version: version + 1 };
       },
     );
+  }
+  private async acceptPending(tx: Sql, r: any, w: Work) {
+    if (
+      (await this.friendCount(tx, r.sender_id)) >= this.limits.friends ||
+      (await this.friendCount(tx, r.recipient_id)) >= this.limits.friends
+    )
+      error("FRIEND_LIMIT_REACHED", "双方任一好友数量已达上限");
+    const [low, high] = [r.sender_id, r.recipient_id].sort();
+    await tx.query(
+      "INSERT INTO friendships(pair_key,low_id,high_id,created_at) VALUES(?,?,?,?) ON CONFLICT DO NOTHING",
+      [r.pair_key, low, high, this.now()],
+    );
+    await this.finish(
+      tx,
+      "friend_requests",
+      "request_id",
+      r.request_id,
+      "ACCEPTED",
+      w,
+    );
+  }
+  /** Account players from your recent tables who are not yet friends: one tap to add. */
+  async suggestions(ctx: SocialContext) {
+    this.enabled("friends");
+    return this.store.transaction(async (tx) => {
+      const s = await this.actor(tx, ctx);
+      const rows = await tx.rows(
+        "SELECT o.user_id,MAX(o.finished_at) AS last_at FROM (SELECT match_id FROM history_members WHERE user_id=? ORDER BY finished_at DESC,match_id DESC LIMIT 30) m JOIN history_members o ON o.match_id=m.match_id JOIN social_profiles p ON p.user_id=o.user_id WHERE o.user_id<>? GROUP BY o.user_id ORDER BY last_at DESC LIMIT 40",
+        [s.userId, s.userId],
+      );
+      const items = [];
+      for (const r of rows) {
+        const id = String(r.user_id);
+        if (
+          (await this.blocked(tx, s.userId, id)) ||
+          (await tx.one("SELECT pair_key FROM friendships WHERE pair_key=?", [
+            pair(s.userId, id),
+          ]))
+        )
+          continue;
+        const pending = await tx.one(
+          "SELECT sender_id FROM friend_requests WHERE pair_key=? AND state='PENDING' AND expires_at>?",
+          [pair(s.userId, id), this.now()],
+        );
+        items.push({
+          ...(await this.person(tx, id)),
+          relationship: !pending
+            ? "NONE"
+            : pending.sender_id === s.userId
+              ? "OUTGOING"
+              : "INCOMING",
+          lastPlayedAt: Number(r.last_at),
+        });
+        if (items.length >= 12) break;
+      }
+      return { items };
+    });
   }
   private async removePair(
     tx: Sql,

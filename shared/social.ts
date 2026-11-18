@@ -119,6 +119,26 @@ export interface SocialPerson {
   displayName: string;
   avatarId: string;
 }
+export type Relationship = "SELF" | "FRIEND" | "INCOMING" | "OUTGOING" | "NONE";
+export interface FriendSuggestion extends SocialPerson {
+  relationship: "NONE" | "INCOMING" | "OUTGOING";
+  lastPlayedAt: number;
+}
+/** Pull a friend code out of typed text or a shared `?friend=` link. */
+export function extractFriendCode(text: string): string | null {
+  let raw = text.trim();
+  const fromLink = raw.match(/[?&]friend=([^&#\s]+)/);
+  if (fromLink)
+    try {
+      raw = decodeURIComponent(fromLink[1]);
+    } catch {
+      return null;
+    }
+  const parsed = friendCodeSchema.safeParse(raw.replace(/\s/g, ""));
+  return parsed.success ? parsed.data : null;
+}
+export const friendLink = (origin: string, code: string) =>
+  origin + "/?friend=" + code;
 export interface Friend extends SocialPerson {
   status: PresenceStatus;
 }

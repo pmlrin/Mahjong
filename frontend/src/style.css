@@ -778,6 +778,9 @@ input[type="range"] { accent-color: var(--color-accent); }
 .social-tabs .active::after { content: ""; position: absolute; inset-inline: var(--space-md); bottom: -1px; height: var(--space-3xs); background: var(--color-accent); }
 .social-tabs button:last-child { margin-left: auto; color: var(--color-link); }
 .social-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs) var(--space-sm); }
+.my-friend-code { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-sm); margin-top: var(--space-md); padding: var(--space-sm) var(--space-md); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-control); font-size: var(--text-sm); color: var(--color-ink-2); }
+.my-friend-code code { color: var(--color-ink); letter-spacing: 0.04em; }
+.friend-suggestions { margin-bottom: var(--space-lg); }
 .friend-lookup { display: flex; align-items: flex-end; gap: var(--space-sm); margin-block: var(--space-md); font-size: var(--text-sm); }
 .friend-lookup label { display: grid; gap: var(--space-2xs); flex: 1; max-width: 420px; }
 .social-card, .devices article { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-sm); padding-block: var(--space-md); border-bottom: var(--rule-hair) solid var(--color-rule); font-size: var(--text-sm); }

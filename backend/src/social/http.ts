@@ -145,6 +145,9 @@ export function mountSocialRoutes(
     s.revokeDevices(ctx(r, true), p.currentPassword, null, p.flowId),
   );
   route("get", "/social/snapshot", empty, (r) => s.snapshot(ctx(r)));
+  route("get", "/friends/suggestions", empty, (r) =>
+    s.suggestions(ctx(r)),
+  );
   route(
     "post",
     "/friends/lookup",

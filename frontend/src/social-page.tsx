@@ -2,7 +2,14 @@ import React, { useRef, useState } from "react";
 import { Avatar } from "./Avatar";
 import { api } from "./api";
 import type { Room } from "../../shared/types";
-import type { SocialPerson, SocialSnapshot } from "../../shared/social";
+import {
+  extractFriendCode,
+  friendLink,
+  type FriendSuggestion,
+  type Relationship,
+  type SocialPerson,
+  type SocialSnapshot,
+} from "../../shared/social";
 const status = {
   WAITING: "在房间里",
   ONLINE: "在线",
@@ -19,6 +26,8 @@ export function SocialPage({
   onJoined,
   onBack,
   invitesEnabled,
+  initialCode = "",
+  onCodeConsumed,
 }: {
   snapshot: SocialSnapshot | null;
   refresh: () => Promise<void>;
@@ -28,13 +37,18 @@ export function SocialPage({
   onJoined: (roomId: string) => Promise<void>;
   onBack: () => void;
   invitesEnabled: boolean;
+  /** A friend code arriving from a shared `?friend=` link. */
+  initialCode?: string;
+  onCodeConsumed?: () => void;
 }) {
   const [tab, setTab] = useState<"friends" | "pending" | "blocks">("friends"),
     [filter, setFilter] = useState(""),
-    [lookupCode, setCode] = useState(""),
+    [lookupCode, setCode] = useState(initialCode),
     [found, setFound] = useState<
-      (SocialPerson & { relationship: string }) | null
+      (SocialPerson & { relationship: Relationship }) | null
     >(null),
+    [myCode, setMyCode] = useState(""),
+    [suggestions, setSuggestions] = useState<FriendSuggestion[] | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [message, setMessage] = useState(""),
@@ -47,7 +61,17 @@ export function SocialPage({
   const live = useRef(true);
   const revision = useRef(snapshot?.revision);
   revision.current = snapshot?.revision;
-  React.useEffect(() => setFound(null), [snapshot?.revision]);
+  React.useEffect(() => {
+    api<{ friendCode: string }>("/profile")
+      .then((p) => live.current && setMyCode(p.friendCode))
+      .catch(() => {});
+  }, []);
+  // Recent tablemates; refetched whenever friendships or requests change.
+  React.useEffect(() => {
+    api<{ items: FriendSuggestion[] }>("/friends/suggestions")
+      .then((r) => live.current && setSuggestions(r.items))
+      .catch(() => live.current && setSuggestions([]));
+  }, [snapshot?.revision]);
   React.useEffect(
     () => () => {
       live.current = false;
@@ -96,6 +120,53 @@ export function SocialPage({
       setNext(r.nextCursor);
     }
   }
+  async function lookup(text: string) {
+    const friendCode = extractFriendCode(text);
+    if (!friendCode) throw Error("请输入完整的 12 位好友码，或粘贴好友链接");
+    setFound(null);
+    const result = await call("/friends/lookup", { friendCode });
+    if (live.current) setFound(result);
+  }
+  React.useEffect(() => {
+    if (!initialCode) return;
+    onCodeConsumed?.();
+    void run(() => lookup(initialCode));
+  }, []);
+  /** Sends a request, or accepts theirs if they already asked. */
+  async function addFriend(p: SocialPerson) {
+    const r = await call("/friend-requests", { friendCode: p.friendCode });
+    if (!live.current) return;
+    if (found?.friendCode === p.friendCode)
+      setFound({
+        ...found,
+        relationship: r.becameFriends || r.alreadyFriends ? "FRIEND" : "OUTGOING",
+      });
+    setMessage(
+      r.becameFriends || r.alreadyFriends
+        ? `已和 ${p.displayName} 成为好友`
+        : `已向 ${p.displayName} 发出申请，7 天内有效`,
+    );
+  }
+  const addButton = (p: SocialPerson, relationship: Relationship) =>
+    relationship === "NONE" || relationship === "INCOMING" ? (
+      <button
+        className="primary"
+        disabled={busy}
+        onClick={() => run(() => addFriend(p))}
+      >
+        {relationship === "INCOMING" ? "同意" : "加为好友"}
+      </button>
+    ) : null;
+  const relationNote = (r: Relationship) =>
+    r === "SELF"
+      ? "这是你自己"
+      : r === "FRIEND"
+        ? "已经是好友"
+        : r === "INCOMING"
+          ? "对方想加你为好友"
+          : r === "OUTGOING"
+            ? "申请已发出，等对方同意"
+            : "";
   const person = (p: SocialPerson) => (
     <span className="person-line">
       <Avatar id={p.avatarId} />
@@ -187,31 +258,53 @@ export function SocialPage({
       </nav>
       {tab === "friends" && (
         <section>
+          {myCode && (
+            <div className="my-friend-code">
+              <span>
+                我的好友码 <code>{code(myCode)}</code>
+              </span>
+              <button
+                className="secondary"
+                onClick={() =>
+                  run(async () => {
+                    const link = friendLink(location.origin, myCode);
+                    if (navigator.share)
+                      await navigator
+                        .share({ title: "加我好友，一起打麻将", url: link })
+                        .catch(() => navigator.clipboard.writeText(link));
+                    else await navigator.clipboard.writeText(link);
+                    setMessage("好友链接已复制，发给朋友，对方点开即可加你");
+                  })
+                }
+              >
+                分享好友链接
+              </button>
+            </div>
+          )}
           <form
             className="friend-lookup"
             onSubmit={(e) => {
               e.preventDefault();
-              void run(async () => {
-                setFound(null);
-                const requestedRevision = revision.current;
-                const result = await call("/friends/lookup", {
-                  friendCode: lookupCode,
-                });
-                if (live.current && requestedRevision === revision.current)
-                  setFound(result);
-              });
+              void run(() => lookup(lookupCode));
             }}
           >
             <label>
-              朋友的好友码
+              加好友
               <input
                 value={lookupCode}
                 onChange={(e) => {
-                  setCode(e.target.value);
+                  const text = e.target.value;
+                  setCode(text);
                   setFound(null);
+                  // A full code or a pasted link looks itself up.
+                  const parsed = extractFriendCode(text);
+                  if (parsed && parsed !== extractFriendCode(lookupCode))
+                    void run(() => lookup(parsed));
                 }}
-                placeholder="XXXX-XXXX-XXXX"
+                placeholder="输入好友码，或粘贴好友链接"
                 autoComplete="off"
+                autoCapitalize="characters"
+                spellCheck={false}
               />
             </label>
             <button className="secondary" disabled={busy}>
@@ -222,35 +315,28 @@ export function SocialPage({
             card(
               "found",
               found,
-              <span>
-                {found.relationship === "SELF"
-                  ? "这是你自己"
-                  : found.relationship === "FRIEND"
-                    ? "已经是好友"
-                    : found.relationship === "INCOMING"
-                      ? "对方已向你发来申请，去「待处理」里同意即可"
-                      : found.relationship === "OUTGOING"
-                        ? "申请已发出"
-                        : ""}
-              </span>,
-              found.relationship === "NONE" && (
-                <button
-                  className="primary"
-                  disabled={busy}
-                  onClick={() =>
-                    run(async () => {
-                      await call("/friend-requests", {
-                        friendCode: found.friendCode,
-                      });
-                      setFound({ ...found, relationship: "OUTGOING" });
-                      setMessage("申请已发出，7 天内有效");
-                    })
-                  }
-                >
-                  加为好友
-                </button>
-              ),
+              <span>{relationNote(found.relationship)}</span>,
+              addButton(found, found.relationship),
             )}
+          {suggestions && suggestions.length > 0 && (
+            <section className="friend-suggestions">
+              <h2>最近同桌</h2>
+              {suggestions.map((p) =>
+                card(
+                  "suggest-" + p.friendCode,
+                  p,
+                  <small>
+                    {p.relationship === "OUTGOING"
+                      ? "申请已发出"
+                      : p.relationship === "INCOMING"
+                        ? "对方想加你为好友"
+                        : until(p.lastPlayedAt) + " 同桌"}
+                  </small>,
+                  addButton(p, p.relationship),
+                ),
+              )}
+            </section>
+          )}
           {snapshot && snapshot.friends.length > 8 && (
             <label>
               找好友
@@ -264,7 +350,9 @@ export function SocialPage({
           {!snapshot ? (
             <p>正在载入…</p>
           ) : !snapshot.friends.length ? (
-            <p>还没有好友。把你的好友码发给朋友，或输入朋友的好友码。</p>
+            <p className="muted">
+              还没有好友。分享你的好友链接，或从「最近同桌」里一键添加。
+            </p>
           ) : (
             snapshot.friends
               .filter((f) =>

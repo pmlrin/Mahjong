@@ -1,0 +1,17 @@
+{
+  "origin": "https://mahjong.yangjm.cn",
+  "at": "2026-11-18T08:30:58.534Z",
+  "elapsedMs": 122539,
+  "humanSessions": 4,
+  "aiSeats": 0,
+  "matchId": "3b069fa4-3dde-486a-87c8-7f9cce62636e",
+  "points": [
+    23600,
+    20200,
+    37300,
+    18900
+  ],
+  "replayEvents": 742,
+  "handoverMs": 1296,
+  "passed": true
+}

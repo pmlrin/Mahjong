@@ -81,6 +81,9 @@ function App() {
       friendInvitations?: boolean;
     } | null>(null),
     [accountPage, setAccountPage] = useState<AccountPage>("profile"),
+    [friendFromLink, setFriendFromLink] = useState(
+      () => new URLSearchParams(location.search).get("friend") ?? "",
+    ),
     [sessionEpoch, setSessionEpoch] = useState(0),
     [authPaused, setAuthPaused] = useState(false);
   const social = useSocial(
@@ -347,6 +350,24 @@ function App() {
       });
       setMe({ ...u, roomId: null, matchId: null });
     });
+  }
+  // A shared `?friend=` link opens the friends page with that code looked up.
+  useEffect(() => {
+    if (
+      friendFromLink &&
+      me?.identityKind === "ACCOUNT" &&
+      capabilities?.friends &&
+      !authPaused &&
+      (screen === "home" || screen === "room")
+    )
+      setScreen("social");
+  }, [friendFromLink, me?.identityKind, capabilities?.friends, authPaused]);
+  function consumeFriendLink() {
+    setFriendFromLink("");
+    const params = new URLSearchParams(location.search);
+    params.delete("friend");
+    const q = params.toString();
+    history.replaceState(null, "", location.pathname + (q ? "?" + q : ""));
   }
   const inviteConsumed = useRef(false);
   useEffect(() => {
@@ -1095,6 +1116,8 @@ function App() {
               : null
           }
           invitesEnabled={!!capabilities?.friendInvitations}
+          initialCode={friendFromLink}
+          onCodeConsumed={consumeFriendLink}
           onBack={() => setScreen(frame ? "game" : "home")}
           onJoined={async (roomId) => {
             const generation = identityGeneration.current;
