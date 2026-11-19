@@ -464,6 +464,10 @@ function App() {
       .then(setMatching)
       .catch(() => {});
   }, [network, me?.userId]);
+  const isHost = !!room && room.hostUserId === me?.userId,
+    meReady = !!room?.slots.find((m) => m?.userId === me?.userId)?.ready,
+    readyCount = room?.slots.filter((m) => m?.ready).length ?? 0,
+    allReady = readyCount === 4;
   // A finished table no longer holds the seat; only WAITING/PLAYING do.
   const liveRoom =
     room && (room.status === "WAITING" || room.status === "PLAYING")
@@ -958,166 +962,187 @@ function App() {
         </main>
       ) : screen === "room" && room ? (
         <main className="room-page">
-          <div className="page-title">
-            <h1>
-              灯点着，
-              <br />
-              等你们到齐。
-            </h1>
+          <div className="room-head">
+            <h1>灯点着，等你们到齐。</h1>
+            <button
+              className="text-button"
+              onClick={() =>
+                run(async () => {
+                  await api("/rooms/" + room.roomId + "/leave", "POST", {
+                    lobbyGeneration: room.lobbyGeneration,
+                  });
+                  setRoom(null);
+                  setScreen("home");
+                  setMe({ ...me!, roomId: null, matchId: null });
+                })
+              }
+            >
+              离开牌桌
+            </button>
           </div>
-          <div className="seats">
-            <div className="room-center">
+          <section className="room-table" aria-label="牌桌">
+            <header className="room-bar">
               <div className="room-invite">
-                <small>邀请码</small>
+                <span className="room-invite-label">邀请码</span>
                 <strong>{room.inviteCode}</strong>
-                <button
-                  className="secondary"
-                  onClick={() =>
-                    run(async () => {
-                      await navigator.clipboard.writeText(
-                        location.origin +
-                          import.meta.env.BASE_URL +
-                          "?invite=" +
-                          room.inviteCode,
-                      );
-                      setError("邀请链接已复制，发给朋友，推门就能坐");
-                    })
-                  }
-                >
-                  复制邀请链接
-                </button>
-              </div>
-              {me?.identityKind === "ACCOUNT" &&
-                capabilities?.friendInvitations &&
-                room.hostUserId === me.userId && (
+                <div className="room-invite-actions">
                   <button
                     className="secondary"
-                    onClick={() => openAccount("profile", "friends")}
+                    onClick={() =>
+                      run(async () => {
+                        await navigator.clipboard.writeText(
+                          location.origin +
+                            import.meta.env.BASE_URL +
+                            "?invite=" +
+                            room.inviteCode,
+                        );
+                        setError("邀请链接已复制，发给朋友，推门就能坐");
+                      })
+                    }
                   >
-                    邀请好友
+                    复制邀请链接
                   </button>
-                )}
-              <div className="room-meta">
-                {room.hostUserId === me?.userId && room.status === "WAITING" ? (
-                  <label>
-                    赛制{" "}
-                    <select
-                      aria-label="赛制"
-                      value={room.config.format}
-                      disabled={busy}
-                      onChange={(e) =>
-                        roomAction("/config", "PUT", {
-                          format: e.target.value,
-                          expectedRoomVersion: room.roomVersion,
-                        })
-                      }
-                    >
-                      {capabilities?.formats.map((f) => (
-                        <option key={f} value={f}>
-                          {formatName(f)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                ) : (
-                  <span>{formatName(room.config.format)}</span>
-                )}
-                {room.hostUserId === me?.userId && room.status === "WAITING" ? (
-                  <label className="visibility-toggle">
-                    <input
-                      type="checkbox"
-                      checked={room.visibility === "PUBLIC"}
-                      disabled={busy}
-                      onChange={(e) =>
-                        roomAction("/visibility", "PUT", {
-                          visibility: e.target.checked ? "PUBLIC" : "PRIVATE",
-                          expectedRoomVersion: room.roomVersion,
-                        })
-                      }
-                    />
-                    公开到大厅
-                  </label>
-                ) : (
-                  room.visibility === "PUBLIC" && (
-                    <span>公开牌桌，谁都能坐下</span>
-                  )
-                )}
-                <span>起始 25,000 点，有赤宝牌与食断</span>
-                <span>出牌 15 秒，应答 8 秒</span>
-              </div>
-            </div>
-            {room.slots.map((m, i) => (
-              <section className={`seat-card ${m ? "occupied" : ""}`} key={i}>
-                <span className="seat-index">{i + 1} 号位</span>
-                <div className="seat-avatar">
-                  {m ? (
-                    m.participantKind === "BOT" ? (
-                      "妖"
-                    ) : (
-                      <Avatar id={m.avatarId} />
-                    )
-                  ) : (
-                    "＋"
-                  )}
+                  {me?.identityKind === "ACCOUNT" &&
+                    capabilities?.friendInvitations &&
+                    isHost && (
+                      <button
+                        className="secondary"
+                        onClick={() => openAccount("profile", "friends")}
+                      >
+                        邀请好友
+                      </button>
+                    )}
                 </div>
-                <h2>
-                  {m?.displayName ?? "虚位以待"}
-                  {m?.participantKind === "HUMAN" && (
-                    <TailBadge rating={m.rating} withValue />
-                  )}
-                </h2>
-                <p>
-                  {m
-                    ? m.participantKind === "BOT"
-                      ? `假想妖，${botLevelLabel(m.botLevel)}`
-                      : `${m.userId === room.hostUserId ? "房主，" : ""}${m.userId === me?.userId ? "你" : m.connected ? "在线" : "暂离"}`
-                    : "邀一位朋友，或请假想妖来坐"}
-                </p>
-                <div className="seat-controls">
-                  {m ? (
-                    <>
+              </div>
+              <div className="room-settings">
+                {isHost && room.status === "WAITING" ? (
+                  <>
+                    <label>
+                      赛制
+                      <select
+                        aria-label="赛制"
+                        value={room.config.format}
+                        disabled={busy}
+                        onChange={(e) =>
+                          roomAction("/config", "PUT", {
+                            format: e.target.value,
+                            expectedRoomVersion: room.roomVersion,
+                          })
+                        }
+                      >
+                        {capabilities?.formats.map((f) => (
+                          <option key={f} value={f}>
+                            {formatName(f)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="visibility-toggle">
+                      <input
+                        type="checkbox"
+                        checked={room.visibility === "PUBLIC"}
+                        disabled={busy}
+                        onChange={(e) =>
+                          roomAction("/visibility", "PUT", {
+                            visibility: e.target.checked
+                              ? "PUBLIC"
+                              : "PRIVATE",
+                            expectedRoomVersion: room.roomVersion,
+                          })
+                        }
+                      />
+                      公开到大厅
+                    </label>
+                  </>
+                ) : (
+                  <>
+                    <span>{formatName(room.config.format)}</span>
+                    {room.visibility === "PUBLIC" && (
+                      <span>公开牌桌，谁都能坐下</span>
+                    )}
+                  </>
+                )}
+              </div>
+            </header>
+            <ol className="seats">
+              {room.slots.map((m, i) => (
+                <li
+                  className={`seat-card ${m ? "occupied" : "empty"} ${m?.ready ? "is-ready" : ""}`}
+                  key={i}
+                >
+                  <div className="seat-top">
+                    <span className="seat-index">{i + 1} 号位</span>
+                    {m && (
                       <span className={`ready ${m.ready ? "yes" : ""}`}>
                         {m.ready ? "已准备" : "未准备"}
                       </span>
-                      {m.participantKind === "BOT" &&
-                        room.hostUserId === me?.userId && (
-                          <>
-                            <label>
-                              档位{" "}
-                              <select
-                                aria-label={`${i + 1} 号位假想妖档位`}
-                                value={m.botLevel ?? "STANDARD"}
-                                disabled={busy}
-                                onChange={(e) =>
-                                  roomAction("/slots/" + i + "/bot", "PUT", {
-                                    botLevel: e.target.value,
-                                    expectedRoomVersion: room.roomVersion,
-                                  })
-                                }
-                              >
-                                {capabilities?.botLevels.map((level) => (
-                                  <option key={level} value={level}>
-                                    {botLevelLabel(level)}
-                                  </option>
-                                ))}
-                              </select>
-                            </label>
-                            <button
-                              className="text-button"
-                              disabled={busy}
-                              onClick={() =>
-                                roomAction("/slots/" + i + "/bot", "DELETE")
-                              }
-                            >
-                              请离
-                            </button>
-                          </>
-                        )}
-                    </>
-                  ) : room.hostUserId === me?.userId ? (
-                    <>
-                      <label>
-                        档位{" "}
+                    )}
+                  </div>
+                  <div className="seat-avatar" aria-hidden="true">
+                    {m ? (
+                      m.participantKind === "BOT" ? (
+                        "妖"
+                      ) : (
+                        <Avatar id={m.avatarId} />
+                      )
+                    ) : (
+                      <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path
+                          d="M12 5v14M5 12h14"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <h2>{m?.displayName ?? "虚位以待"}</h2>
+                  <p className="seat-sub">
+                    {m
+                      ? m.participantKind === "BOT"
+                        ? `${botLevelLabel(m.botLevel)}假想妖`
+                        : `${m.userId === room.hostUserId ? "房主，" : ""}${m.userId === me?.userId ? "你" : m.connected ? "在线" : "暂离"}`
+                      : "邀一位朋友，或请假想妖来坐"}
+                    {m?.participantKind === "HUMAN" && (
+                      <TailBadge rating={m.rating} withValue />
+                    )}
+                  </p>
+                  <div className="seat-controls">
+                    {m ? (
+                      m.participantKind === "BOT" &&
+                      isHost && (
+                        <>
+                          <select
+                            aria-label={`${i + 1} 号位假想妖档位`}
+                            value={m.botLevel ?? "STANDARD"}
+                            disabled={busy}
+                            onChange={(e) =>
+                              roomAction("/slots/" + i + "/bot", "PUT", {
+                                botLevel: e.target.value,
+                                expectedRoomVersion: room.roomVersion,
+                              })
+                            }
+                          >
+                            {capabilities?.botLevels.map((level) => (
+                              <option key={level} value={level}>
+                                {botLevelLabel(level)}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            className="secondary"
+                            disabled={busy}
+                            onClick={() =>
+                              roomAction("/slots/" + i + "/bot", "DELETE")
+                            }
+                          >
+                            请离
+                          </button>
+                        </>
+                      )
+                    ) : isHost ? (
+                      <>
                         <select
                           aria-label={`${i + 1} 号位请假想妖入座的档位`}
                           value={inviteLevels[i] ?? "STANDARD"}
@@ -1137,91 +1162,78 @@ function App() {
                             ),
                           )}
                         </select>
-                      </label>
-                      <button
-                        className="secondary"
-                        disabled={busy}
-                        onClick={() =>
-                          roomAction("/slots/" + i + "/bot", "PUT", {
-                            botLevel: inviteLevels[i] ?? "STANDARD",
+                        <button
+                          className="secondary"
+                          disabled={busy}
+                          onClick={() =>
+                            roomAction("/slots/" + i + "/bot", "PUT", {
+                              botLevel: inviteLevels[i] ?? "STANDARD",
+                              expectedRoomVersion: room.roomVersion,
+                            })
+                          }
+                        >
+                          请假想妖入座
+                        </button>
+                      </>
+                    ) : (
+                      <span className="seat-wait">等朋友推门</span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <footer className="room-rail">
+              <div className="room-progress">
+                <p>
+                  <strong>
+                    {readyCount}
+                    <span> / 4</span>
+                  </strong>
+                  已准备
+                </p>
+                <p className="room-rules">
+                  起始 25,000 点，有赤宝牌与食断；出牌 15 秒，应答 8 秒
+                </p>
+              </div>
+              <div className="room-buttons">
+                <button
+                  className={meReady ? "secondary" : "primary"}
+                  disabled={busy}
+                  onClick={() =>
+                    roomAction("/ready", "PUT", {
+                      ready: !meReady,
+                      expectedRoomVersion: room.roomVersion,
+                    })
+                  }
+                >
+                  {meReady ? "取消准备" : "准备"}
+                </button>
+                {isHost && (
+                  <button
+                    className={allReady ? "primary" : "secondary"}
+                    disabled={busy || capabilities?.maintenance || !allReady}
+                    onClick={() =>
+                      run(async () => {
+                        const r = await api<{ matchId: string }>(
+                          "/rooms/" + room.roomId + "/start",
+                          "POST",
+                          {
                             expectedRoomVersion: room.roomVersion,
-                          })
-                        }
-                      >
-                        请假想妖入座
-                      </button>
-                    </>
-                  ) : (
-                    <span className="muted">等朋友推门</span>
-                  )}
-                </div>
-              </section>
-            ))}
-          </div>
-          <div className="room-actions">
-            <button
-              className="text-button"
-              onClick={() =>
-                run(async () => {
-                  await api("/rooms/" + room.roomId + "/leave", "POST", {
-                    lobbyGeneration: room.lobbyGeneration,
-                  });
-                  setRoom(null);
-                  setScreen("home");
-                  setMe({ ...me!, roomId: null, matchId: null });
-                })
-              }
-            >
-              离开
-            </button>
-            <span>开局时随机定座</span>
-            <button
-              className={
-                room.slots.find((m) => m?.userId === me?.userId)?.ready
-                  ? "secondary"
-                  : "primary"
-              }
-              disabled={busy}
-              onClick={() =>
-                roomAction("/ready", "PUT", {
-                  ready: !room.slots.find((m) => m?.userId === me?.userId)
-                    ?.ready,
-                  expectedRoomVersion: room.roomVersion,
-                })
-              }
-            >
-              {room.slots.find((m) => m?.userId === me?.userId)?.ready
-                ? "取消准备"
-                : "准备"}
-            </button>
-            {room.hostUserId === me?.userId && (
-              <button
-                className="primary"
-                disabled={
-                  busy ||
-                  capabilities?.maintenance ||
-                  room.slots.some((m) => !m || !m.ready)
-                }
-                onClick={() =>
-                  run(async () => {
-                    const r = await api<{ matchId: string }>(
-                      "/rooms/" + room.roomId + "/start",
-                      "POST",
-                      {
-                        expectedRoomVersion: room.roomVersion,
-                        lobbyGeneration: room.lobbyGeneration,
-                      },
-                    );
-                    await attach(r.matchId);
-                  })
-                }
-              >
-                开局
-              </button>
-            )}
-          </div>
+                            lobbyGeneration: room.lobbyGeneration,
+                          },
+                        );
+                        await attach(r.matchId);
+                      })
+                    }
+                  >
+                    开局
+                  </button>
+                )}
+              </div>
+            </footer>
+          </section>
           <p className="room-footnote">
-            众人准备后，由房主开局。换人、改赛制或调假想妖档位后，需重新准备。
+            开局时随机定座。众人准备后，由房主开局；换人、改赛制或调假想妖档位后，需重新准备。
           </p>
         </main>
       ) : screen === "game" && view ? (
