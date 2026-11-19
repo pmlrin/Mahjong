@@ -126,7 +126,7 @@ if (process.argv.includes("--seed")) {
     cookie: "mj_session=" + randomBytes(32).toString("hex"),
     email: `capacity-${i}@example.invalid`,
     password: "capacity-only-password-" + i,
-    friendCode: "",
+    uid: 0,
   }));
   await store.commit(
     profiles.map((p) => ({
@@ -200,10 +200,11 @@ if (process.argv.includes("--seed")) {
           [p.userId],
         );
         await ensureSocialProfile(tx, p.userId);
-        p.friendCode = (await tx.one(
-          "SELECT friend_code FROM social_profiles WHERE user_id=?",
-          [p.userId],
-        ))!.friend_code;
+        p.uid = Number(
+          (await tx.one("SELECT uid FROM social_profiles WHERE user_id=?", [
+            p.userId,
+          ]))!.uid,
+        );
       });
     }
     await store.commit(
@@ -553,7 +554,7 @@ async function exerciseSocial() {
   if (action === 0)
     activeRequest = await capture("socialWrite", () =>
       api(fixtureData.profiles[sender], "POST", "/friend-requests", {
-        friendCode: fixtureData.profiles[recipient].friendCode,
+        uid: fixtureData.profiles[recipient].uid,
       }),
     );
   else

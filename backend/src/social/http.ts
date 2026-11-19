@@ -6,7 +6,7 @@ import type { SocialService, SocialContext } from "./service.ts";
 import {
   profileUpdateSchema,
   friendInputSchema,
-  friendCodeSchema,
+  uidSchema,
   versionSchema,
   inviteInputSchema,
   deviceRevokeSchema,
@@ -151,11 +151,11 @@ export function mountSocialRoutes(
   route(
     "post",
     "/friends/lookup",
-    z.object({ friendCode: z.string().max(40) }).strict(),
-    (r, p) => s.lookup(ctx(r, true), p.friendCode),
+    z.object({ uid: z.union([z.number(), z.string().max(40)]) }).strict(),
+    (r, p) => s.lookup(ctx(r, true), p.uid),
   );
   route("post", "/friend-requests", friendInputSchema, (r, p) =>
-    s.sendRequest(ctx(r, true), p.friendCode),
+    s.sendRequest(ctx(r, true), p.uid),
   );
   for (const [path, state] of [
     ["accept", "ACCEPTED"],
@@ -174,15 +174,15 @@ export function mountSocialRoutes(
           p.expectedVersion,
         ),
     );
-  route("delete", "/friends/:friendCode", empty, (r) =>
-    s.deleteFriend(ctx(r, true), friendCodeSchema.parse(r.params.friendCode)),
+  route("delete", "/friends/:uid", empty, (r) =>
+    s.deleteFriend(ctx(r, true), uidSchema.parse(r.params.uid)),
   );
   route("get", "/blocks", page, (r, p) => s.blocks(ctx(r), p.cursor));
   route("post", "/blocks", friendInputSchema, (r, p) =>
-    s.block(ctx(r, true), p.friendCode),
+    s.block(ctx(r, true), p.uid),
   );
-  route("delete", "/blocks/:friendCode", empty, (r) =>
-    s.block(ctx(r, true), friendCodeSchema.parse(r.params.friendCode), true),
+  route("delete", "/blocks/:uid", empty, (r) =>
+    s.block(ctx(r, true), uidSchema.parse(r.params.uid), true),
   );
   route("post", "/room-invitations", inviteInputSchema, (r, p) =>
     s.invite(ctx(r, true), p),

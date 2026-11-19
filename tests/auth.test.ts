@@ -1246,3 +1246,24 @@ test("V3 T25/T26: production registration uses the requested recipient and does 
     await f.close();
   }
 });
+test("V4.4: a guest has no UID until registering, then takes the next number", async () => {
+  const f = await fixture();
+  try {
+    const uidOf = (userId: string) =>
+      f.store.transaction((tx) =>
+        tx.one("SELECT uid FROM social_profiles WHERE user_id=?", [userId]),
+      );
+    const a = await f.auth.createGuest("a", randomUUID()),
+      b = await f.auth.createGuest("b", randomUUID());
+    assert.equal(await uidOf(a.identity.userId), null);
+    // b was a guest first but registers first, so b gets the first UID.
+    const second = await register(f, b.token, "other@example.com");
+    f.advance(10 * 60000);
+    const first = await register(f, a.token, "player+one@example.com");
+    assert.equal(second.userId, b.identity.userId);
+    assert.equal(Number((await uidOf(second.userId))!.uid), 100000);
+    assert.equal(Number((await uidOf(first.userId))!.uid), 100001);
+  } finally {
+    await f.close();
+  }
+});

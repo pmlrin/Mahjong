@@ -29,7 +29,7 @@ try {
     JSON.stringify({
       migration: "social-v4",
       environment: authConfig().environment,
-      accountsWithFriendCode: Number(count!.n),
+      accountsWithUid: Number(count!.n),
       before,
       after,
       legacyUnchanged: true,

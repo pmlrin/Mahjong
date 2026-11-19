@@ -6,17 +6,17 @@ import { avatarPNG } from "../tests/avatar-fixture.ts";
 const f = await fixture(process.env.V4_TEST_DATABASE_URL);
 const checks: string[] = [];
 try {
-  const codes = [...f.codes];
+  const uids = [...f.uids];
   await f.auth.initialize();
   assert.deepEqual(
     await Promise.all(
       [0, 1, 2, 3].map((i) =>
-        f.social.profile(f.ctx(i)).then((p) => p.friendCode),
+        f.social.profile(f.ctx(i)).then((p) => p.uid),
       ),
     ),
-    codes,
+    uids,
   );
-  checks.push("migration rerun preserves codes, user IDs, names and sessions");
+  checks.push("migration rerun preserves UIDs, user IDs, names and sessions");
   await f.social.updateProfile(f.ctx(0), {
     displayName: "资料验证",
     avatarId: "crane",
@@ -39,8 +39,8 @@ try {
     "canonical PNG bytes and immutable avatar ID survive migration rerun and identity reload",
   );
   const [a, b] = await Promise.all([
-    f.social.sendRequest(f.ctx(0), f.codes[1]),
-    f.social.sendRequest(f.ctx(1), f.codes[0]),
+    f.social.sendRequest(f.ctx(0), f.uids[1]),
+    f.social.sendRequest(f.ctx(1), f.uids[0]),
   ]);
   assert.equal(a.requestId, b.requestId);
   await f.social.requestAction(f.ctx(1), a.requestId, "ACCEPTED", 1);
@@ -48,7 +48,7 @@ try {
   checks.push("crossed request uniqueness and reciprocal friendship");
   const room = await f.room([0]);
   const i = await f.social.invite(f.ctx(0), {
-    recipientFriendCode: f.codes[1],
+    recipientUid: f.uids[1],
     roomId: room.roomId,
     lobbyGeneration: 1,
     expectedRoomVersion: 1,
@@ -78,15 +78,15 @@ try {
       }
       return result;
     });
-  await assert.rejects(f.social.block(f.ctx(0), f.codes[1]), /ROLLBACK_TEST/);
+  await assert.rejects(f.social.block(f.ctx(0), f.uids[1]), /ROLLBACK_TEST/);
   f.store.transaction = tx;
   assert.equal((await f.social.snapshot(f.ctx(0))).friends.length, 1);
   checks.push(
     "failed transaction rolls back block, friendship and receipts together",
   );
-  await f.social.block(f.ctx(0), f.codes[1]);
+  await f.social.block(f.ctx(0), f.uids[1]);
   await assert.rejects(
-    f.social.lookup(f.ctx(1), f.codes[0]),
+    f.social.lookup(f.ctx(1), f.uids[0]),
     (e: any) => e.code === "NOT_FOUND",
   );
   checks.push("block privacy and shared room preserved");
@@ -111,7 +111,7 @@ try {
   await f.friend(2, 3);
   const otherRoom = await f.room([2]);
   const otherInvite = await f.social.invite(f.ctx(2), {
-    recipientFriendCode: f.codes[3],
+    recipientUid: f.uids[3],
     roomId: otherRoom.roomId,
     lobbyGeneration: 1,
     expectedRoomVersion: 1,
@@ -159,12 +159,12 @@ try {
   );
   f.advance(60001);
   await f.social.invite(f.ctx(2), {
-    recipientFriendCode: f.codes[3],
+    recipientUid: f.uids[3],
     roomId: otherRoom.roomId,
     lobbyGeneration: 1,
     expectedRoomVersion: 2,
   });
-  await f.social.sendRequest(f.ctx(0), f.codes[2]);
+  await f.social.sendRequest(f.ctx(0), f.uids[2]);
   const frozenRooms = JSON.stringify(await f.store.list("room"));
   f.advance(121 * 86400000);
   await f.social.cleanup(100);

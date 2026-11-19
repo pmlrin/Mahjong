@@ -43,16 +43,13 @@ export const nicknameSchema = z
       !/[\p{Cc}\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/u.test(s),
     "名字需要 1 到 16 个字符，不能含换行等特殊字符",
   );
-export const friendCodeSchema = z
-  .string()
-  .max(40)
-  .transform((s) =>
-    s
-      .trim()
-      .replace(/-/g, "")
-      .replace(/[a-z]/g, (c) => c.toUpperCase()),
-  )
-  .pipe(z.string().regex(/^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{12}$/));
+/** UIDs start at 100000 and only grow, so a UID is six or more digits. */
+export const UID_PATTERN = /^[1-9]\d{5,14}$/;
+export const uidSchema = z
+  .union([z.number().int(), z.string().max(40)])
+  .transform((v) => String(v).trim())
+  .pipe(z.string().regex(UID_PATTERN))
+  .transform(Number);
 export const profileUpdateSchema = z
   .object({
     displayName: nicknameSchema,
@@ -63,12 +60,10 @@ export const profileUpdateSchema = z
 export const versionSchema = z
   .object({ expectedVersion: z.number().int().positive() })
   .strict();
-export const friendInputSchema = z
-  .object({ friendCode: friendCodeSchema })
-  .strict();
+export const friendInputSchema = z.object({ uid: uidSchema }).strict();
 export const inviteInputSchema = z
   .object({
-    recipientFriendCode: friendCodeSchema,
+    recipientUid: uidSchema,
     roomId: z.string().min(1).max(128),
     lobbyGeneration: z.number().int().positive(),
     expectedRoomVersion: z.number().int().positive(),
@@ -106,7 +101,7 @@ export const deviceClass = (ua: string) => ({
 });
 export type PresenceStatus = "WAITING" | "ONLINE" | "PLAYING" | "OFFLINE";
 export interface SocialProfile {
-  friendCode: string;
+  uid: number;
   displayName: string;
   avatarId: string;
   profileVersion: number;
@@ -115,7 +110,7 @@ export interface SocialProfile {
   avatars: typeof AVATARS;
 }
 export interface SocialPerson {
-  friendCode: string;
+  uid: number;
   displayName: string;
   avatarId: string;
 }
@@ -124,8 +119,14 @@ export interface FriendSuggestion extends SocialPerson {
   relationship: "NONE" | "INCOMING" | "OUTGOING";
   lastPlayedAt: number;
 }
-/** Pull a friend code out of typed text or a shared `?friend=` link. */
-export function extractFriendCode(text: string): string | null {
+/**
+ * Read a shared `?friend=` link or typed text. A UID comes back as `uid`;
+ * a pre-v4.4 friend-code link comes back as `legacy` so the page can explain
+ * that codes are retired instead of failing.
+ */
+export function readFriendInput(
+  text: string,
+): { uid: number } | { legacy: true } | null {
   let raw = text.trim();
   const fromLink = raw.match(/[?&]friend=([^&#\s]+)/);
   if (fromLink)
@@ -134,11 +135,14 @@ export function extractFriendCode(text: string): string | null {
     } catch {
       return null;
     }
-  const parsed = friendCodeSchema.safeParse(raw.replace(/\s/g, ""));
-  return parsed.success ? parsed.data : null;
+  raw = raw.replace(/\s/g, "");
+  if (UID_PATTERN.test(raw)) return { uid: Number(raw) };
+  if (/^[23456789A-Z]{4}-?[23456789A-Z]{4}-?[23456789A-Z]{4}$/i.test(raw))
+    return { legacy: true };
+  return null;
 }
-export const friendLink = (origin: string, code: string) =>
-  origin + "/?friend=" + code;
+export const friendLink = (origin: string, uid: number) =>
+  origin + "/?friend=" + uid;
 export interface Friend extends SocialPerson {
   status: PresenceStatus;
 }

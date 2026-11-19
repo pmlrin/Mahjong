@@ -217,7 +217,7 @@ test(
     b.on("social:changed", () => notifications++);
     assert.deepEqual(await ok(0, "/friends/suggestions"), { items: [] });
     const request = await ok(0, "/friend-requests", "POST", {
-      friendCode: profiles[1].friendCode,
+      uid: profiles[1].uid,
     });
     await ok(1, "/friend-requests/" + request.requestId + "/accept", "POST", {
       expectedVersion: request.version,
@@ -247,7 +247,7 @@ test(
     assert.equal(room.slots[0].displayName, "甲的更新昵称");
     assert.equal(room.slots[0].avatarId, "crane");
     const invitation = await ok(0, "/room-invitations", "POST", {
-      recipientFriendCode: profiles[1].friendCode,
+      recipientUid: profiles[1].uid,
       roomId: room.roomId,
       lobbyGeneration: 1,
       expectedRoomVersion: room.roomVersion,

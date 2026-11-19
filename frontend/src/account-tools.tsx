@@ -3,7 +3,6 @@ import { api } from "./api";
 import { Avatar } from "./Avatar";
 import { AvatarUpload } from "./avatar-upload";
 import {
-  friendLink,
   uploadedAvatarSchema,
   type SocialProfile,
   type SocialCapabilities,
@@ -123,20 +122,17 @@ export function AccountTools({
             <div>
               <strong>{profile.displayName}</strong>
               <p>
-                好友码{" "}
-                <code>{profile.friendCode.match(/.{4}/g)?.join("-")}</code>{" "}
+                UID <code>{profile.uid}</code>{" "}
                 <button
                   className="text-button"
                   onClick={() =>
                     run(async () => {
-                      await navigator.clipboard.writeText(
-                        friendLink(location.origin, profile.friendCode),
-                      );
-                      setMessage("好友链接已复制，朋友点开即可加你");
+                      await navigator.clipboard.writeText(String(profile.uid));
+                      setMessage("UID 已复制，发给朋友就能加你");
                     })
                   }
                 >
-                  复制链接
+                  复制
                 </button>
               </p>
             </div>

@@ -6,6 +6,10 @@ export class Sql {
     private client: pg.PoolClient | null,
     private sqlite: DatabaseSync | null,
   ) {}
+  /** PostgreSQL connection (as opposed to SQLite), for dialect-specific DDL. */
+  get postgres() {
+    return !!this.client;
+  }
   async query<T = Record<string, any>>(
     sql: string,
     values: Value[] = [],

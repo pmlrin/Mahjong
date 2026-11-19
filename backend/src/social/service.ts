@@ -8,7 +8,7 @@ import { mac } from "../auth/crypto.ts";
 import {
   AVATARS,
   DEFAULT_AVATAR,
-  friendCodeSchema,
+  uidSchema,
   profileUpdateSchema,
   uploadedAvatarSchema,
   type SocialCapabilities,
@@ -178,33 +178,28 @@ export class SocialService {
   }
   private async person(tx: Sql, userId: string) {
     const p = await tx.one(
-      "SELECT p.friend_code,p.avatar_id,u.display_name FROM social_profiles p JOIN auth_users u ON u.user_id=p.user_id WHERE p.user_id=?",
+      "SELECT p.uid,p.avatar_id,u.display_name FROM social_profiles p JOIN auth_users u ON u.user_id=p.user_id WHERE p.user_id=?",
       [userId],
     );
     if (!p) return error("NOT_FOUND", "未找到可添加的账号", 404);
     return {
-      friendCode: p.friend_code,
+      uid: Number(p.uid),
       displayName: p.display_name,
       avatarId: p.avatar_id,
     };
   }
   private async target(
     tx: Sql,
-    code: string,
+    uid: number | string,
     actor: string,
     allowBlocked = false,
   ) {
-    const r = await tx.one(
-      "SELECT user_id FROM social_profiles WHERE friend_code=?",
-      [
-        (() => {
-          const parsed = friendCodeSchema.safeParse(code);
-          if (!parsed.success)
-            error("INVALID_FRIEND_CODE", "请输入完整的 12 位好友码", 400);
-          return parsed.data;
-        })(),
-      ],
-    );
+    const parsed = uidSchema.safeParse(uid);
+    if (!parsed.success)
+      error("INVALID_UID", "UID 是 6 位以上的数字，请再核对一下", 400);
+    const r = await tx.one("SELECT user_id FROM social_profiles WHERE uid=?", [
+      parsed.data,
+    ]);
     if (!r || (!allowBlocked && (await this.blocked(tx, actor, r.user_id))))
       return error("NOT_FOUND", "未找到可添加的账号", 404);
     return String(r.user_id);
@@ -698,9 +693,9 @@ export class SocialService {
       profileVersion: Number(old!.profile_version) + 1,
     };
   }
-  async lookup(ctx: SocialContext, code: string) {
-    return this.mutate(ctx, "LOOKUP", { friendCode: code }, async (tx, s) => {
-      const id = await this.target(tx, code, s.userId);
+  async lookup(ctx: SocialContext, uid: number | string) {
+    return this.mutate(ctx, "LOOKUP", { uid }, async (tx, s) => {
+      const id = await this.target(tx, uid, s.userId);
       let relationship =
         id === s.userId
           ? "SELF"
@@ -718,13 +713,13 @@ export class SocialService {
       return { ...(await this.person(tx, id)), relationship };
     });
   }
-  async sendRequest(ctx: SocialContext, code: string) {
+  async sendRequest(ctx: SocialContext, uid: number) {
     return this.mutate(
       ctx,
       "REQUEST_SEND",
-      { friendCode: code },
+      { uid },
       async (tx, s, w) => {
-        const other = await this.target(tx, code, s.userId);
+        const other = await this.target(tx, uid, s.userId);
         await this.expire(tx, w, other);
         if (other === s.userId) error("SELF_NOT_ALLOWED", "这是你的账号");
         const key = pair(s.userId, other);
@@ -903,22 +898,22 @@ export class SocialService {
     w.changed.add(a);
     w.changed.add(b);
   }
-  async deleteFriend(ctx: SocialContext, code: string) {
-    return this.mutate(ctx, "FRIEND_DELETE", { code }, async (tx, s, w) => {
-      const other = await this.target(tx, code, s.userId);
+  async deleteFriend(ctx: SocialContext, uid: number) {
+    return this.mutate(ctx, "FRIEND_DELETE", { uid }, async (tx, s, w) => {
+      const other = await this.target(tx, uid, s.userId);
       if (other === s.userId) error("SELF_NOT_ALLOWED", "不能删除自己");
       if (await this.friends(tx, s.userId, other))
         await this.removePair(tx, s.userId, other, w);
       return { deleted: true };
     });
   }
-  async block(ctx: SocialContext, code: string, remove = false) {
+  async block(ctx: SocialContext, uid: number, remove = false) {
     return this.mutate(
       ctx,
       remove ? "BLOCK_REMOVE" : "BLOCK_ADD",
-      { code },
+      { uid },
       async (tx, s, w) => {
-        const other = await this.target(tx, code, s.userId, true);
+        const other = await this.target(tx, uid, s.userId, true);
         if (other === s.userId) error("SELF_NOT_ALLOWED", "不能屏蔽自己");
         const old = await tx.one(
           "SELECT blocker_id FROM blocks WHERE blocker_id=? AND blocked_id=?",
@@ -959,14 +954,14 @@ export class SocialService {
     return this.store.transaction(async (tx) => {
       const s = await this.actor(tx, ctx);
       const rows = await tx.rows(
-        "SELECT b.blocked_id,p.friend_code FROM blocks b JOIN social_profiles p ON p.user_id=b.blocked_id WHERE b.blocker_id=? AND p.friend_code>? ORDER BY p.friend_code LIMIT 21",
-        [s.userId, cursor],
+        "SELECT b.blocked_id,p.uid FROM blocks b JOIN social_profiles p ON p.user_id=b.blocked_id WHERE b.blocker_id=? AND p.uid>? ORDER BY p.uid LIMIT 21",
+        [s.userId, /^\d{1,15}$/.test(cursor) ? Number(cursor) : 0],
       );
       return {
         items: await Promise.all(
           rows.slice(0, 20).map((r) => this.person(tx, r.blocked_id)),
         ),
-        nextCursor: rows.length > 20 ? rows[19].friend_code : null,
+        nextCursor: rows.length > 20 ? String(rows[19].uid) : null,
       };
     });
   }
@@ -984,14 +979,14 @@ export class SocialService {
   async invite(
     ctx: SocialContext,
     input: {
-      recipientFriendCode: string;
+      recipientUid: number;
       roomId: string;
       lobbyGeneration: number;
       expectedRoomVersion: number;
     },
   ) {
     return this.mutate(ctx, "INVITE_SEND", input, async (tx, s, w) => {
-      const other = await this.target(tx, input.recipientFriendCode, s.userId);
+      const other = await this.target(tx, input.recipientUid, s.userId);
       await this.expire(tx, w, other);
       if (!(await this.friends(tx, s.userId, other)))
         error("NOT_FOUND", "无法邀请该账号", 404);
@@ -1206,7 +1201,7 @@ export class SocialService {
             a.displayName
               .normalize("NFC")
               .localeCompare(b.displayName.normalize("NFC")) ||
-            a.friendCode.localeCompare(b.friendCode),
+            a.uid - b.uid,
         );
         const requests = await tx.rows(
           "SELECT * FROM friend_requests WHERE state='PENDING' AND (sender_id=? OR recipient_id=?) ORDER BY created_at,request_id",

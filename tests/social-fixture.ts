@@ -112,8 +112,8 @@ export async function fixture(databaseURL?: string) {
     requestId,
     ip: "192.0.2." + (i + 1),
   });
-  const codes = await Promise.all(
-    users.map((_, i) => social.profile(ctx(i)).then((p) => p.friendCode)),
+  const uids = await Promise.all(
+    users.map((_, i) => social.profile(ctx(i)).then((p) => p.uid)),
   );
   const member = (i: number): Member => ({
     memberId: randomUUID(),
@@ -155,7 +155,7 @@ export async function fixture(databaseURL?: string) {
     return r;
   };
   const friend = async (a: number, b: number) => {
-    const r = await social.sendRequest(ctx(a), codes[b]);
+    const r = await social.sendRequest(ctx(a), uids[b]);
     await social.requestAction(ctx(b), r.requestId, "ACCEPTED", r.version);
   };
   return {
@@ -165,7 +165,7 @@ export async function fixture(databaseURL?: string) {
     auth,
     social,
     users,
-    codes,
+    uids,
     ctx,
     member,
     room,

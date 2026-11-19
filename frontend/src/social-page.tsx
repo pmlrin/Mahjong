@@ -3,7 +3,7 @@ import { Avatar } from "./Avatar";
 import { api } from "./api";
 import type { Room } from "../../shared/types";
 import {
-  extractFriendCode,
+  readFriendInput,
   friendLink,
   type FriendSuggestion,
   type Relationship,
@@ -16,7 +16,6 @@ const status = {
   PLAYING: "正在牌桌上",
   OFFLINE: "离线",
 };
-const code = (s: string) => s.match(/.{4}/g)?.join("-") ?? s;
 export function SocialPage({
   snapshot,
   refresh,
@@ -41,11 +40,13 @@ export function SocialPage({
 }) {
   const [tab, setTab] = useState<"friends" | "pending" | "blocks">("friends"),
     [filter, setFilter] = useState(""),
-    [lookupCode, setCode] = useState(initialCode),
+    [lookupCode, setCode] = useState(() =>
+      /^\d+$/.test(initialCode) ? initialCode : "",
+    ),
     [found, setFound] = useState<
       (SocialPerson & { relationship: Relationship }) | null
     >(null),
-    [myCode, setMyCode] = useState(""),
+    [myUid, setMyUid] = useState<number | null>(null),
     [suggestions, setSuggestions] = useState<FriendSuggestion[] | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -60,8 +61,8 @@ export function SocialPage({
   const revision = useRef(snapshot?.revision);
   revision.current = snapshot?.revision;
   React.useEffect(() => {
-    api<{ friendCode: string }>("/profile")
-      .then((p) => live.current && setMyCode(p.friendCode))
+    api<{ uid: number }>("/profile")
+      .then((p) => live.current && setMyUid(p.uid))
       .catch(() => {});
   }, []);
   // Recent tablemates; refetched whenever friendships or requests change.
@@ -119,10 +120,17 @@ export function SocialPage({
     }
   }
   async function lookup(text: string) {
-    const friendCode = extractFriendCode(text);
-    if (!friendCode) throw Error("请输入完整的 12 位好友码，或粘贴好友链接");
+    const input = readFriendInput(text);
     setFound(null);
-    const result = await call("/friends/lookup", { friendCode });
+    if (input && "legacy" in input) {
+      // Links from before v4.4 carry a retired friend code.
+      if (live.current)
+        setMessage("好友码已经停用，现在按 UID 加好友。请朋友把 UID 发给你");
+      return;
+    }
+    if (!input) throw Error("UID 是 6 位以上的数字，请再核对一下");
+    if (live.current) setCode(String(input.uid));
+    const result = await call("/friends/lookup", { uid: input.uid });
     if (live.current) setFound(result);
   }
   React.useEffect(() => {
@@ -132,9 +140,9 @@ export function SocialPage({
   }, []);
   /** Sends a request, or accepts theirs if they already asked. */
   async function addFriend(p: SocialPerson) {
-    const r = await call("/friend-requests", { friendCode: p.friendCode });
+    const r = await call("/friend-requests", { uid: p.uid });
     if (!live.current) return;
-    if (found?.friendCode === p.friendCode)
+    if (found?.uid === p.uid)
       setFound({
         ...found,
         relationship: r.becameFriends || r.alreadyFriends ? "FRIEND" : "OUTGOING",
@@ -170,7 +178,7 @@ export function SocialPage({
       <Avatar id={p.avatarId} />
       <span>
         <strong>{p.displayName}</strong>
-        <small>{code(p.friendCode)}</small>
+        <small>UID {p.uid}</small>
       </span>
     </span>
   );
@@ -252,16 +260,16 @@ export function SocialPage({
       </nav>
       {tab === "friends" && (
         <section>
-          {myCode && (
-            <div className="my-friend-code">
+          {myUid && (
+            <div className="my-uid">
               <span>
-                我的好友码 <code>{code(myCode)}</code>
+                我的 UID <code>{myUid}</code>
               </span>
               <button
                 className="secondary"
                 onClick={() =>
                   run(async () => {
-                    const link = friendLink(location.origin, myCode);
+                    const link = friendLink(location.origin, myUid);
                     if (navigator.share)
                       await navigator
                         .share({ title: "加我好友，来明烛一起打牌", url: link })
@@ -288,16 +296,16 @@ export function SocialPage({
                 value={lookupCode}
                 onChange={(e) => {
                   const text = e.target.value;
-                  setCode(text);
                   setFound(null);
-                  // A full code or a pasted link looks itself up.
-                  const parsed = extractFriendCode(text);
-                  if (parsed && parsed !== extractFriendCode(lookupCode))
-                    void run(() => lookup(parsed));
+                  // A pasted friend link looks itself up; typing keeps digits only.
+                  if (/[?&]friend=/.test(text)) {
+                    setCode("");
+                    void run(() => lookup(text));
+                  } else setCode(text.replace(/\D/g, "").slice(0, 15));
                 }}
-                placeholder="输入好友码，或粘贴好友链接"
+                placeholder="输入对方的 UID"
+                inputMode="numeric"
                 autoComplete="off"
-                autoCapitalize="characters"
                 spellCheck={false}
               />
             </label>
@@ -317,7 +325,7 @@ export function SocialPage({
               <h2>最近同桌</h2>
               {suggestions.map((p) =>
                 card(
-                  "suggest-" + p.friendCode,
+                  "suggest-" + p.uid,
                   p,
                   <small>
                     {p.relationship === "OUTGOING"
@@ -357,7 +365,7 @@ export function SocialPage({
               )
               .map((f) =>
                 card(
-                  f.friendCode,
+                  "friend-" + f.uid,
                   f,
                   <span>{status[f.status]}</span>,
                   <>
@@ -368,7 +376,7 @@ export function SocialPage({
                         onClick={() =>
                           run(async () => {
                             await call("/room-invitations", {
-                              recipientFriendCode: f.friendCode,
+                              recipientUid: f.uid,
                               roomId: room.roomId,
                               lobbyGeneration: room.lobbyGeneration,
                               expectedRoomVersion: room.roomVersion,
@@ -386,11 +394,7 @@ export function SocialPage({
                         setConfirm({
                           name: `和 ${f.displayName} 解除好友？`,
                           run: async () => {
-                            await call(
-                              "/friends/" + f.friendCode,
-                              {},
-                              "DELETE",
-                            );
+                            await call("/friends/" + f.uid, {}, "DELETE");
                           },
                         })
                       }
@@ -403,7 +407,7 @@ export function SocialPage({
                         setConfirm({
                           name: `屏蔽 ${f.displayName}？对方将不能再加你或邀请你，但仍能用房间邀请码同桌。`,
                           run: async () => {
-                            await call("/blocks", { friendCode: f.friendCode });
+                            await call("/blocks", { uid: f.uid });
                           },
                         })
                       }
@@ -508,7 +512,7 @@ export function SocialPage({
                           name: `屏蔽 ${r.sender.displayName}？对方将不能再加你或邀请你。`,
                           run: async () => {
                             await call("/blocks", {
-                              friendCode: r.sender.friendCode,
+                              uid: r.sender.uid,
                             });
                           },
                         })
@@ -567,14 +571,14 @@ export function SocialPage({
           <p className="muted">解除屏蔽不会恢复原来的好友关系。</p>
           {blocks.map((b) =>
             card(
-              b.friendCode,
+              "block-" + b.uid,
               b,
               null,
               <button
                 disabled={busy}
                 onClick={() =>
                   run(async () => {
-                    await call("/blocks/" + b.friendCode, {}, "DELETE");
+                    await call("/blocks/" + b.uid, {}, "DELETE");
                     await loadBlocks();
                   })
                 }
