@@ -1,0 +1,67 @@
+diff --git a/DESIGN.md b/DESIGN.md
+index b569c64..7e165bf 100644
+--- a/DESIGN.md
++++ b/DESIGN.md
+@@ -46,7 +46,7 @@
+ - 名字：明烛（Mingzhu），2026-11-18 由项目负责人选定，替换“一桌”。取自“苍山负雪，明烛天南”：深海青是苍山，向日葵黄是那盏烛。导航印章用“烛”。
+ - 方向：雪夜灯下的小魔术（2026-11-18 由项目负责人选定；此前为“温润留白”）。景要清，话要暖，偶尔俏皮。像下雪的晚上推门进屋，桌上灯已经点好，有人招呼你坐。
+ - 意象只用这几样：雪、灯、门、炉火的暖、脚印、小魔术。每屏最多一处意象，放在标题、副标题、空状态和结算这类“停顿处”；按钮、表单、报错和规则正文保持直白，不塞比喻。
+-- AI 牌友统一叫“假想妖”：会打牌的小妖，人不够来凑，朋友一到就让座。首次出现的地方（首页、规则页）要点明它就是 AI；档位写作“中级假想妖”，托管写作“交给假想妖托管”。代码和接口里仍叫 AI/BOT。
++- AI 牌友统一叫“假想妖”：会打牌的小妖，人不够来凑，朋友一到就让座。首次出现的地方（首页、规则页）要点明它就是 AI；档位按尾巴数：一尾、三尾、六尾、九尾（对应初级、中级、高级、大师级，2026-11-19 由项目负责人要求改名），写作“三尾假想妖”；托管写作“交给假想妖托管”。代码和接口里仍叫 AI/BOT。
+ - 只告诉玩家此刻要知道、要做的事。实现细节（回执、裁决、会话、权威状态、毫秒数）不出现在界面上；规则说明留在规则页。
+ - 统一叫法：首页、牌桌（房间也叫牌桌）、战绩、好友、规则；入座、点灯开桌、开局、准备、托管、再来一场；游客、账号；东风战、半庄战；假想妖、假想妖陪练。
+ - 首页只讲两件事：开桌快（一条链接推门就坐，缺一家假想妖来凑）和手感好（3D 牌桌与快捷操作）。
+diff --git a/frontend/src/rules-page.tsx b/frontend/src/rules-page.tsx
+index 3f03e77..eeaaff3 100644
+--- a/frontend/src/rules-page.tsx
++++ b/frontend/src/rules-page.tsx
+@@ -216,7 +216,7 @@ export function RulesPage({ onBack }: { onBack: () => void }) {
+       )}
+       <div className="rules-note">
+         <p>
+-          出牌限时 15 秒，吃碰杠与荣和的应答 8 秒。掉线不会让牌局停下，期间由中级假想妖托管，重连后即可接着打。假想妖就是 AI 牌友，分初级、中级、高级、大师级四档，开桌时由房主选定。
++          出牌限时 15 秒，吃碰杠与荣和的应答 8 秒。掉线不会让牌局停下，期间由三尾假想妖托管，重连后即可接着打。假想妖就是 AI 牌友，尾巴越多越会打，分一尾、三尾、六尾、九尾四档，开桌时由房主选定。
+         </p>
+         <p>一场打完，同桌的人都能看完整牌谱，保存 30 天。</p>
+       </div>
+diff --git a/shared/types.ts b/shared/types.ts
+index 07c1727..dcbb318 100644
+--- a/shared/types.ts
++++ b/shared/types.ts
+@@ -3,10 +3,10 @@ export type BotLevel = "BASIC" | "STANDARD" | "ADVANCED" | "MASTER";
+ /** Weakest to strongest. The identifiers are stored in saved matches, so BASIC／STANDARD keep their names. */
+ export const BOT_LEVELS: BotLevel[] = ["BASIC", "STANDARD", "ADVANCED", "MASTER"];
+ export const BOT_LEVEL_LABELS: Record<BotLevel, string> = {
+-  BASIC: "初级",
+-  STANDARD: "中级",
+-  ADVANCED: "高级",
+-  MASTER: "大师级",
++  BASIC: "一尾",
++  STANDARD: "三尾",
++  ADVANCED: "六尾",
++  MASTER: "九尾",
+ };
+ /** A human seat handed to the AI (托管 or disconnected) always plays at this level. */
+ export const AUTOPILOT_BOT_LEVEL: BotLevel = "STANDARD";
+diff --git a/tests/ai-levels.test.ts b/tests/ai-levels.test.ts
+index 1778f80..c3a972d 100644
+--- a/tests/ai-levels.test.ts
++++ b/tests/ai-levels.test.ts
+@@ -31,14 +31,14 @@ const all = (p: Position) =>
+     string
+   >;
+ 
+-test("四档按强弱排列，名称为初级／中级／高级／大师级，托管固定为中级", () => {
++test("四档按强弱排列，名称为一尾／三尾／六尾／九尾，托管固定为三尾", () => {
+   assert.deepEqual(BOT_LEVELS, ["BASIC", "STANDARD", "ADVANCED", "MASTER"]);
+   assert.deepEqual(
+     BOT_LEVELS.map((l) => BOT_LEVEL_LABELS[l]),
+-    ["初级", "中级", "高级", "大师级"],
++    ["一尾", "三尾", "六尾", "九尾"],
+   );
+   assert.equal(AUTOPILOT_BOT_LEVEL, "STANDARD");
+-  assert.equal(botLevelLabel(null), "中级");
++  assert.equal(botLevelLabel(null), "三尾");
+ });
+ 
+ // 二向听的散牌，对家立直。手里的白和九万是现物，五索无筋。

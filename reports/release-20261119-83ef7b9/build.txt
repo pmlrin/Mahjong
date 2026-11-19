@@ -1,0 +1,59 @@
+
+> mahjong-friends@0.4.2 build
+> tsc --noEmit && vite build --config frontend/vite.config.ts
+
+vite v7.3.7 building client environment for production...
+transforming...
+../../../Users/yangjm/Documents/Mahjong/node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "../../../Users/yangjm/Documents/Mahjong/node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../../Users/yangjm/Documents/Mahjong/node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "../../../Users/yangjm/Documents/Mahjong/node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+✓ 237 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/index.html                                    0.63 kB │ gzip:   0.49 kB
+../dist/assets/ceramic-tile-drop-2-CusB9r_6.ogg       4.97 kB
+../dist/assets/ceramic-tile-drop-2-6cff0txK.m4a       5.31 kB
+../dist/assets/ceramic-tile-drop-3-B8CuRIO7.m4a       5.42 kB
+../dist/assets/ceramic-tile-drop-4-BKgMSNGx.m4a       5.44 kB
+../dist/assets/ceramic-tile-drop-1-BM9sbTCS.m4a       5.44 kB
+../dist/assets/ceramic-tile-drop-3-C781Wtst.ogg       5.46 kB
+../dist/assets/ceramic-tile-drop-4-BHST-3sD.ogg       5.46 kB
+../dist/assets/ceramic-tile-drop-1-B2RJlfwP.ogg       5.51 kB
+../dist/assets/ceramic-tile-flip-1-BpwNk46O.ogg       5.54 kB
+../dist/assets/ceramic-tile-flip-1-BAkrYUgp.m4a       5.85 kB
+../dist/assets/ceramic-tile-flip-2-BhWwXdjK.ogg       5.95 kB
+../dist/assets/ceramic-tile-flip-3-BhS5xEf-.ogg       5.97 kB
+../dist/assets/ceramic-tile-flip-3-C7P0lDS2.m4a       6.03 kB
+../dist/assets/ceramic-tile-flip-2-DnqVXatl.m4a       6.05 kB
+../dist/assets/ceramic-tile-shuffle-1-DNmqZQvl.m4a   18.74 kB
+../dist/assets/ceramic-tile-shuffle-3-Derg7cRV.m4a   18.99 kB
+../dist/assets/ceramic-tile-shuffle-2-BHXoGQ0z.m4a   19.21 kB
+../dist/assets/ceramic-tile-shuffle-1-rU6VgtCZ.ogg   21.94 kB
+../dist/assets/ceramic-tile-shuffle-3-myIZJgLS.ogg   22.05 kB
+../dist/assets/ceramic-tile-shuffle-2-BdfYcj0t.ogg   22.48 kB
+../dist/assets/ambient-pr1uzMwX.m4a                 718.08 kB
+../dist/assets/ambient-CNe7OKNO.ogg                 913.77 kB
+../dist/assets/Table3D-D9MwVWmW.css                   5.34 kB │ gzip:   1.41 kB
+../dist/assets/index-BrQ6BzpQ.css                    71.99 kB │ gzip:  13.24 kB
+../dist/assets/index-D_Pr0xTS.js                    506.17 kB │ gzip: 160.58 kB
+../dist/assets/Table3D-DG-DcvD4.js                  955.20 kB │ gzip: 258.02 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.03s
+
+> mahjong-friends@0.4.2 package
+> node --import tsx scripts/package.ts
+
+/tmp/mahjong-83ef7b9.vK5Kuo/release

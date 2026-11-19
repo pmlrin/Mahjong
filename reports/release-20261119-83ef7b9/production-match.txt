@@ -1,0 +1,5 @@
+Public match started: ad0fc9c6-c00d-47be-b228-030fe7605a1c with 4 human sessions
+Production Chrome entered and exited native fullscreen with 3D rendering.
+Production Chrome rendered 3D and switched to flat and back: [ '/assets/Table3D-DG-DcvD4.js' ]
+AI took over the open turn in 124 ms
+Public full-match smoke test passed: [ 7500, 38900, 14700, 38900 ] elapsed 101807 ms

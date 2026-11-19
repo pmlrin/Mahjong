@@ -1,0 +1,1 @@
+{"passed":["table music switches on and off and persists across reload","guest entry and refresh preserve identity","390px home has no horizontal overflow","four difficulty choices, invite Master and change to Advanced","create room and invite AI","leave waiting room"],"pageErrors":[],"failedRequests":[]}

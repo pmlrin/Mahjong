@@ -1,0 +1,2 @@
+{"mode":"native","fullScreen3D":true,"fullScreenFlat":true,"errors":[]}
+{"mode":"viewport fallback","fullScreen3D":true,"fullScreenFlat":true,"errors":[]}
