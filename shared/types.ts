@@ -16,7 +16,7 @@ export const botLevelLabel = (level: BotLevel | null | undefined) =>
   BOT_LEVEL_LABELS[level ?? AUTOPILOT_BOT_LEVEL];
 export type MatchMode = "AI_PRACTICE" | "FRIENDS";
 export const BOT_POLICY_VERSION = "v3.1.0" as const;
-export const APP_VERSION = "0.4.2" as const;
+export const APP_VERSION = "0.4.4" as const;
 export type Seat = 0 | 1 | 2 | 3;
 export type Quad<T> = [T, T, T, T];
 export const SEATS: Seat[] = [0, 1, 2, 3];
