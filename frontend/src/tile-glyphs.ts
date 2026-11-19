@@ -374,68 +374,57 @@ export function paintArt(
 }
 
 // ---------- Back ----------
-/** Clip the segment a→b to a rectangle (Liang–Barsky); null when outside. */
-function clip(a: Pt, b: Pt, x0: number, y0: number, x1: number, y1: number) {
-  const dx = b[0] - a[0],
-    dy = b[1] - a[1];
-  let t0 = 0,
-    t1 = 1;
-  for (const [p, q] of [
-    [-dx, a[0] - x0],
-    [dx, x1 - a[0]],
-    [-dy, a[1] - y0],
-    [dy, y1 - a[1]],
-  ]) {
-    if (p === 0) {
-      if (q < 0) return null;
-    } else {
-      const r = q / p;
-      if (p < 0) t0 = Math.max(t0, r);
-      else t1 = Math.min(t1, r);
-    }
-  }
-  if (t0 >= t1) return null;
-  return line(
-    [a[0] + dx * t0, a[1] + dy * t0],
-    [a[0] + dx * t1, a[1] + dy * t1],
-  );
+/** A small six-armed snowflake centred on (x, y), arms of length `r`. */
+function snowflake(x: number, y: number, r: number): Shape {
+  const arms = [0, 60, 120].map((deg) => {
+    const a = (deg * Math.PI) / 180,
+      dx = Math.cos(a) * r,
+      dy = Math.sin(a) * r;
+    return line([x - dx, y - dy], [x + dx, y + dy]);
+  });
+  return { t: "path", d: arms.join(""), stroke: "backEdge", width: 0.45, round: true };
 }
 
 /**
- * The tile back: a double frame around a fine diagonal lattice, with a
- * bamboo medallion in the middle. Drawn over the --tile-back ground.
+ * The tile back, after the house name 明烛: a lit candle in a ringed medallion
+ * on a night field of scattered snow, inside a double frame. Drawn over the
+ * --tile-back ground.
  */
 export function backArt(): Shape[] {
-  const x0 = 6.6,
-    y0 = 6.6,
-    x1 = 33.4,
-    y1 = 51.4,
-    step = 3.6;
-  const lattice: string[] = [];
-  for (let c = -(y1 - y0); c <= x1 - x0; c += step) {
-    const down = clip([x0 + c, y0], [x0 + c + 60, y0 + 60], x0, y0, x1, y1);
-    const up = clip([x1 - c, y0], [x1 - c - 60, y0 + 60], x0, y0, x1, y1);
-    if (down) lattice.push(down);
-    if (up) lattice.push(up);
-  }
-  const leaf = (y: number, flip: number): Shape => ({
-    t: "path",
-    d: `M20,${y} Q${20 + flip * 3.6},${y - 3.8} ${20 + flip * 6},${y - 2.8} Q${20 + flip * 3.6},${y - 0.5} 20,${y} Z`,
-    fill: "backInk",
-  });
+  const snow: [number, number, number][] = [
+    [12, 12, 1.7],
+    [27.5, 10.5, 1.2],
+    [20, 15.5, 0.9],
+    [9.2, 22, 1.2],
+    [31, 20.5, 1.6],
+    [9.6, 36.5, 1.6],
+    [30.6, 37.5, 1.2],
+    [20, 43.2, 0.9],
+    [12.8, 46.5, 1.2],
+    [27.4, 47, 1.7],
+  ];
   return [
-    { t: "path", d: lattice.join(""), stroke: "backEdge", width: 0.26 },
     { t: "path", d: rect(3.2, 3.2, 33.6, 51.6, 3), stroke: "backEdge", width: 1.1 },
     { t: "path", d: rect(5.6, 5.6, 28.8, 46.8, 1.6), stroke: "backEdge", width: 0.45 },
-    // medallion, clearing the lattice beneath it
-    { t: "circle", cx: 20, cy: 29, r: 10.2, fill: "back" },
-    { t: "circle", cx: 20, cy: 29, r: 9.4, fill: "backInk" },
-    { t: "circle", cx: 20, cy: 29, r: 8.5, fill: "back" },
-    { t: "circle", cx: 20, cy: 29, r: 7.8, fill: "backEdge" },
-    { t: "circle", cx: 20, cy: 29, r: 7.45, fill: "back" },
-    leaf(28, 1),
-    leaf(32.5, -1),
-    ...stick(20, 29, 13, "backInk", 0, 2.4, "back"),
+    ...snow.map(([x, y, r]) => snowflake(x, y, r)),
+    // medallion: a thin candle-gold ring and a cool inner rule
+    { t: "circle", cx: 20, cy: 29, r: 10.4, fill: "backInk" },
+    { t: "circle", cx: 20, cy: 29, r: 9.7, fill: "back" },
+    { t: "circle", cx: 20, cy: 29, r: 8.8, fill: "backEdge" },
+    { t: "circle", cx: 20, cy: 29, r: 8.45, fill: "back" },
+    // the candle: holder, bone-white body, gold flame with a pale core
+    { t: "path", d: rect(15.4, 36.2, 9.2, 1.5, 0.75), fill: "backInk" },
+    { t: "path", d: rect(17.7, 29.6, 4.6, 6.8, 0.7), fill: "face" },
+    {
+      t: "path",
+      d: "M20,19.6C23.3,23.2 23.9,26 22.5,27.8Q20,29.8 17.5,27.8C16.1,26 16.7,23.2 20,19.6Z",
+      fill: "backInk",
+    },
+    {
+      t: "path",
+      d: "M20,23.4C21.4,25.1 21.6,26.6 20.9,27.5Q20,28.3 19.1,27.5C18.4,26.6 18.6,25.1 20,23.4Z",
+      fill: "face",
+    },
     // corner diamonds
     ...([
       [8.6, 8.6],

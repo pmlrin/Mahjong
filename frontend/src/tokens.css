@@ -36,8 +36,8 @@
   --color-shadow: oklch(25% 0.05 240 / 0.16);
 
   /* Tiles: bone face over a sunflower bamboo layer, suits in lacquer inks. */
-  --tile-face: oklch(98.5% 0.008 95); --tile-face-dim: oklch(90% 0.012 95); --tile-edge: oklch(86% 0.016 95); --tile-side: oklch(82% 0.12 90);
-  --tile-back: oklch(80% 0.13 88); --tile-back-edge: oklch(68% 0.12 82); --tile-back-side: oklch(56% 0.1 78); --tile-back-ink: oklch(58% 0.1 78);
+  --tile-face: oklch(98.5% 0.008 95); --tile-face-dim: oklch(90% 0.012 95); --tile-edge: oklch(86% 0.016 95); --tile-side: oklch(36% 0.085 262);
+  --tile-back: oklch(36% 0.085 262); --tile-back-edge: oklch(56% 0.07 245); --tile-back-side: oklch(27% 0.07 264); --tile-back-ink: oklch(84% 0.14 88);
   --tile-ink: oklch(25% 0.05 240); --tile-red: oklch(52% 0.17 28); --tile-green: oklch(47% 0.1 165); --tile-blue: oklch(42% 0.11 232);
 
   --font-display: "Songti SC", "STSong", "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", ui-serif, serif;

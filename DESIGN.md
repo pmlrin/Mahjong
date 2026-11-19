@@ -17,7 +17,7 @@
   --color-accent: oklch(49% 0.12 228);  --color-accent-ink: oklch(98.7% 0.006 215);  --color-focus: oklch(50% 0.16 232);
   --color-felt: oklch(41% 0.085 222);  --color-felt-deep: oklch(25% 0.05 238);  --color-felt-ink: oklch(98.7% 0.006 215);
   --color-signal: oklch(87% 0.16 92);  --color-seal: oklch(56% 0.17 32);
-  --tile-face: oklch(98.5% 0.008 95);  --tile-side: oklch(82% 0.12 90);  --tile-back: oklch(80% 0.13 88);
+  --tile-face: oklch(98.5% 0.008 95);  --tile-side: oklch(36% 0.085 262);  --tile-back: oklch(36% 0.085 262);
   --font-display: "Songti SC", "Noto Serif CJK SC", serif;  --font-body: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
   --radius-card: 8px;  --radius-control: 6px;  --radius-tile: 4px;  --radius-table: 16px;  --rule-hair: 1px;
 }
@@ -27,7 +27,8 @@
 ## 用色规则
 - 深海青只给牌桌本身：首页舞台、房间桌面、对局桌面、回放和牌形示例；夜海军蓝是桌沿、导航和中央局况。
 - 主色和点缀色都收住饱和度（深海青 C≈0.085，向日葵黄只做小面积点缀），不要把两个高饱和色贴在一起大面积使用。
-- 向日葵黄只表示“该你、选中、桌沿内的主操作、已准备”，也是牌背和牌的底层；柿红只表示立直、和牌和告急。
+- 向日葵黄只表示“该你、选中、桌沿内的主操作、已准备”，在牌背上只做烛焰和外圈的细线；柿红只表示立直、和牌和告急。
+- 牌背和牌的底层是夜靛蓝（`--tile-back`），图案取“明烛”：圆章里一支点亮的蜡烛，四周散落雪花，外加双线框。3D 牌的牌面层和牌背层在接缝处平齐，不留凹槽。
 - 放在牌毡或导航上的区域把 `--color-focus` 换成近白的 `--color-focus-felt`，放回纸面时换回 `--color-focus-paper`。
 - 选中牌靠抬起加黄色底条，键盘焦点靠近白外圈，两者不能只靠颜色区分。
 - 改配色时检查界面文案里有没有提到具体颜色（规则页里有）。

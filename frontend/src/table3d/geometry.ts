@@ -19,6 +19,14 @@ function paint(geometry: BufferGeometry, color: Color) {
   return geometry;
 }
 
+/** Cut a geometry flat at `y`, keeping the side `keep` points to (+1 above, −1 below). */
+function flatten(geometry: BufferGeometry, y: number, keep: 1 | -1) {
+  const pos = geometry.getAttribute("position");
+  for (let i = 0; i < pos.count; i++)
+    if ((pos.getY(i) - y) * keep < 0) pos.setY(i, y);
+  pos.needsUpdate = true;
+}
+
 function cellRect(cell: number) {
   const { columns, rows } = ATLAS;
   const u0 = (cell % columns) / columns;
@@ -72,10 +80,16 @@ export function createTile(glyph: number | null) {
   const { width, height, thickness, radius } = TILE;
   const faceDepth = thickness * (1 - BACK_SHARE),
     backDepth = thickness * BACK_SHARE;
-  const top = new RoundedBoxGeometry(width, faceDepth, height, 2, radius);
-  top.translate(0, thickness / 2 - faceDepth / 2, 0);
-  const bottom = new RoundedBoxGeometry(width, backDepth, height, 2, radius);
-  bottom.translate(0, -thickness / 2 + backDepth / 2, 0);
+  const seam = thickness / 2 - faceDepth;
+  // Each layer is a rounded box twice its depth, centred on the seam, then cut
+  // flat at the seam: the outer edges stay rounded while the sides run straight
+  // into the seam, so the two layers meet flush instead of in a bevelled groove.
+  const top = new RoundedBoxGeometry(width, faceDepth * 2, height, 2, radius);
+  top.translate(0, seam, 0);
+  flatten(top, seam, 1);
+  const bottom = new RoundedBoxGeometry(width, backDepth * 2, height, 2, radius);
+  bottom.translate(0, seam, 0);
+  flatten(bottom, seam, -1);
   // Both layers take their colour from the atlas (white vertex colour): the
   // face from its glyph cell, the back from the patterned back cell, whose
   // ground colour also covers the back layer's sides.

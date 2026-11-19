@@ -216,6 +216,7 @@
   border: 0;
   border-radius: var(--radius-tile);
   background: transparent;
+  box-shadow: none;
   transform: none;
   pointer-events: auto;
 }
