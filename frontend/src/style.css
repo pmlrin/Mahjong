@@ -656,6 +656,13 @@ input[type="range"] { accent-color: var(--color-accent); }
 .rank { font-family: var(--font-display); font-size: var(--text-xl); color: var(--color-ink-2); font-variant-numeric: tabular-nums; }
 .rankings strong { margin-left: auto; font-size: var(--text-lg); font-variant-numeric: tabular-nums; }
 .rankings small { min-width: 4.5em; text-align: right; color: var(--color-ink-2); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+.rankings .rating-cell { display: inline-flex; align-items: baseline; justify-content: flex-end; gap: var(--space-2xs); min-width: 5.5em; color: var(--color-ink-2); font-size: var(--text-xs); white-space: nowrap; }
+.rankings .rating-cell b { font-size: var(--text-sm); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--color-ink); }
+.rankings .rating-cell b.down { color: var(--color-ink-2); font-weight: 400; }
+.rating-summary { margin-bottom: var(--space-md); font-size: var(--text-sm); color: var(--color-ink); font-variant-numeric: tabular-nums; }
+.tail-badge { display: inline-block; margin-left: var(--space-xs); padding: 0 var(--space-2xs); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-control); font-size: var(--text-xs); font-style: normal; font-weight: 400; line-height: 1.5; color: var(--color-ink-2); vertical-align: 0.1em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.account-rating { font-variant-numeric: tabular-nums; }
+.account-rating b { font-weight: 600; color: var(--color-ink); }
 .final-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-sm); }
 
 /* ---------- Rules ---------- */

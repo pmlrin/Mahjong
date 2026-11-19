@@ -4,6 +4,7 @@ import { RulesPage as Rules } from "./rules-page";
 import { useSocial } from "./use-social";
 import { SocialPage } from "./social-page";
 import { Avatar } from "./Avatar";
+import { TailBadge } from "./rating-view";
 import { MatchPanel, PublicTables } from "./public-lobby";
 import type { SocialCapabilities } from "../../shared/social";
 import React, { useEffect, useRef, useState } from "react";
@@ -288,6 +289,11 @@ function App() {
     s.on("room:view", (r: Room) => {
       if (!valid()) return;
       if (roomRef.current && roomRef.current.roomId !== r.roomId) return;
+      const rating = r.slots.find(
+        (m) => m?.userId === meRef.current?.userId,
+      )?.rating;
+      if (rating != null)
+        setMe((old) => (old && old.rating !== rating ? { ...old, rating } : old));
       if (
         r.status === "CLOSED" ||
         !r.slots.some((m) => m?.userId === meRef.current?.userId)
@@ -1015,7 +1021,12 @@ function App() {
                     "＋"
                   )}
                 </div>
-                <h2>{m?.displayName ?? "虚位以待"}</h2>
+                <h2>
+                  {m?.displayName ?? "虚位以待"}
+                  {m?.participantKind === "HUMAN" && (
+                    <TailBadge rating={m.rating} withValue />
+                  )}
+                </h2>
                 <p>
                   {m
                     ? m.participantKind === "BOT"

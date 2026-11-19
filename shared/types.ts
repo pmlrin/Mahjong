@@ -1,3 +1,5 @@
+import type { RatingChange } from "./rating.ts";
+export type { RatingChange } from "./rating.ts";
 export type MatchFormat = "EAST_ONLY" | "HANCHAN";
 export type BotLevel = "BASIC" | "STANDARD" | "ADVANCED" | "MASTER";
 /** Weakest to strongest. The identifiers are stored in saved matches, so BASIC／STANDARD keep their names. */
@@ -77,6 +79,8 @@ export interface Member {
   connected: boolean;
   botLevel: BotLevel | null;
   botPolicyVersion?: string | null;
+  /** 当前等级分：人类为本人的分，假想妖为固定分。 */
+  rating?: number | null;
 }
 export type RoomVisibility = "PRIVATE" | "PUBLIC";
 export interface PublicRoomSeat {
@@ -143,6 +147,8 @@ export interface PublicPlayer {
   points: number;
   botLevel: BotLevel | null;
   botPolicyVersion: string | null;
+  /** 开局时的等级分。旧对局没有。 */
+  rating?: number | null;
 }
 export interface HandSeat {
   seat: Seat;
@@ -269,6 +275,8 @@ export interface MatchResult {
   ranks: Quad<number>;
   netPoints: Quad<number>;
   replayAvailable: boolean;
+  /** 本场等级分加减；正常结束时由服务端结算。 */
+  ratingChanges?: Quad<RatingChange> | null;
 }
 export interface MatchView {
   matchId: string;
@@ -346,6 +354,7 @@ export interface HistoryMember {
   points: number;
   rank: number | null;
   netPoints: number;
+  rating?: RatingChange | null;
 }
 export interface HistorySummary {
   matchId: string;
@@ -425,4 +434,6 @@ export interface CurrentUser {
   matchId: string | null;
   identityKind: "GUEST" | "ACCOUNT";
   maskedEmail: string | null;
+  rating?: number;
+  ratedMatches?: number;
 }

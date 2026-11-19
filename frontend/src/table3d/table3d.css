@@ -314,3 +314,9 @@
     padding-bottom: 0;
   }
 }
+
+.player-plate .tail-badge {
+  margin-left: var(--space-2xs);
+  color: var(--color-signal);
+  border-color: color-mix(in oklab, var(--color-signal) 55%, transparent);
+}

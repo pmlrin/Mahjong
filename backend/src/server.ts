@@ -37,6 +37,8 @@ import { z } from "zod";
 import { Store, type Write } from "./store.ts";
 import { BotPool } from "./bot-pool.ts";
 import { botLevelOf } from "./bot.ts";
+import { attachRating, seatRating, type RatingSettlement } from "./rating.ts";
+import { BOT_RATINGS, INITIAL_RATING } from "../../shared/rating.ts";
 import {
   uid,
   quad,
@@ -90,6 +92,11 @@ await store.open();
 console.log(
   JSON.stringify({ event: "HISTORY_BACKFILL", ...(await backfill(store)) }),
 );
+/** Current ratings by user. The database is authoritative; this mirrors it for views. */
+const ratingCache = new Map(
+  [...(await store.ratings())].map(([id, v]) => [id, v.rating]),
+);
+const ratingOf = (userId: string) => ratingCache.get(userId) ?? INITIAL_RATING;
 type Session = Identity;
 interface SavedReceipt {
   hash: string;
@@ -397,8 +404,17 @@ let staged: { writes: Write[]; effects: (() => void)[] } | null = null;
 async function save(g: GameState | null, r: Room | null, extra: Write[] = []) {
   const writes = [...extra];
   let fs: Frame[] = [];
+  let rated: RatingSettlement | null = null;
+  const ratedAfter = new Map<string, number>();
   if (g) {
     if (g.status !== "ABORTED") assertInvariants(g);
+    for (const p of g.players) p.rating ??= seatRating(p, ratingOf);
+    rated = attachRating(g, ratingOf);
+    if (rated) {
+      writes.push({ kind: "rating", id: g.matchId, data: rated });
+      for (const e of rated.entries)
+        ratedAfter.set(e.userId, g.matchResult!.ratingChanges![e.seat].after);
+    }
     const summary = summarize(g);
     if (summary) writes.push({ kind: "history", id: g.matchId, data: summary });
     fs = frames(g);
@@ -424,8 +440,18 @@ async function save(g: GameState | null, r: Room | null, extra: Write[] = []) {
       }
     }
   }
+  if (r)
+    for (const m of r.slots)
+      if (m)
+        m.rating =
+          m.participantKind === "BOT"
+            ? BOT_RATINGS[m.botLevel ?? "STANDARD"]
+            : m.userId
+              ? (ratedAfter.get(m.userId) ?? ratingOf(m.userId))
+              : null;
   if (r) writes.push({ kind: "room", id: r.roomId, data: r });
   const effect = () => {
+    for (const [id, value] of ratedAfter) ratingCache.set(id, value);
     if (r) {
       if (
         r.visibility === "PUBLIC" ||
@@ -842,6 +868,7 @@ route("get", "/me", async (req, res) => {
       identityKind: u.kind,
       avatarId: await avatarFor(u.userId),
       maskedEmail: u.maskedEmail,
+      rating: ratingOf(u.userId),
       roomId: r?.roomId ?? null,
       matchId: r?.matchId ?? null,
     },

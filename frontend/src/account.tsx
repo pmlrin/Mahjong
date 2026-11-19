@@ -3,6 +3,7 @@ import type { SocialCapabilities } from "../../shared/social";
 import React, { useEffect, useRef, useState } from "react";
 import { api } from "./api";
 import { AuthClock } from "./auth-clock";
+import { tierName } from "../../shared/rating";
 import type { CurrentUser, AuthCapabilities } from "../../shared/types";
 export type AccountPage = "profile" | "register" | "login" | "reset" | "change";
 export function AccountPanel({
@@ -259,6 +260,11 @@ export function AccountPanel({
       {page === "profile" ? (
         <section className="account-card">
           <h2>{me?.displayName ?? "尚未入座"}</h2>
+          {me?.rating != null && (
+            <p className="account-rating">
+              等级分 <b>{me.rating}</b>，{tierName(me.rating)}
+            </p>
+          )}
           {me?.identityKind === "ACCOUNT" ? (
             <>
               <p>{me.maskedEmail}</p>

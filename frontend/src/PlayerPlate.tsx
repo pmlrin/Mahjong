@@ -6,6 +6,7 @@ import {
   type Seat,
 } from "../../shared/types";
 import { Avatar } from "./Avatar";
+import { TailBadge } from "./rating-view";
 
 export const windName = (w: string) =>
   ({ EAST: "东", SOUTH: "南", WEST: "西", NORTH: "北" })[w] ?? w;
@@ -59,6 +60,7 @@ export function PlayerPlate({
       <span className="wind-badge">{windName(h.seatWind)}</span>
       <span className="player-plate-name">
         {p.displayName}
+        {p.participantKind === "HUMAN" && <TailBadge rating={p.rating} />}
         <small>
           {self
             ? `你${v.self.desiredControl === "AI" ? `，${seatBotLevel(v, s)}假想妖托管中` : ""}${h.riichi !== "NONE" ? "，已立直" : ""}`

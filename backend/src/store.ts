@@ -10,6 +10,12 @@ import type {
 } from "../../shared/types.ts";
 import { encodeCursor } from "./history.ts";
 import { Sql } from "./sql.ts";
+import {
+  RATING_SCHEMA,
+  settleRating,
+  loadRatings,
+  type RatingSettlement,
+} from "./rating.ts";
 export interface Write {
   kind: string;
   id: string;
@@ -94,6 +100,7 @@ export class Store {
         (this.pool ? "JSONB" : "TEXT") +
         " NOT NULL,PRIMARY KEY(user_id,match_id))",
       "CREATE TABLE IF NOT EXISTS migration_issues (match_id TEXT PRIMARY KEY,reason TEXT NOT NULL)",
+      ...RATING_SCHEMA,
     ];
     for (const sql of statements) {
       if (this.pool) await this.pool.query(sql);
@@ -312,6 +319,10 @@ export class Store {
             await this.writeHistory(c, w.data as HistorySummary);
             continue;
           }
+          if (w.kind === "rating") {
+            await settleRating(new Sql(c, null), w.data as RatingSettlement);
+            continue;
+          }
           await c.query(
             "INSERT INTO documents(kind,id,payload) VALUES($1,$2,$3::jsonb) ON CONFLICT(kind,id) DO UPDATE SET payload=EXCLUDED.payload,updated_at=now()",
             [w.kind, w.id, JSON.stringify(w.data)],
@@ -342,6 +353,13 @@ export class Store {
           }
           if (w.kind === "history") {
             await this.writeHistory(null, w.data as HistorySummary);
+            continue;
+          }
+          if (w.kind === "rating") {
+            await settleRating(
+              new Sql(null, this.sqlite),
+              w.data as RatingSettlement,
+            );
             continue;
           }
           q.run(w.kind, w.id, JSON.stringify(w.data), Date.now());
@@ -382,6 +400,15 @@ export class Store {
           m.netPoints,
         ],
       );
+  }
+  async ratings() {
+    if (!this.pool) return loadRatings(new Sql(null, this.sqlite));
+    const c = await this.pool.connect();
+    try {
+      return await loadRatings(new Sql(c, null));
+    } finally {
+      c.release();
+    }
   }
   async migrationIssue(id: string, reason: string) {
     if (this.pool)

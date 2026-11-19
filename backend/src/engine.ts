@@ -1129,6 +1129,7 @@ export function project(g: GameState, s: Seat): MatchView {
             : "HUMAN"),
         points: x.points,
         botLevel: x.botLevel,
+        rating: x.rating ?? null,
         botPolicyVersion:
           x.participantKind === "BOT"
             ? (x.botPolicyVersion ?? "legacy-v1")

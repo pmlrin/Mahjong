@@ -60,6 +60,8 @@ export function summarize(g: GameState): HistorySummary | null {
     points: g.status === "FINISHED" ? r!.finalPoints[seat] : p.points,
     rank: g.status === "FINISHED" ? r!.ranks[seat] : null,
     netPoints: g.status === "FINISHED" ? r!.finalPoints[seat] - 25000 : 0,
+    rating:
+      g.status === "FINISHED" ? (r!.ratingChanges?.[seat] ?? null) : null,
   }));
   if (
     members.some(

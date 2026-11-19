@@ -14,6 +14,7 @@ import {
   type Result,
 } from "../../shared/types";
 import { Avatar } from "./Avatar";
+import { RatingDeltaCell, RatingSummary } from "./rating-view";
 import { Tile } from "./Tile";
 import { TableView, useTableMode } from "./TableView";
 import { useFullscreen } from "./use-fullscreen";
@@ -723,9 +724,13 @@ export function Game({
                       {p.points >= 25000 ? "+" : ""}
                       {(p.points - 25000).toLocaleString()}
                     </small>
+                    <RatingDeltaCell
+                      change={v.matchResult!.ratingChanges?.[p.seat]}
+                    />
                   </div>
                 ))}
             </div>
+            <RatingSummary change={v.matchResult.ratingChanges?.[self]} />
             <div className="final-actions">
               <button className="secondary" onClick={onReplay}>
                 看牌谱

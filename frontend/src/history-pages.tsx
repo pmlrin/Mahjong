@@ -1,4 +1,6 @@
 import { Avatar } from "./Avatar";
+import { tierName } from "../../shared/rating";
+import { signedRating } from "./rating-view";
 import React, { useEffect, useState } from "react";
 import { api } from "./api";
 import {
@@ -200,7 +202,11 @@ export function History({
                     {p.userId === userId ? "（你）" : ""}
                   </b>
                   <span>
-                    {p.participantKind === "BOT" ? botName(p.botLevel) : ""}
+                    {p.participantKind === "BOT"
+                      ? botName(p.botLevel)
+                      : p.rating
+                        ? `${tierName(p.rating.after)}，等级分 ${signedRating(p.rating.delta)}`
+                        : ""}
                   </span>
                   <strong>{p.points.toLocaleString()}</strong>
                   <span>
@@ -286,7 +292,7 @@ export function History({
                   <strong>
                     {s.status === "ABORTED"
                       ? "意外中止"
-                      : `${["一", "二", "三", "四"][(self?.rank ?? 1) - 1]}位，${self?.points.toLocaleString()} 点（${signed(self?.netPoints ?? 0)}）`}
+                      : `${["一", "二", "三", "四"][(self?.rank ?? 1) - 1]}位，${self?.points.toLocaleString()} 点（${signed(self?.netPoints ?? 0)}）${self?.rating ? `，${tierName(self.rating.after)} ${signedRating(self.rating.delta)}` : ""}`}
                   </strong>
                   <span>
                     {s.members
