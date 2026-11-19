@@ -17,6 +17,7 @@ import { Avatar } from "./Avatar";
 import { Tile } from "./Tile";
 import { TableView, useTableMode } from "./TableView";
 import { useFullscreen } from "./use-fullscreen";
+import { SoundToggles } from "./sound-toggles";
 import { createAnchorStore, handTop } from "./hand-anchors";
 import { frameEvents } from "./match-events";
 import { useReducedMotion } from "./motion";
@@ -79,6 +80,8 @@ export function Game({
   onReplay,
   sound = false,
   music = false,
+  onToggleSound,
+  onToggleMusic,
 }: {
   view: MatchView;
   userId: string;
@@ -96,6 +99,9 @@ export function Game({
   sound?: boolean;
   /** Table music is on (the player's setting; off by default). */
   music?: boolean;
+  /** Flip those settings; the switches show on the top line in fullscreen, where the site header is hidden. */
+  onToggleSound?: () => void;
+  onToggleMusic?: () => void;
 }) {
   const controls = useTableActions({
     frame,
@@ -265,6 +271,16 @@ export function Game({
         >
           {fullscreen.on ? "退出全屏" : "全屏打牌"}
         </button>
+        {fullscreen.on && onToggleSound && onToggleMusic && (
+          <span className="topline-sound">
+            <SoundToggles
+              sound={sound}
+              music={music}
+              onSound={onToggleSound}
+              onMusic={onToggleMusic}
+            />
+          </span>
+        )}
         <button
           className="text-button"
           onClick={() => {

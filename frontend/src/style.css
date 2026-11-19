@@ -397,6 +397,11 @@ input[type="range"] { accent-color: var(--color-accent); }
 /* Fullscreen play: the site header steps aside and the table takes the whole screen. */
 .table-fullscreen .game-app > .header { display: none; }
 .table-fullscreen .play-page { max-width: none; padding-bottom: var(--space-xs); }
+.table-fullscreen, .table-fullscreen body { overscroll-behavior: none; }
+/* The sound and music switches, on the top line while the header is hidden. */
+.topline-sound { display: flex; gap: var(--space-3xs); }
+.topline-sound .icon-button { width: 36px; height: 36px; color: var(--color-ink-2); }
+.topline-sound .icon-button:hover { background: var(--color-paper-2); color: var(--color-ink); }
 
 .game-table.table-layout {
   --river-max: clamp(22px, 3.3vh, 28px);

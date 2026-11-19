@@ -286,13 +286,31 @@
   }
 }
 
-/* Fullscreen play (use-fullscreen.ts): no site header above, so the canvas
-   takes everything under the top line. */
+/* Fullscreen play (use-fullscreen.ts): no site header above. The top line,
+   the canvas and one row of table settings fill the screen exactly, so the
+   page has nothing left to scroll. */
 .table-fullscreen .play-stage {
-  --table-3d-h: min(max(420px, calc(100dvh - 52px)), calc(100cqw / 1.45));
+  --table-3d-h: min(max(420px, calc(100dvh - 96px)), calc(100cqw / 1.45));
+}
+.table-fullscreen .stage-3d .hand-panel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.table-fullscreen .stage-3d .auto-status {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+}
+.table-fullscreen .stage-3d .table-controls {
+  flex-wrap: nowrap;
 }
 @media (orientation: landscape) and (max-height: 600px) {
   .table-fullscreen .play-stage {
-    --table-3d-h: max(240px, calc(100dvh - 36px));
+    /* top line + one settings row, at touch height (44px) on phones */
+    --table-3d-h: max(240px, calc(100dvh - 80px));
+  }
+  .table-fullscreen .play-page:has(.stage-3d) {
+    padding-bottom: 0;
   }
 }
