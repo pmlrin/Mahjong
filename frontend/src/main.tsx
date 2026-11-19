@@ -880,7 +880,7 @@ function App() {
             </div>
             <div className="hero-art">
               <div className="art-hand" aria-hidden="true">
-                {[0, 4, 8, 36, 40, 44, 72, 76, 80, 112, 113, 128, 129].map(
+                {[0, 32, 36, 68, 72, 104, 108, 112, 116, 120, 124, 128, 132].map(
                   (t) => (
                     <Tile key={t} tile={t} />
                   ),
