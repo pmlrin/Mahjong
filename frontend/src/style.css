@@ -271,8 +271,6 @@ input[type="range"] { accent-color: var(--color-accent); }
 .primary.create { width: 100%; min-height: 48px; font-size: var(--text-md); }
 .account-shortcuts { display: flex; flex-wrap: wrap; gap: var(--space-2xs) var(--space-lg); }
 .guest-hint { font-size: var(--text-sm); line-height: 1.6; color: var(--color-ink-2); }
-.continue { min-height: var(--control-h); color: var(--color-link); font-size: var(--text-sm); font-weight: 600; text-align: left; }
-.continue:hover { text-decoration: underline; text-underline-offset: 0.2em; }
 
 /* The dealt hand: real tiles, straddling the edge of the felt. */
 .hero-art { width: 100%; max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); }
@@ -1060,7 +1058,6 @@ input[type="range"] { accent-color: var(--color-accent); }
 
 /* ---------- Matchmaking and public tables ---------- */
 .create-line { display: grid; gap: var(--space-2xs); }
-.create-line label { display: inline-flex; align-items: center; gap: var(--space-xs); font-size: var(--text-sm); color: var(--color-ink-2); cursor: pointer; }
 .match-line { display: flex; gap: var(--space-xs); }
 .match-line select { flex: 0 0 auto; }
 .match-line button { flex: 1; }

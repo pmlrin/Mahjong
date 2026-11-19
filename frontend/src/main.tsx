@@ -97,10 +97,7 @@ function App() {
     [sessionEpoch, setSessionEpoch] = useState(0),
     [authPaused, setAuthPaused] = useState(false),
     [lobby, setLobby] = useState<PublicLobby | null>(null),
-    [matching, setMatching] = useState<MatchQueueStatus | null>(null),
-    [publishNew, setPublishNew] = useState(
-      () => readLocalPreference("mj_publish_room") === "true",
-    );
+    [matching, setMatching] = useState<MatchQueueStatus | null>(null);
   const social = useSocial(
     me?.identityKind === "ACCOUNT" && !authPaused
       ? me.userId + ":" + sessionEpoch
@@ -490,7 +487,7 @@ function App() {
         format: "EAST_ONLY",
         rulesetId: RULESET,
         timePresetId: "standard-v1",
-        visibility: publishNew ? "PUBLIC" : "PRIVATE",
+        visibility: "PRIVATE",
       });
       latest.current = null;
       setFrame(null);
@@ -816,20 +813,6 @@ function App() {
                     >
                       点灯开桌
                     </button>
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={publishNew}
-                        onChange={(e) => {
-                          setPublishNew(e.target.checked);
-                          writeLocalPreference(
-                            "mj_publish_room",
-                            String(e.target.checked),
-                          );
-                        }}
-                      />
-                      公开到大厅，谁路过都能坐下
-                    </label>
                   </div>
                   <MatchPanel
                     status={matching}
@@ -861,21 +844,6 @@ function App() {
                       入座
                     </button>
                   </div>
-                  {(me.roomId || room) && (
-                    <button
-                      className="continue"
-                      onClick={() =>
-                        run(async () => {
-                          const u = await api<Me>("/me");
-                          if (u.roomId)
-                            await watch(await api<Room>("/rooms/" + u.roomId));
-                          else if (room) await watch(room);
-                        })
-                      }
-                    >
-                      回到我的牌桌
-                    </button>
-                  )}
                 </div>
               )}
             </div>
