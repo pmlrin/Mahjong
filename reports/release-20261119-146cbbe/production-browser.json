@@ -1,0 +1,16 @@
+{
+  "at": "2026-11-19T05:33:06.466Z",
+  "browser": "157.0.8103.79",
+  "passed": [
+    "public lobby and random matchmaking controls are available",
+    "table music switches on and off and persists across reload",
+    "guest entry and refresh preserve identity",
+    "390px home has no horizontal overflow",
+    "four difficulty choices, invite Master and change to Advanced",
+    "create room and invite AI",
+    "leave waiting room"
+  ],
+  "pageErrors": [],
+  "failedRequests": [],
+  "physicalDevicesVerified": false
+}

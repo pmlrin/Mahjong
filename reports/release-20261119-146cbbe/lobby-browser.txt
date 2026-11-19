@@ -1,0 +1,1 @@
+{"passed":["public room appears, accepts another player, and leaves lobby after closing","queue can be cancelled","four browser sessions enter the same matched game"],"pageErrors":[]}

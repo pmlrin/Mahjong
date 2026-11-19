@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-18T15:33:37.696Z",
+  "at": "2026-11-19T03:21:37.937Z",
   "passed": true,
   "version": "0.4.2",
   "protocol": "2.0",
@@ -20,6 +20,16 @@
     3202
   ],
   "serverLog": [
+    "{\"event\":\"DIAGNOSTIC\",\"diagnosticId\":\"ba489096-c53e-4f05-807a-72d8fafff825\",\"appVersion\":\"0.4.2\",\"protocolVersion\":\"2.0\",\"rulesetId\":\"riichi-4p-v1.0\",\"roomId\":\"6c6b4c11-45bc-465c-9233-955b2a0254b2\",\"matchId\":\"50f12a13-dc81-4ba8-94fe-2fae597aa9e1\",\"handId\":\"9aa1659c-4037-4af7-9470-fd7420289524\",\"phase\":\"MATCH_RESULT\",\"viewSeq\":456,\"serverEpoch\":1,\"serverTime\":1795058469262}",
+    "{\"event\":\"DIAGNOSTIC\",\"diagnosticId\":\"46e0eeb6-8d1f-4070-9f04-32223e7553f6\",\"appVersion\":\"0.4.2\",\"protocolVersion\":\"2.0\",\"rulesetId\":\"riichi-4p-v1.0\",\"roomId\":\"6c6b4c11-45bc-465c-9233-955b2a0254b2\",\"matchId\":\"b4e801c8-2548-4adb-bf66-c7b3efd30fa7\",\"handId\":\"8068704e-4e48-49d0-a530-b36c2a8689f4\",\"phase\":\"MATCH_RESULT\",\"viewSeq\":685,\"serverEpoch\":1,\"serverTime\":1795058473468}",
+    "{\"event\":\"SERVER_BUILD\",\"version\":\"0.4.2\",\"protocol\":\"2.0\",\"sourceSha256\":\"development\"}",
+    "{\"event\":\"HISTORY_BACKFILL\",\"indexed\":0,\"issues\":0,\"alreadyApplied\":true}",
+    "{\"event\":\"AUTH_MIGRATION\",\"alreadyApplied\":true,\"users\":0,\"sessions\":0,\"conflicts\":0}",
+    "Mahjong server http://127.0.0.1:3101",
+    "{\"event\":\"SERVER_BUILD\",\"version\":\"0.4.2\",\"protocol\":\"2.0\",\"sourceSha256\":\"development\"}",
+    "{\"event\":\"HISTORY_BACKFILL\",\"indexed\":0,\"issues\":0,\"alreadyApplied\":true}",
+    "{\"event\":\"AUTH_MIGRATION\",\"alreadyApplied\":true,\"users\":0,\"sessions\":0,\"conflicts\":0}",
+    "{\"event\":\"MATCH_ABORTED\",\"matchId\":\"59f3cc15-4a1c-4cc2-b0fb-152773e71426\",\"reason\":\"TILE_CONSERVATION 137/136\"}",
     "Mahjong server http://127.0.0.1:3101",
     "{\"event\":\"SERVER_BUILD\",\"version\":\"0.4.2\",\"protocol\":\"2.0\",\"sourceSha256\":\"development\"}",
     "{\"event\":\"HISTORY_BACKFILL\",\"indexed\":0,\"issues\":0,\"alreadyApplied\":true}",
@@ -29,16 +39,6 @@
     "{\"event\":\"HISTORY_BACKFILL\",\"indexed\":0,\"issues\":0,\"alreadyApplied\":true}",
     "{\"event\":\"AUTH_MIGRATION\",\"alreadyApplied\":true,\"users\":0,\"sessions\":0,\"conflicts\":0}",
     "Mahjong server http://127.0.0.1:3101",
-    "CLIENT_ERROR Error: socket has been disconnected",
-    "    at file:///Users/yangjm/Documents/Mahjong/node_modules/.pnpm/socket.io-client@4.8.4/node_modules/socket.io-client/build/esm-debug/socket.js:481:36",
-    "    at Array.forEach (<anonymous>)",
-    "    at Socket._clearAcks (file:///Users/yangjm/Documents/Mahjong/node_modules/.pnpm/socket.io-client@4.8.4/node_modules/socket.io-client/build/esm-debug/socket.js:474:32)",
-    "    at Socket.onclose (file:///Users/yangjm/Documents/Mahjong/node_modules/.pnpm/socket.io-client@4.8.4/node_modules/socket.io-client/build/esm-debug/socket.js:465:14)",
-    "    at Socket.disconnect (file:///Users/yangjm/Documents/Mahjong/node_modules/.pnpm/socket.io-client@4.8.4/node_modules/socket.io-client/build/esm-debug/socket.js:677:18)",
-    "    at Client.close (/Users/yangjm/Documents/Mahjong/tests/network.test.ts:173:18)",
-    "    at <anonymous> (/Users/yangjm/Documents/Mahjong/tests/network.test.ts:957:13)",
-    "    at async TestContext.<anonymous> (/Users/yangjm/Documents/Mahjong/tests/network.test.ts:244:11)",
-    "    at async Test.run (node:internal/test_runner/test:1409:7)",
-    "    at async TestContext.<anonymous> (/Users/yangjm/Documents/Mahjong/tests/network.test.ts:927:7)"
+    ""
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "instance_id": "i-m5e4p130e52sfxmngh08",
+  "session_id": "s-1my911l6x7qipqhwi",
+  "request_id": "r-1795066202193868000",
+  "command": "test ! -e /tmp/mahjong-20261119-production-146cbbe.tgz && test ! -e /opt/mahjong/releases/20261119-production-146cbbe && test ! -e /opt/mahjong/maintenance-v3-production && curl -fsS http://127.0.0.1:8029/healthz",
+  "exit_code": 0,
+  "stdout": "{\"ok\":true,\"version\":\"0.4.2\",\"buildId\":\"3cbce0322d5d9e65a01b82a7252a045fec9e134d9b1aec53a25dbc6f29f53215\",\"activeTables\":0}",
+  "output": "{\"ok\":true,\"version\":\"0.4.2\",\"buildId\":\"3cbce0322d5d9e65a01b82a7252a045fec9e134d9b1aec53a25dbc6f29f53215\",\"activeTables\":0}",
+  "stderr": "",
+  "started_at": "2026-11-19T14:30:02+09:00",
+  "duration": "175ms"
+}

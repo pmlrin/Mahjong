@@ -1,0 +1,155 @@
+{
+  "at": "2026-11-19T05:32:21.321533+00:00",
+  "previousRelease": "/opt/mahjong/releases/20261119-production-83ef7b9",
+  "release": "/opt/mahjong/releases/20261119-production-146cbbe",
+  "backup": "/opt/mahjong/backups/mahjong-production-stopped-20261119-146cbbe.dump",
+  "configBackup": "/opt/mahjong/backups/config-20261119-146cbbe",
+  "sourceSha256": "95babb720f0d45cfab1ffd220cff725c16f178103f6eedeceaa8f9e0a782fdec",
+  "passed": true,
+  "beforeTables": {
+    "auth_accounts": {
+      "rows": 3,
+      "md5": "b36ddb1f2f7da0f0f76f825a7c7ee8f3"
+    },
+    "auth_audit": {
+      "rows": 17,
+      "md5": "d1e2f119216108abde191d2d2aa08475"
+    },
+    "auth_challenges": {
+      "rows": 6,
+      "md5": "7160b3e08ada5af34b008e118fc3563f"
+    },
+    "auth_environment": {
+      "rows": 1,
+      "md5": "d7d83afdc9563349b7d7c56f4a83de4f"
+    },
+    "auth_grants": {
+      "rows": 4,
+      "md5": "06120957cc87cf8bc71d5e56ecb73fd1"
+    },
+    "auth_limits": {
+      "rows": 3,
+      "md5": "d17e7e43b0a9d34bf9f528e520f13dc4"
+    },
+    "auth_mail_jobs": {
+      "rows": 5,
+      "md5": "9accef4a709355e21b4ba664c9919f71"
+    },
+    "auth_migration_issues": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "auth_migrations": {
+      "rows": 1,
+      "md5": "6fb3ec450eecc2ff8b6f89c8eee36e58"
+    },
+    "auth_receipts": {
+      "rows": 18,
+      "md5": "3ddf1ef3e72efe0f1553202276896f94"
+    },
+    "auth_sessions": {
+      "rows": 81,
+      "md5": "4e12ef0eda72dafa19cf9e20e6bb4be7"
+    },
+    "auth_users": {
+      "rows": 76,
+      "md5": "aab2257d806c34010143203da592ba4e"
+    },
+    "avatar_assets": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "blocks": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "documents": {
+      "rows": 8340,
+      "md5": "09b31e7e607e57c74d8436d616955d38"
+    },
+    "friend_requests": {
+      "rows": 1,
+      "md5": "d08fe179383e1b435e29cad916e7c0e3"
+    },
+    "friendships": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "history_members": {
+      "rows": 75,
+      "md5": "f845d5e9350f2478964e93eac1462083"
+    },
+    "history_summaries": {
+      "rows": 31,
+      "md5": "aee56e1af9ef1d517130423e9b8c5316"
+    },
+    "migration_issues": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "replay_positions": {
+      "rows": 4,
+      "md5": "dbf4ea66c33f0a9307c72c9e8babb224"
+    },
+    "room_invitations": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "social_audit": {
+      "rows": 5,
+      "md5": "4fb2d8a24a78ea11d1e86404da024f76"
+    },
+    "social_cooldowns": {
+      "rows": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "social_limits": {
+      "rows": 2,
+      "md5": "9fcf6c9c13761e14235d0387f431738f"
+    },
+    "social_profiles": {
+      "rows": 3,
+      "md5": "daee8ce065377b2a79bbbd6e5a652096"
+    },
+    "social_receipts": {
+      "rows": 5,
+      "md5": "f3c36c4edeb76768600b8374af1e59af"
+    },
+    "social_sessions": {
+      "rows": 8,
+      "md5": "cdbf7cd378f07a245f50ae5dcef7ec29"
+    },
+    "social_user_state": {
+      "rows": 3,
+      "md5": "871ec3639010ed7bf40f059fc34f13e8"
+    }
+  },
+  "backupBytes": 2349676,
+  "backupRestore": {
+    "database": "mahjong_release_restore_20261119_146cbbe",
+    "tables": 29,
+    "allRowsAndDigestsMatch": true,
+    "temporaryDatabaseRemoved": true
+  },
+  "health": {
+    "ok": true,
+    "version": "0.4.2",
+    "buildId": "95babb720f0d45cfab1ffd220cff725c16f178103f6eedeceaa8f9e0a782fdec",
+    "activeTables": 0
+  },
+  "mailSenderBrand": "\u660e\u70db\u9ebb\u5c06",
+  "preservedUserTables": [
+    "auth_users",
+    "auth_accounts",
+    "avatar_assets",
+    "social_profiles",
+    "friendships",
+    "friend_requests",
+    "blocks",
+    "history_summaries",
+    "history_members",
+    "replay_positions"
+  ],
+  "originalConfigurationUnchanged": true,
+  "maintenance": false
+}

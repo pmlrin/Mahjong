@@ -1,0 +1,43 @@
+{
+  "release": "/opt/mahjong/releases/20261119-production-146cbbe",
+  "previousRelease": "/opt/mahjong/releases/20261119-production-83ef7b9",
+  "archiveSha256": "e92e4ae04f347bf7bfecb57fe9879037f53f4e4a9ca92a509f821aae5efd1e48",
+  "runtimeDependenciesUnchanged": true,
+  "migrationsUnchanged": true,
+  "retainedAssets": [
+    "Table3D-DJRN3fz7.js",
+    "GLTFLoader-AmIzW769.js",
+    "index-Di0W6QGd.css",
+    "index-BDZ76koS.css",
+    "Table3D-DYKLE2JJ.js",
+    "Table3D-5h8Sz9FA.js",
+    "index-D_nm7uou.js",
+    "Table3D-Oi_S-owC.js",
+    "three-vrm.module-CpoEHMdy.js",
+    "index-D_Pr0xTS.js",
+    "seed-san-Dq0DXfsR.vrm",
+    "index-CdhjlY7l.js",
+    "Table3D-DzSqW-Zy.js",
+    "Table3D-SJy0qKEN.js",
+    "three-vrm.module-BiQbTrrS.js",
+    "index-CR64KYo1.js",
+    "index-BrQ6BzpQ.css",
+    "index-CB-KYXfB.js",
+    "index-CVlmeSZz.js",
+    "index-6zpM4uaE.css",
+    "index-B8a1JgyM.js",
+    "index-BmuTKPlu.css",
+    "Table3D-DQpbVc3v.css",
+    "GLTFLoader-D_0ztAjE.js",
+    "index-BFbC5QYl.css",
+    "index-zzvEzHCJ.js",
+    "Table3D-DG-DcvD4.js"
+  ],
+  "releaseMetadata": {
+    "version": "0.4.2",
+    "protocolVersion": "2.0",
+    "sourceSha256": "95babb720f0d45cfab1ffd220cff725c16f178103f6eedeceaa8f9e0a782fdec",
+    "builtAt": "2026-11-19T05:29:34.668Z"
+  },
+  "passed": true
+}

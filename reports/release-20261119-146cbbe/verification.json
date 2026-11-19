@@ -1,0 +1,53 @@
+{
+  "sourceCommit": "146cbbed2ae86f881967edc97fad6a4dff933bbc",
+  "sourceSha256": "95babb720f0d45cfab1ffd220cff725c16f178103f6eedeceaa8f9e0a782fdec",
+  "testsPassed": 198,
+  "chromeScenariosPassed": 18,
+  "publicFilesMatched": 42,
+  "isolatedLobbyBrowser": {
+    "passed": [
+      "public room appears, accepts another player, and leaves lobby after closing",
+      "queue can be cancelled",
+      "four browser sessions enter the same matched game"
+    ],
+    "pageErrors": []
+  },
+  "lobbyReadOnlyVerified": true,
+  "productionMatch": {
+    "origin": "https://mahjong.yangjm.cn",
+    "at": "2026-11-19T05:34:09.863Z",
+    "elapsedMs": 59337,
+    "humanSessions": 4,
+    "aiSeats": 0,
+    "matchId": "7588e52b-4038-4d90-a4b8-24f1b87293cb",
+    "points": [
+      27000,
+      42200,
+      27500,
+      3300
+    ],
+    "replayEvents": 437,
+    "handoverMs": 155,
+    "verifiedProduction3D": true,
+    "verifiedProductionFullscreen": true,
+    "browserErrors": [],
+    "browserAssets": [
+      "/assets/Table3D-1sliWP4H.js"
+    ],
+    "passed": true
+  },
+  "backupRestore": {
+    "database": "mahjong_release_restore_20261119_146cbbe",
+    "tables": 29,
+    "allRowsAndDigestsMatch": true,
+    "temporaryDatabaseRemoved": true
+  },
+  "existingGuestSessionPreserved": true,
+  "health": {
+    "ok": true,
+    "version": "0.4.2",
+    "buildId": "95babb720f0d45cfab1ffd220cff725c16f178103f6eedeceaa8f9e0a782fdec",
+    "activeTables": 0
+  },
+  "passed": true
+}
