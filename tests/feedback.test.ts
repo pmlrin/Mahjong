@@ -42,19 +42,32 @@ function window(kind: PublicWindow["kind"]): PublicWindow {
     deadlineAt: 9e12,
   };
 }
-test("AI waits 2s after self window opens, and 1.2s after a response window opens", () => {
-  assert.equal(botReadyAt(window("SELF_ACTION"), 20000), 7000);
-  assert.equal(botReadyAt(window("CALL_RESPONSE"), 20000), 13200);
-  assert.equal(botReadyAt(window("KAN_RESPONSE"), 20000), 13200);
-  assert.equal(botReadyAt(window("SELF_ACTION"), 20000, true), 5000);
+test("AI pauses 2-6s after any window opens, stable per window and seat", () => {
+  for (const kind of ["SELF_ACTION", "CALL_RESPONSE", "KAN_RESPONSE"] as const) {
+    const duration = kind === "SELF_ACTION" ? 15000 : 8000;
+    const pauses = new Set<number>();
+    for (let i = 0; i < 200; i++) {
+      const w = { ...window(kind), windowId: `w${i}` },
+        pause = botReadyAt(w, 20000, 1) - (20000 - duration);
+      assert(pause >= 2000 && pause <= 6000, `${kind} pause ${pause}`);
+      assert.equal(botReadyAt(w, 20000, 1), botReadyAt(w, 20000, 1));
+      pauses.add(Math.floor(pause / 1000));
+    }
+    assert.deepEqual([...pauses].sort(), [2, 3, 4, 5]);
+  }
+  assert.notEqual(
+    botReadyAt(window("CALL_RESPONSE"), 20000, 1),
+    botReadyAt(window("CALL_RESPONSE"), 20000, 2),
+  );
+  assert.equal(botReadyAt(window("SELF_ACTION"), 20000, 1, true), 5000);
 });
 test("AI pacing uses monotonic window time rather than clock or network changes", () => {
   const w = window("SELF_ACTION"),
-    at = botReadyAt(w, 20000);
+    at = botReadyAt(w, 20000, 1);
   w.deadlineAt = -1;
-  assert.equal(botReadyAt(w, 20000), at);
+  assert.equal(botReadyAt(w, 20000, 1), at);
   // Slow calculations do not request another full pause once the intended moment has passed.
-  assert.equal(Math.max(0, at - 9000), 0);
+  assert.equal(Math.max(0, at - 13000), 0);
 });
 test("Latest discard stays visible after next draw and ignores private response events", () => {
   const g = game();

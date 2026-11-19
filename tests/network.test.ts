@@ -925,7 +925,7 @@ test(
         },
       );
       await checkedTest(
-        "real AI actions leave at least two seconds between bot discards",
+        "real AI actions leave at least two seconds (2-6s think) between bot discards",
         async () => {
           await stop();
           fastTest = false;
@@ -945,7 +945,7 @@ test(
           await makeRoom([c]);
           c.auto = true;
           await c.step();
-          await until(() => observed.length >= 3, 20000);
+          await until(() => observed.length >= 3, 45000);
           for (let i = 1; i < 3; i++)
             assert(
               observed[i].at - observed[i - 1].at >= 1800,

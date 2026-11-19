@@ -2099,6 +2099,7 @@ const interval = setInterval(
               const readyAt = botReadyAt(
                 original.window!,
                 clocks.get(original.window!.windowId) ?? -Infinity,
+                s,
                 process.env.NODE_ENV === "test" &&
                   process.env.FAST_TEST === "1",
               );
