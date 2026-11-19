@@ -616,6 +616,8 @@ input[type="range"] { accent-color: var(--color-accent); }
 .modal-sub { margin-bottom: var(--space-md); font-size: var(--text-sm); color: var(--color-muted); }
 .modal .close { position: absolute; top: var(--space-xs); right: var(--space-xs); width: var(--control-h); height: var(--control-h); border-radius: var(--radius-control); font-size: var(--text-xl); color: var(--color-ink-2); }
 .modal .close:hover { background: var(--color-paper-3); }
+.leave-prompt { width: min(440px, 100%); }
+.leave-prompt-actions { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
 .action-modal { display: grid; gap: var(--space-sm); max-height: 85dvh; overflow-y: auto; justify-items: start; }
 .action-modal > .call-options, .action-modal > .call-target { width: 100%; }
 .action-modal .chosen { outline: 2px solid var(--color-accent); outline-offset: var(--rule-hair); }

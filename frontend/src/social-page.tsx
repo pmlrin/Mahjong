@@ -23,6 +23,7 @@ export function SocialPage({
   error: syncError,
   room,
   onJoined,
+  beforeJoin,
   invitesEnabled,
   initialCode = "",
   onCodeConsumed,
@@ -33,6 +34,8 @@ export function SocialPage({
   error: string;
   room: Room | null;
   onJoined: (roomId: string) => Promise<void>;
+  /** Clears the way to a new seat; false means the player stays put. */
+  beforeJoin?: () => Promise<boolean>;
   invitesEnabled: boolean;
   /** A friend code arriving from a shared `?friend=` link. */
   initialCode?: string;
@@ -195,6 +198,7 @@ export function SocialPage({
     );
   }
   async function actInvite(id: string, action: string, version: number) {
+    if (action === "accept" && beforeJoin && !(await beforeJoin())) return;
     const result = await call("/room-invitations/" + id + "/" + action, {
       expectedVersion: version,
     });

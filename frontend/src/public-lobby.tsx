@@ -107,7 +107,7 @@ export function PublicTables({
         <p className="muted">正在看看大厅里有哪几桌…</p>
       ) : !lobby.rooms.length ? (
         <p className="muted public-empty">
-          大厅里还没有公开的牌桌。开桌时勾上“公开到大厅”，路过的人就能坐下。
+          大厅里还没有公开的牌桌。开桌后在房间里勾上“公开到大厅”，路过的人就能坐下。
         </p>
       ) : (
         <ul className="public-list">

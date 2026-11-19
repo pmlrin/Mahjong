@@ -97,7 +97,10 @@ function App() {
     [sessionEpoch, setSessionEpoch] = useState(0),
     [authPaused, setAuthPaused] = useState(false),
     [lobby, setLobby] = useState<PublicLobby | null>(null),
-    [matching, setMatching] = useState<MatchQueueStatus | null>(null);
+    [matching, setMatching] = useState<MatchQueueStatus | null>(null),
+    [leavePrompt, setLeavePrompt] = useState<((ok: boolean) => void) | null>(
+      null,
+    );
   const social = useSocial(
     me?.identityKind === "ACCOUNT" && !authPaused
       ? me.userId + ":" + sessionEpoch
@@ -461,8 +464,37 @@ function App() {
       .then(setMatching)
       .catch(() => {});
   }, [network, me?.userId]);
+  // A finished table no longer holds the seat; only WAITING/PLAYING do.
+  const liveRoom =
+    room && (room.status === "WAITING" || room.status === "PLAYING")
+      ? room
+      : null,
+    seatedRoomId = liveRoom?.roomId ?? me?.roomId ?? null,
+    inMatch = liveRoom ? liveRoom.status === "PLAYING" : !!me?.matchId;
+  /** Before taking another seat: ask, then leave the waiting room. False keeps the seat. */
+  async function leaveFirst(): Promise<boolean> {
+    const roomId = seatedRoomId;
+    if (!roomId) return true;
+    if (inMatch) throw Error("这一局还没打完，先回牌桌吧");
+    const ok = await new Promise<boolean>((resolve) =>
+      setLeavePrompt(() => resolve),
+    );
+    setLeavePrompt(null);
+    if (!ok) return false;
+    const old =
+      liveRoom?.roomId === roomId
+        ? liveRoom
+        : await api<Room>("/rooms/" + roomId);
+    await api("/rooms/" + roomId + "/leave", "POST", {
+      lobbyGeneration: old.lobbyGeneration,
+    });
+    setRoom(null);
+    setMe((m) => m && { ...m, roomId: null, matchId: null });
+    return true;
+  }
   async function startMatch(format: MatchFormat) {
     await run(async () => {
+      if (!(await leaveFirst())) return;
       setMatching(
         await api<MatchQueueStatus>("/match/queue", "POST", { format }),
       );
@@ -474,7 +506,9 @@ function App() {
     });
   }
   async function joinPublic(roomId: string) {
+    if (liveRoom && roomId === liveRoom.roomId) return setScreen("room");
     await run(async () => {
+      if (!(await leaveFirst())) return;
       const r = await api<Room>("/rooms/" + roomId + "/join", "POST", {});
       latest.current = null;
       setFrame(null);
@@ -483,6 +517,7 @@ function App() {
   }
   async function newRoom() {
     await run(async () => {
+      if (!(await leaveFirst())) return;
       const r = await api<Room>("/rooms", "POST", {
         format: "EAST_ONLY",
         rulesetId: RULESET,
@@ -495,9 +530,11 @@ function App() {
     });
   }
   async function join() {
-    await run(async () =>
-      watch(await api<Room>("/rooms/join", "POST", { inviteCode: code })),
-    );
+    if (liveRoom && code === liveRoom.inviteCode) return setScreen("room");
+    await run(async () => {
+      if (!(await leaveFirst())) return;
+      await watch(await api<Room>("/rooms/join", "POST", { inviteCode: code }));
+    });
   }
   async function roomAction(path: string, method: string, body?: unknown) {
     await run(async () => {
@@ -710,6 +747,37 @@ function App() {
           </button>
         </div>
       )}
+      {leavePrompt && (
+        <div
+          className="modal-shade"
+          onClick={(e) => e.target === e.currentTarget && leavePrompt(false)}
+          onKeyDown={(e) => e.key === "Escape" && leavePrompt(false)}
+        >
+          <section
+            className="modal leave-prompt"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="leave-prompt-title"
+          >
+            <h2 id="leave-prompt-title">离开现在这桌？</h2>
+            <p className="modal-sub">
+              你还坐在一张没开局的牌桌上。离开后座位会空出来，再回来要重新入座。
+            </p>
+            <div className="leave-prompt-actions">
+              <button className="primary" onClick={() => leavePrompt(true)}>
+                离开，去新的一桌
+              </button>
+              <button
+                className="secondary"
+                autoFocus
+                onClick={() => leavePrompt(false)}
+              >
+                留在这桌
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
       {takeover && (
         <div className="takeover">
           <p>这张牌桌的灯，正亮在另一个页面里。</p>
@@ -808,7 +876,8 @@ function App() {
                         !network ||
                         !capabilities ||
                         capabilities.maintenance ||
-                        !!matching?.queued
+                        !!matching?.queued ||
+                        inMatch
                       }
                     >
                       点灯开桌
@@ -822,7 +891,7 @@ function App() {
                       !network ||
                       !capabilities ||
                       capabilities.maintenance ||
-                      !!(me.roomId || room)
+                      inMatch
                     }
                     onStart={startMatch}
                     onCancel={cancelMatch}
@@ -839,7 +908,7 @@ function App() {
                     <button
                       className="secondary"
                       onClick={join}
-                      disabled={busy || code.length !== 6 || !network}
+                      disabled={busy || code.length !== 6 || !network || inMatch}
                     >
                       入座
                     </button>
@@ -861,7 +930,7 @@ function App() {
             <PublicTables
               lobby={lobby}
               disabled={
-                busy || !network || !!matching?.queued || !!(me.roomId || room)
+                busy || !network || !!matching?.queued || inMatch
               }
               onJoin={joinPublic}
             />
@@ -1213,6 +1282,7 @@ function App() {
                     : null
                 }
                 invitesEnabled={!!capabilities?.friendInvitations}
+                beforeJoin={leaveFirst}
                 initialCode={friendFromLink}
                 onCodeConsumed={consumeFriendLink}
                 onJoined={async (roomId) => {
