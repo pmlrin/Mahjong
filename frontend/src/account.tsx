@@ -6,6 +6,8 @@ import { AuthClock } from "./auth-clock";
 import { tierName } from "../../shared/rating";
 import type { CurrentUser, AuthCapabilities } from "../../shared/types";
 export type AccountPage = "profile" | "register" | "login" | "reset" | "change";
+/** 个人信息页的分区：资料、战绩、好友。 */
+export type ProfileSection = "profile" | "history" | "friends";
 export function AccountPanel({
   page,
   setPage,
@@ -17,7 +19,19 @@ export function AccountPanel({
   onCancel,
   socialCapabilities,
   onProfileUpdated,
+  section = "profile",
+  onSection,
+  history,
+  friends,
+  friendsBadge = 0,
 }: {
+  section?: ProfileSection;
+  onSection?: (s: ProfileSection) => void;
+  /** 战绩分区的内容；没有入座时为空。 */
+  history?: React.ReactNode;
+  /** 好友分区的内容；只有正式账号且好友功能开着时才有。 */
+  friends?: React.ReactNode;
+  friendsBadge?: number;
   socialCapabilities?: Partial<SocialCapabilities>;
   onProfileUpdated?: () => Promise<void>;
   page: AccountPage;
@@ -211,19 +225,42 @@ export function AccountPanel({
       </label>
     </>
   );
+  const sections: [ProfileSection, string][] = [["profile", "资料"]];
+  if (history) sections.push(["history", "战绩"]);
+  if (friends) sections.push(["friends", "好友"]);
+  const tabbed = page === "profile" && !!me && sections.length > 1,
+    shown: ProfileSection =
+      tabbed && sections.some(([s]) => s === section) ? section : "profile";
   const title = {
-    profile: "我的账号",
+    profile: "个人信息",
     register: "注册",
     login: "登录",
     reset: "找回密码",
     change: "修改密码",
   }[page];
   return (
-    <main className="account-page">
+    <main className={`account-page${shown !== "profile" ? " wide" : ""}`}>
       <button className="text-button" onClick={onCancel}>
         返回
       </button>
       <h1>{title}</h1>
+      {tabbed && (
+        <nav className="profile-tabs" aria-label="个人信息">
+          {sections.map(([key, label]) => (
+            <button
+              key={key}
+              className={shown === key ? "active" : ""}
+              aria-current={shown === key ? "page" : undefined}
+              onClick={() => onSection?.(key)}
+            >
+              {label}
+              {key === "friends" && friendsBadge > 0 && (
+                <span className="social-badge">{friendsBadge}</span>
+              )}
+            </button>
+          ))}
+        </nav>
+      )}
       {capabilities?.environment === "preview" && (
         <p className="account-notice">
           这里是预览站，账号和战绩与正式站互不相通。
@@ -239,7 +276,7 @@ export function AccountPanel({
           {message}
         </p>
       )}
-      {locked && (
+      {locked && shown === "profile" && (
         <section className="account-release">
           <h2>先离开牌桌</h2>
           <p>
@@ -257,7 +294,11 @@ export function AccountPanel({
           </button>
         </section>
       )}
-      {page === "profile" ? (
+      {page === "profile" && shown === "history" ? (
+        history
+      ) : page === "profile" && shown === "friends" ? (
+        friends
+      ) : page === "profile" ? (
         <section className="account-card">
           <h2>{me?.displayName ?? "尚未入座"}</h2>
           {me?.rating != null && (

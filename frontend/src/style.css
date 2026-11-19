@@ -148,6 +148,8 @@ input[type="range"] { accent-color: var(--color-accent); }
 .header .status-dot.on { background: var(--color-signal); }
 .account-entry { display: inline-flex; align-items: center; gap: var(--space-xs); min-height: var(--control-h); padding-inline: var(--space-xs); border-radius: var(--radius-control); }
 .account-entry:hover { background: var(--color-felt-raised); }
+.account-entry.active { background: var(--color-felt-raised); color: var(--color-felt-ink); }
+.account-entry .social-badge { margin-left: 0; }
 .identity-name { max-width: 10em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .identity-kind { padding-inline: var(--space-2xs); border: var(--rule-hair) solid var(--color-nav-ink-2); border-radius: var(--radius-tile); font-size: var(--text-xs); color: var(--color-nav-ink-2); }
 .account-entry .profile-avatar { width: 28px; height: 28px; }
@@ -216,6 +218,17 @@ input[type="range"] { accent-color: var(--color-accent); }
 }
 .history-page > * { max-width: 960px; }
 .account-page > * { max-width: 560px; }
+.account-page.wide > * { max-width: 960px; }
+/* 战绩、好友嵌在个人信息页里，不再自带页边距。 */
+.account-page .history-page, .account-page .social-page { padding: 0; margin-inline: 0; }
+.account-page .history-page > .page-sub, .account-page .social-page > .page-sub { margin-block: var(--space-md) var(--space-sm); }
+.history-page h2.history-detail-title { margin-block: var(--space-md) var(--space-sm); }
+.profile-tabs { display: flex; align-items: center; gap: var(--space-2xs); margin-top: var(--space-md); border-bottom: var(--rule-hair) solid var(--color-rule); }
+.profile-tabs button { position: relative; display: inline-flex; align-items: center; min-height: var(--control-h); padding-inline: var(--space-md); font-size: var(--text-sm); color: var(--color-ink-2); white-space: nowrap; }
+.profile-tabs button:hover:not(:disabled) { color: var(--color-ink); }
+.profile-tabs .active { color: var(--color-ink); font-weight: 600; }
+.profile-tabs .active::after { content: ""; position: absolute; inset-inline: var(--space-md); bottom: -1px; height: var(--space-3xs); background: var(--color-accent); }
+.account-page .profile-tabs ~ .account-card { border-top: 0; padding-top: 0; }
 .social-page > * { max-width: 880px; }
 .rules-page > * { max-width: 1040px; }
 .page-title { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-lg); margin-bottom: var(--space-md); }

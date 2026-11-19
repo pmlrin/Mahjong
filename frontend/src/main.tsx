@@ -32,7 +32,11 @@ import {
 } from "../../shared/types";
 import "./style.css";
 import { api } from "./api";
-import { AccountPanel, type AccountPage } from "./account";
+import {
+  AccountPanel,
+  type AccountPage,
+  type ProfileSection,
+} from "./account";
 import { History, formatName } from "./history-pages";
 import { Tile } from "./Tile";
 import { Melds } from "./Melds";
@@ -57,9 +61,7 @@ function App() {
       | "game"
       | "rules"
       | "replay"
-      | "history"
       | "account"
-      | "social"
     >(() =>
       new URLSearchParams(location.search).has("replay") ? "replay" : "home",
     ),
@@ -88,6 +90,7 @@ function App() {
       friendInvitations?: boolean;
     } | null>(null),
     [accountPage, setAccountPage] = useState<AccountPage>("profile"),
+    [profileSection, setProfileSection] = useState<ProfileSection>("profile"),
     [friendFromLink, setFriendFromLink] = useState(
       () => new URLSearchParams(location.search).get("friend") ?? "",
     ),
@@ -105,6 +108,10 @@ function App() {
     !!capabilities?.friends,
     network,
   );
+  const friendsPending =
+    me?.identityKind === "ACCOUNT" && capabilities?.friends
+      ? (social.snapshot?.counts.total ?? 0)
+      : 0;
   const socialRefresh = useRef(social.refresh);
   socialRefresh.current = social.refresh;
   const initialReplayIntent = useRef(
@@ -394,7 +401,7 @@ function App() {
       !authPaused &&
       (screen === "home" || screen === "room")
     )
-      setScreen("social");
+      openAccount("profile", "friends");
   }, [friendFromLink, me?.identityKind, capabilities?.friends, authPaused]);
   function consumeFriendLink() {
     setFriendFromLink("");
@@ -582,8 +589,12 @@ function App() {
     }
     setNetwork(false);
   }
-  function openAccount(page: AccountPage = "profile") {
+  function openAccount(
+    page: AccountPage = "profile",
+    section: ProfileSection = "profile",
+  ) {
     setAccountPage(page);
+    setProfileSection(section);
     setScreen("account");
   }
   async function authIdentity(result: "changed" | "logout" | "loginRequired") {
@@ -610,6 +621,7 @@ function App() {
     setAuthPaused(false);
     setSessionEpoch((v) => v + 1);
     setAccountPage(current.identityKind === "GUEST" ? "register" : "profile");
+    setProfileSection("profile");
     setScreen("account");
     setCapabilities(await api<any>("/capabilities"));
   }
@@ -621,9 +633,12 @@ function App() {
     setScreen("account");
   }
   function cancelAccount() {
-    setAuthPaused(false);
-    setSessionEpoch((v) => v + 1);
-    setScreen(frame ? "game" : "home");
+    // Only a paused identity (released for an auth step) needs a fresh session.
+    if (authPaused) {
+      setAuthPaused(false);
+      setSessionEpoch((v) => v + 1);
+    }
+    setScreen(frame ? "game" : room ? "room" : "home");
   }
   const view = frame?.state;
   return (
@@ -650,27 +665,6 @@ function App() {
               牌桌
             </button>
           )}
-          {me && (
-            <button
-              className={screen === "history" ? "active" : ""}
-              onClick={() => setScreen("history")}
-            >
-              战绩
-            </button>
-          )}
-          {me?.identityKind === "ACCOUNT" && capabilities?.friends && (
-            <button
-              className={screen === "social" ? "active" : ""}
-              onClick={() => setScreen("social")}
-            >
-              好友{" "}
-              {social.snapshot?.counts.total ? (
-                <span className="social-badge">
-                  {social.snapshot.counts.total}
-                </span>
-              ) : null}
-            </button>
-          )}
           <button
             className={screen === "rules" ? "active" : ""}
             onClick={showRules}
@@ -686,14 +680,21 @@ function App() {
             title={network ? "已连接" : "未连接"}
           />
           <button
-            className="account-entry"
-            aria-label="我的账号"
+            className={`account-entry${screen === "account" ? " active" : ""}`}
+            aria-label={
+              friendsPending ? `个人信息，${friendsPending} 条待处理` : "个人信息"
+            }
             onClick={() => openAccount(me ? "profile" : "login")}
           >
             {me?.identityKind === "ACCOUNT" && <Avatar id={me.avatarId} />}
             <span className="identity-name">{me?.displayName ?? "登录"}</span>
             {me?.identityKind === "GUEST" && (
               <span className="identity-kind">游客</span>
+            )}
+            {friendsPending > 0 && (
+              <span className="social-badge" aria-hidden="true">
+                {friendsPending}
+              </span>
             )}
           </button>
           <SoundToggles
@@ -953,7 +954,7 @@ function App() {
                 room.hostUserId === me.userId && (
                   <button
                     className="secondary"
-                    onClick={() => setScreen("social")}
+                    onClick={() => openAccount("profile", "friends")}
                   >
                     邀请好友
                   </button>
@@ -1212,36 +1213,52 @@ function App() {
         />
       ) : screen === "rules" ? (
         <Rules onBack={() => setScreen(view ? "game" : "home")} />
-      ) : screen === "social" && me?.identityKind === "ACCOUNT" ? (
-        <SocialPage
-          key={me.userId + ":" + sessionEpoch}
-          snapshot={social.snapshot}
-          refresh={social.refresh}
-          stale={social.stale}
-          error={social.error}
-          room={
-            room?.status === "WAITING" && room.hostUserId === me.userId
-              ? room
-              : null
-          }
-          invitesEnabled={!!capabilities?.friendInvitations}
-          initialCode={friendFromLink}
-          onCodeConsumed={consumeFriendLink}
-          onBack={() => setScreen(frame ? "game" : "home")}
-          onJoined={async (roomId) => {
-            const generation = identityGeneration.current;
-            const current = await api<Me>("/me");
-            if (generation !== identityGeneration.current) return;
-            if (current.roomId !== roomId) throw Error("牌桌有变，请重新查看");
-            setMe(current);
-            const joined = await api<Room>("/rooms/" + roomId);
-            if (generation !== identityGeneration.current) return;
-            await watch(joined);
-          }}
-        />
       ) : screen === "account" ? (
         <AccountPanel
           key={accountPage}
+          section={profileSection}
+          onSection={setProfileSection}
+          friendsBadge={friendsPending}
+          history={
+            me && !authPaused ? (
+              <History
+                key={me.userId + ":" + sessionEpoch}
+                userId={me.userId}
+                onReplay={openReplay}
+              />
+            ) : null
+          }
+          friends={
+            me?.identityKind === "ACCOUNT" &&
+            capabilities?.friends &&
+            !authPaused ? (
+              <SocialPage
+                key={me.userId + ":" + sessionEpoch}
+                snapshot={social.snapshot}
+                refresh={social.refresh}
+                stale={social.stale}
+                error={social.error}
+                room={
+                  room?.status === "WAITING" && room.hostUserId === me.userId
+                    ? room
+                    : null
+                }
+                invitesEnabled={!!capabilities?.friendInvitations}
+                initialCode={friendFromLink}
+                onCodeConsumed={consumeFriendLink}
+                onJoined={async (roomId) => {
+                  const generation = identityGeneration.current;
+                  const current = await api<Me>("/me");
+                  if (generation !== identityGeneration.current) return;
+                  if (current.roomId !== roomId) throw Error("牌桌有变，请重新查看");
+                  setMe(current);
+                  const joined = await api<Room>("/rooms/" + roomId);
+                  if (generation !== identityGeneration.current) return;
+                  await watch(joined);
+                }}
+              />
+            ) : null
+          }
           socialCapabilities={capabilities ?? {}}
           onProfileUpdated={async () => {
             const generation = identityGeneration.current;
@@ -1260,14 +1277,12 @@ function App() {
           onIdentity={authIdentity}
           onCancel={cancelAccount}
         />
-      ) : screen === "history" && me ? (
-        <History userId={me.userId} onReplay={openReplay} />
       ) : screen === "replay" && replayTarget ? (
         <Replay
           key={replayTarget.id}
           matchId={replayTarget.id}
           initialHandId={replayTarget.handId}
-          onBack={() => setScreen("history")}
+          onBack={() => openAccount("profile", "history")}
         />
       ) : (
         <main className="loading">正在推开牌桌的门…</main>

@@ -169,9 +169,12 @@ export function History({
     }
   }
   return (
-    <main className="history-page">
-      <h1>{detail ? "这一场" : "战绩"}</h1>
-      <p className="page-sub">雪地上的脚印，都还在</p>
+    <section className="history-page" aria-label="战绩">
+      {detail ? (
+        <h2 className="history-detail-title">这一场</h2>
+      ) : (
+        <p className="page-sub">雪地上的脚印，都还在</p>
+      )}
       {err && <p role="alert">{err}</p>}
       {detail ? (
         <>
@@ -321,6 +324,6 @@ export function History({
           {loading && <p aria-live="polite">正在翻找…</p>}
         </>
       )}
-    </main>
+    </section>
   );
 }

@@ -24,7 +24,6 @@ export function SocialPage({
   error: syncError,
   room,
   onJoined,
-  onBack,
   invitesEnabled,
   initialCode = "",
   onCodeConsumed,
@@ -35,7 +34,6 @@ export function SocialPage({
   error: string;
   room: Room | null;
   onJoined: (roomId: string) => Promise<void>;
-  onBack: () => void;
   invitesEnabled: boolean;
   /** A friend code arriving from a shared `?friend=` link. */
   initialCode?: string;
@@ -225,11 +223,7 @@ export function SocialPage({
       minute: "2-digit",
     });
   return (
-    <main className="social-page">
-      <button className="text-button" onClick={onBack}>
-        返回
-      </button>
-      <h1>好友</h1>
+    <section className="social-page" aria-label="好友">
       <p className="page-sub">常围着一盏灯的人，记在这里</p>
       {stale && (
         <p className="account-notice">
@@ -620,6 +614,6 @@ export function SocialPage({
           <button onClick={() => setConfirm(null)}>取消</button>
         </section>
       )}
-    </main>
+    </section>
   );
 }
