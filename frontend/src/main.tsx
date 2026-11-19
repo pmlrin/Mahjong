@@ -849,8 +849,9 @@ function App() {
                       aria-label="房间邀请码"
                       placeholder="或输入朋友的 6 位邀请码"
                       maxLength={6}
+                      inputMode="numeric"
                       value={code}
-                      onChange={(e) => setCode(e.target.value.toUpperCase())}
+                      onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                     />
                     <button
                       className="secondary"

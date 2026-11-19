@@ -298,21 +298,17 @@ input[type="range"] { accent-color: var(--color-accent); }
 .lounge-feature h3 { font-size: var(--text-title); max-width: none; }
 .lounge-feature p { margin-top: var(--space-2xs); font-size: var(--text-sm); color: var(--color-ink-2); line-height: 1.7; }
 
-/* ---------- Room: the seats sit around a real table ---------- */
+/* ---------- Room: four seats side by side under the invite ---------- */
 .seats {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1fr);
-  grid-template-areas: ". s2 ." "s3 center s1" ". s0 .";
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-areas: "center center center center";
   gap: var(--space-sm);
   padding: var(--space-md) var(--space-lg);
   border: var(--space-xs) solid var(--color-felt-deep);
   border-radius: var(--radius-table);
   background: var(--color-felt);
 }
-.seats .seat-card:nth-of-type(1) { grid-area: s0; }
-.seats .seat-card:nth-of-type(2) { grid-area: s1; }
-.seats .seat-card:nth-of-type(3) { grid-area: s2; }
-.seats .seat-card:nth-of-type(4) { grid-area: s3; }
 .room-center { grid-area: center; display: grid; align-content: center; justify-items: center; gap: var(--space-xs); color: var(--color-felt-ink); text-align: center; --color-focus: var(--color-focus-felt); }
 .room-invite { display: grid; justify-items: center; gap: var(--space-2xs); }
 .room-invite small { font-size: var(--text-sm); color: var(--color-felt-ink-2); }
@@ -330,7 +326,7 @@ input[type="range"] { accent-color: var(--color-accent); }
   align-content: center;
   align-items: center;
   gap: var(--space-2xs) var(--space-sm);
-  align-self: center;
+  align-self: stretch;
   min-height: 104px;
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-card);
@@ -904,7 +900,7 @@ input[type="range"] { accent-color: var(--color-accent); }
   .lounge-feature { padding-left: 0; padding-top: var(--space-md); border-left: 0; border-top: var(--rule-hair) solid var(--color-rule); }
   .app > footer { flex-direction: column; gap: var(--space-2xs); }
   .page-title { flex-direction: column; align-items: flex-start; }
-  .seats { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "center center" "s0 s1" "s3 s2"; gap: var(--space-xs); padding: var(--space-sm); }
+  .seats { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "center center"; gap: var(--space-xs); padding: var(--space-sm); }
   .seat-card { grid-template-columns: minmax(0, 1fr); justify-items: start; padding: var(--space-sm); }
   .seat-avatar { grid-row: auto; width: 40px; height: 40px; }
   .seat-avatar .profile-avatar { width: 40px; height: 40px; }

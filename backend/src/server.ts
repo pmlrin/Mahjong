@@ -918,7 +918,7 @@ function newRoom(
 ): Room {
   let inviteCode: string;
   do {
-    inviteCode = randomBytes(4).toString("hex").slice(0, 6).toUpperCase();
+    inviteCode = String(randomInt(1_000_000)).padStart(6, "0");
   } while ([...rooms.values()].some((r) => r.inviteCode === inviteCode));
   return {
     roomId: uid(),
