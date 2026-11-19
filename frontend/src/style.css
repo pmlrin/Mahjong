@@ -388,9 +388,11 @@ input[type="range"] { accent-color: var(--color-accent); }
 .game-app .brand-seal { width: 28px; height: 32px; font-size: var(--text-xl); }
 .game-app .brand-en { display: none; }
 .play-page { width: 100%; max-width: 1240px; margin-inline: auto; padding: 0 var(--space-lg) var(--space-md); }
-.game-topline { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); min-height: 36px; font-size: var(--text-xs); color: var(--color-ink-2); }
-.game-topline > span:first-child { display: flex; align-items: center; gap: var(--space-xs); }
-.game-topline .text-button { min-height: 36px; font-size: var(--text-xs); }
+.game-topline { display: flex; align-items: center; gap: var(--space-lg); min-height: 36px; font-size: var(--text-xs); color: var(--color-ink-2); }
+.topline-status { display: flex; align-items: center; gap: var(--space-xs); flex: 1; min-width: 0; }
+.topline-format { margin-left: var(--space-sm); padding-left: var(--space-sm); border-left: var(--rule-hair) solid var(--color-rule); }
+.game-topline .text-button { min-height: 36px; font-size: var(--text-xs); color: var(--color-ink-2); text-decoration-color: transparent; }
+.game-topline .text-button:hover:not(:disabled), .game-topline .text-button[aria-pressed="true"] { color: var(--color-ink); text-decoration-color: var(--color-accent); }
 .portrait-hint { display: none; }
 /* Fullscreen play: the site header steps aside and the table takes the whole screen. */
 .table-fullscreen .game-app > .header { display: none; }
@@ -652,7 +654,7 @@ input[type="range"] { accent-color: var(--color-accent); }
 .final-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-sm); }
 
 /* ---------- Rules ---------- */
-.rules-lead { margin-top: var(--space-2xs); font-size: var(--text-lg); line-height: 1.7; color: var(--color-ink-2); }
+.rules-lead { max-width: 40em; margin-top: var(--space-md); font-size: var(--text-md); line-height: 1.8; color: var(--color-ink); }
 .rule-intro { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-xl) var(--gap-columns); margin-block: var(--space-xl); }
 .rule-intro article { padding-top: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); }
 .rule-intro h2 { max-width: none; font-size: var(--text-xl); }
@@ -665,7 +667,11 @@ input[type="range"] { accent-color: var(--color-accent); }
 .basic-hand .tile.small { width: 40px; min-width: 40px; height: 57px; border-bottom-width: 4px; }
 .basic-hand .yaku-example .tile.drawn { outline-color: var(--color-signal); }
 .basic-hand .yaku-tile-group > small { color: var(--color-felt-ink-2); }
-.yaku-toggle { display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); width: 100%; min-height: 56px; margin-block: var(--space-lg); padding-inline: var(--space-lg); font-size: var(--text-md); }
+.yaku-toggle { display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); width: 100%; min-height: 56px; margin-block: var(--space-lg); padding-inline: var(--space-md); border-block: var(--rule-hair) solid var(--color-rule); color: var(--color-ink); font-size: var(--text-md); font-weight: 600; text-align: left; }
+.yaku-toggle:hover { background: var(--color-paper-2); }
+.yaku-toggle > svg { flex-shrink: 0; color: var(--color-accent); transition: transform var(--dur-short) var(--ease-out); }
+.yaku-toggle[aria-expanded="true"] > svg { transform: rotate(180deg); }
+.yaku-toggle[aria-expanded="false"] + .rules-note { margin-top: 0; padding-top: 0; border-top: 0; }
 .yaku-catalog-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-lg); margin-bottom: var(--space-sm); }
 .yaku-catalog-heading h2 { font-size: var(--text-2xl); }
 .yaku-catalog-heading p { max-width: 62ch; margin-top: var(--space-2xs); font-size: var(--text-sm); line-height: 1.8; color: var(--color-ink-2); }
@@ -757,6 +763,7 @@ input[type="range"] { accent-color: var(--color-accent); }
 .account-card label:has(input[type="checkbox"]) { display: flex; align-items: flex-start; gap: var(--space-xs); }
 .account-card small { color: var(--color-muted); line-height: 1.7; }
 .account-card .primary, .account-card .secondary { min-width: 8em; }
+.account-actions { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
 .account-notice, .account-release { padding: var(--space-md); border-radius: var(--radius-control); background: var(--color-warn-wash); color: var(--color-warn-ink); font-size: var(--text-sm); line-height: 1.7; }
 .account-notice { margin-block: var(--space-xs); width: 100%; }
 .account-notice button, .account-release button { margin: var(--space-xs) var(--space-sm) 0 0; }
@@ -904,7 +911,7 @@ input[type="range"] { accent-color: var(--color-accent); }
 /* ---------- Phone portrait table ---------- */
 @media (max-width: 720px) and (orientation: portrait) {
   .portrait-hint { display: block; padding: var(--space-2xs) var(--space-xs); margin-bottom: var(--space-2xs); border-radius: var(--radius-control); background: var(--color-warn-wash); color: var(--color-warn-ink); font-size: var(--text-xs); text-align: center; }
-  .game-topline > span:nth-child(2) { display: none; }
+  .topline-format { display: none; }
   .play-page { padding-inline: var(--space-xs); }
   .game-table.table-layout {
     --river-max: 15px;

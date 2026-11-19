@@ -1038,7 +1038,11 @@ function App() {
             </button>
             <span>开局时随机定座</span>
             <button
-              className="secondary"
+              className={
+                room.slots.find((m) => m?.userId === me?.userId)?.ready
+                  ? "secondary"
+                  : "primary"
+              }
               disabled={busy}
               onClick={() =>
                 roomAction("/ready", "PUT", {

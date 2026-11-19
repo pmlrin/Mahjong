@@ -242,8 +242,7 @@ export function AccountPanel({
         <section className="account-release">
           <h2>先离开牌桌</h2>
           <p>
-            进行中的对局会交给假想妖
-            托管，座位和点数都保留；还没开局的话，会先离开房间。
+            进行中的对局会交给假想妖托管，座位和点数都保留；还没开局的话，会先离开房间。
           </p>
           <button
             className="secondary"
@@ -285,20 +284,23 @@ export function AccountPanel({
               <p>
                 你现在是游客。注册后，换台设备也能接着打，已有战绩一并保留。
               </p>
-              <button
-                className="primary"
-                disabled={!capabilities?.registration}
-                onClick={() => setPage("register")}
-              >
-                注册
-              </button>
-              <button
-                className="secondary"
-                disabled={!capabilities?.passwordLogin}
-                onClick={() => setPage("login")}
-              >
-                已有账号，登录
-              </button>
+              <div className="account-actions">
+                {capabilities?.registration && (
+                  <button
+                    className="primary"
+                    onClick={() => setPage("register")}
+                  >
+                    注册
+                  </button>
+                )}
+                <button
+                  className="secondary"
+                  disabled={!capabilities?.passwordLogin}
+                  onClick={() => setPage("login")}
+                >
+                  已有账号，登录
+                </button>
+              </div>
               {me &&
                 (!confirmGuestLogout ? (
                   <button

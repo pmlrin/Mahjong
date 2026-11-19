@@ -113,7 +113,7 @@ export function RulesPage({ onBack }: { onBack: () => void }) {
         <p>四组面子加一对雀头。黄色标记的是和牌的那张；这副牌还满足断幺九、平和。</p>
       </section>
       <button
-        className="yaku-toggle primary"
+        className="yaku-toggle"
         aria-expanded={showYaku}
         aria-controls="all-yaku"
         onClick={() => setShowYaku((v) => !v)}
@@ -121,7 +121,9 @@ export function RulesPage({ onBack }: { onBack: () => void }) {
         {showYaku
           ? "收起役种图鉴"
           : "全部 " + YAKU_CATALOG.length + " 种役，各配一副示例牌"}
-        <span>{showYaku ? "−" : "＋"}</span>
+        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+          <path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </button>
       {showYaku && (
         <section

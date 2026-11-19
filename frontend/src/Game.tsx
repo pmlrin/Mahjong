@@ -242,14 +242,14 @@ export function Game({
   return (
     <main className="play-page">
       <div className="game-topline" inert={!!modal}>
-        <span>
+        <span className="topline-status">
           <span
             className={`status-dot ${network ? "on" : ""}`}
             aria-hidden="true"
           />
           {network ? "已连接" : "风雪吹断了线，正在重连；计时照常"}
+          <span className="topline-format">{formatName(v.format)}</span>
         </span>
-        <span>{formatName(v.format)}</span>
         {table.supported && !table.portrait && (
           <button
             className="text-button"
