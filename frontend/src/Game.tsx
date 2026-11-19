@@ -238,7 +238,7 @@ export function Game({
                 ? "这一局，落定"
                 : hand.phase === "SELF_ACTION" && hand.activeSeat !== null
                   ? `${v.players[hand.activeSeat].displayName}${v.players[hand.activeSeat].effectiveControl === "AI" ? "（假想妖）" : ""}思考中…`
-                  : "静候他家应答…";
+                  : "等他家拿主意…";
   return (
     <main className="play-page">
       <div className="game-topline" inert={!!modal}>
@@ -247,7 +247,7 @@ export function Game({
             className={`status-dot ${network ? "on" : ""}`}
             aria-hidden="true"
           />
-          {network ? "已连接" : "连接中断，正在重连；计时照常"}
+          {network ? "已连接" : "风雪吹断了线，正在重连；计时照常"}
         </span>
         <span>{formatName(v.format)}</span>
         {table.supported && !table.portrait && (
@@ -283,7 +283,7 @@ export function Game({
             : `交给假想妖托管（${botLevelLabel(AUTOPILOT_BOT_LEVEL)}）`}
         </button>
       </div>
-      <div className="portrait-hint">横过来，牌桌更舒展</div>
+      <div className="portrait-hint">把手机横过来，灯下的牌桌更宽敞</div>
       {v.status === "ABORTED" && (
         <div className="takeover">
           <p>灯被风吹灭了。这一场不计入战绩，再点一盏吧。</p>
@@ -719,7 +719,7 @@ export function Game({
                   再来一场
                 </button>
               ) : (
-                <p>等房主再开一场</p>
+                <p>等房主再点一盏灯</p>
               )}
               <button className="text-button" onClick={onNew}>
                 换张桌子

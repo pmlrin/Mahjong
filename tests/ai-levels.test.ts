@@ -31,14 +31,14 @@ const all = (p: Position) =>
     string
   >;
 
-test("四档按强弱排列，名称为初级／中级／高级／大师级，托管固定为中级", () => {
+test("四档按强弱排列，名称为一尾／三尾／六尾／九尾，托管固定为三尾", () => {
   assert.deepEqual(BOT_LEVELS, ["BASIC", "STANDARD", "ADVANCED", "MASTER"]);
   assert.deepEqual(
     BOT_LEVELS.map((l) => BOT_LEVEL_LABELS[l]),
-    ["初级", "中级", "高级", "大师级"],
+    ["一尾", "三尾", "六尾", "九尾"],
   );
   assert.equal(AUTOPILOT_BOT_LEVEL, "STANDARD");
-  assert.equal(botLevelLabel(null), "中级");
+  assert.equal(botLevelLabel(null), "三尾");
 });
 
 // 二向听的散牌，对家立直。手里的白和九万是现物，五索无筋。

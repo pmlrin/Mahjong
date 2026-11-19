@@ -221,8 +221,8 @@ export function History({
           ) : (
             <p className="muted">
               {detail.status === "ABORTED"
-                ? "意外中止的对局没有牌谱"
-                : "牌谱已过保存期（30 天）"}
+                ? "灯灭得突然，这一场没留下牌谱"
+                : "牌谱只留 30 天，这一份已经化了"}
             </p>
           )}
           <h2>每一局</h2>
@@ -309,10 +309,10 @@ export function History({
           )}
           {cursor && (
             <button className="secondary" disabled={loading} onClick={next}>
-              更早的
+              再往前翻
             </button>
           )}
-          {loading && <p aria-live="polite">正在载入…</p>}
+          {loading && <p aria-live="polite">正在翻找…</p>}
         </>
       )}
     </main>

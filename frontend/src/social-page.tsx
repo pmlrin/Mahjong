@@ -11,9 +11,9 @@ import {
   type SocialSnapshot,
 } from "../../shared/social";
 const status = {
-  WAITING: "在房间里",
+  WAITING: "在桌边等人",
   ONLINE: "在线",
-  PLAYING: "对局中",
+  PLAYING: "正在牌桌上",
   OFFLINE: "离线",
 };
 const code = (s: string) => s.match(/.{4}/g)?.join("-") ?? s;
@@ -351,7 +351,7 @@ export function SocialPage({
             <p>正在载入…</p>
           ) : !snapshot.friends.length ? (
             <p className="muted">
-              还没有好友。分享你的好友链接，或从「最近同桌」里一键添加。
+              灯下还没有熟面孔。分享你的好友链接，或从「最近同桌」里一键添加。
             </p>
           ) : (
             snapshot.friends
@@ -379,7 +379,7 @@ export function SocialPage({
                               lobbyGeneration: room.lobbyGeneration,
                               expectedRoomVersion: room.roomVersion,
                             });
-                            setMessage("邀请已发出，5 分钟内有效");
+                            setMessage("邀请已送到门口，5 分钟内有效");
                           })
                         }
                       >

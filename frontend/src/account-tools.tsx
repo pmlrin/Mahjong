@@ -170,7 +170,7 @@ export function AccountTools({
                 setAvatar(id);
                 await onUpdated();
                 setUploading(false);
-                setMessage("头像已换好");
+                setMessage("新头像挂上了");
               }}
             />
           )}

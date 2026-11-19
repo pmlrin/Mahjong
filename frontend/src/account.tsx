@@ -309,7 +309,7 @@ export function AccountPanel({
                   </button>
                 ) : (
                   <div className="account-notice">
-                    <p>游客退出后就找不回来了，连同战绩。不如先注册？</p>
+                    <p>游客一退出，脚印和战绩都会被雪盖住，找不回来。不如先注册？</p>
                     <button
                       className="secondary"
                       disabled={busy || locked}
@@ -321,7 +321,7 @@ export function AccountPanel({
                       className="text-button"
                       onClick={() => setConfirmGuestLogout(false)}
                     >
-                      算了
+                      留着这个游客
                     </button>
                   </div>
                 ))}

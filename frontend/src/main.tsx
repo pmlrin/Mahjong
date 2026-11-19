@@ -679,7 +679,7 @@ function App() {
       )}
       {takeover && (
         <div className="takeover">
-          <p>这张牌桌正在另一个页面打开。</p>
+          <p>这张牌桌的灯，正亮在另一个页面里。</p>
           <button className="primary" onClick={() => run(() => claim(true))}>
             在这里继续
           </button>
@@ -687,7 +687,7 @@ function App() {
       )}
       {capabilities?.maintenance && (
         <p className="maintenance-notice" role="status">
-          维护中：进行中的对局照常，暂不开新桌。
+          正在扫雪修灯：进行中的对局照常，暂不开新桌。
         </p>
       )}
       {boot ? (
@@ -867,7 +867,7 @@ function App() {
                           "?invite=" +
                           room.inviteCode,
                       );
-                      setError("邀请链接已复制，发给朋友即可入座");
+                      setError("邀请链接已复制，发给朋友，推门就能坐");
                     })
                   }
                 >
@@ -1165,7 +1165,7 @@ function App() {
           onBack={() => setScreen("history")}
         />
       ) : (
-        <main className="loading">正在连接牌桌…</main>
+        <main className="loading">正在推开牌桌的门…</main>
       )}
       {screen !== "game" && (
         <footer>
@@ -1238,8 +1238,8 @@ function Replay({
               d.events.filter((e) => e.handId === target.handId).indexOf(event),
             );
             setSeat(target.viewerSeat);
-            if (!initialHandId) setNotice("已回到上次看到的地方");
-          } else setNotice("上次看到的地方找不到了，从局首看起");
+            if (!initialHandId) setNotice("已翻到上次看到的那一页");
+          } else setNotice("上次夹的书签被雪埋了，从局首看起");
         }
         setPositionReady(true);
       })

@@ -3,10 +3,10 @@ export type BotLevel = "BASIC" | "STANDARD" | "ADVANCED" | "MASTER";
 /** Weakest to strongest. The identifiers are stored in saved matches, so BASIC／STANDARD keep their names. */
 export const BOT_LEVELS: BotLevel[] = ["BASIC", "STANDARD", "ADVANCED", "MASTER"];
 export const BOT_LEVEL_LABELS: Record<BotLevel, string> = {
-  BASIC: "初级",
-  STANDARD: "中级",
-  ADVANCED: "高级",
-  MASTER: "大师级",
+  BASIC: "一尾",
+  STANDARD: "三尾",
+  ADVANCED: "六尾",
+  MASTER: "九尾",
 };
 /** A human seat handed to the AI (托管 or disconnected) always plays at this level. */
 export const AUTOPILOT_BOT_LEVEL: BotLevel = "STANDARD";
