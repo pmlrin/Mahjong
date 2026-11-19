@@ -4,6 +4,7 @@ import { RulesPage as Rules } from "./rules-page";
 import { useSocial } from "./use-social";
 import { SocialPage } from "./social-page";
 import { Avatar } from "./Avatar";
+import { MatchPanel, PublicTables } from "./public-lobby";
 import type { SocialCapabilities } from "../../shared/social";
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -21,6 +22,10 @@ import {
   type CurrentUser,
   type AuthCapabilities,
   type BotLevel,
+  type MatchFormat,
+  type MatchFound,
+  type MatchQueueStatus,
+  type PublicLobby,
   BOT_LEVELS,
   botLevelLabel,
 } from "../../shared/types";
@@ -85,7 +90,12 @@ function App() {
       () => new URLSearchParams(location.search).get("friend") ?? "",
     ),
     [sessionEpoch, setSessionEpoch] = useState(0),
-    [authPaused, setAuthPaused] = useState(false);
+    [authPaused, setAuthPaused] = useState(false),
+    [lobby, setLobby] = useState<PublicLobby | null>(null),
+    [matching, setMatching] = useState<MatchQueueStatus | null>(null),
+    [publishNew, setPublishNew] = useState(
+      () => readLocalPreference("mj_publish_room") === "true",
+    );
   const social = useSocial(
     me?.identityKind === "ACCOUNT" && !authPaused
       ? me.userId + ":" + sessionEpoch
@@ -254,6 +264,23 @@ function App() {
       setNetwork(false);
       setError(e.message);
     });
+    s.on("lobby:rooms", (l: PublicLobby) => {
+      if (valid()) setLobby(l);
+    });
+    s.on("match:status", (q: MatchQueueStatus) => {
+      if (valid()) setMatching(q);
+    });
+    s.on("match:found", (m: MatchFound) => {
+      if (!valid()) return;
+      setMatching(null);
+      latest.current = null;
+      setFrame(null);
+      api<Room>("/rooms/" + m.roomId)
+        .then((r) => {
+          if (valid()) return watch(r);
+        })
+        .catch((e) => setError(e.message));
+    });
     s.on("social:changed", () => {
       if (valid()) void socialRefresh.current();
     });
@@ -404,12 +431,52 @@ function App() {
       }
     });
   }, [me, network, takeover, screen, authPaused]);
+  // Public tables are pushed live while the lounge is on screen.
+  useEffect(() => {
+    if (!network || screen !== "home" || !me) return;
+    let active = true;
+    emit("lobby:watch", { watch: true })
+      .then((l: PublicLobby) => active && setLobby(l))
+      .catch(() => {});
+    return () => {
+      active = false;
+      emit("lobby:watch", { watch: false }).catch(() => {});
+    };
+  }, [network, screen, me?.userId]);
+  // The queue lives on the server; resync after every reconnect.
+  useEffect(() => {
+    if (!network || !me) return;
+    api<MatchQueueStatus>("/match/queue")
+      .then(setMatching)
+      .catch(() => {});
+  }, [network, me?.userId]);
+  async function startMatch(format: MatchFormat) {
+    await run(async () => {
+      setMatching(
+        await api<MatchQueueStatus>("/match/queue", "POST", { format }),
+      );
+    });
+  }
+  async function cancelMatch() {
+    await run(async () => {
+      setMatching(await api<MatchQueueStatus>("/match/queue", "DELETE"));
+    });
+  }
+  async function joinPublic(roomId: string) {
+    await run(async () => {
+      const r = await api<Room>("/rooms/" + roomId + "/join", "POST", {});
+      latest.current = null;
+      setFrame(null);
+      await watch(r);
+    });
+  }
   async function newRoom() {
     await run(async () => {
       const r = await api<Room>("/rooms", "POST", {
         format: "EAST_ONLY",
         rulesetId: RULESET,
         timePresetId: "standard-v1",
+        visibility: publishNew ? "PUBLIC" : "PRIVATE",
       });
       latest.current = null;
       setFrame(null);
@@ -766,18 +833,48 @@ function App() {
                       </>
                     )}
                   </p>
-                  <button
-                    className="primary create"
-                    onClick={newRoom}
+                  <div className="create-line">
+                    <button
+                      className="primary create"
+                      onClick={newRoom}
+                      disabled={
+                        busy ||
+                        !network ||
+                        !capabilities ||
+                        capabilities.maintenance ||
+                        !!matching?.queued
+                      }
+                    >
+                      点灯开桌
+                    </button>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={publishNew}
+                        onChange={(e) => {
+                          setPublishNew(e.target.checked);
+                          writeLocalPreference(
+                            "mj_publish_room",
+                            String(e.target.checked),
+                          );
+                        }}
+                      />
+                      公开到大厅，谁路过都能坐下
+                    </label>
+                  </div>
+                  <MatchPanel
+                    status={matching}
+                    formats={capabilities?.formats ?? ["EAST_ONLY", "HANCHAN"]}
                     disabled={
                       busy ||
                       !network ||
                       !capabilities ||
-                      capabilities.maintenance
+                      capabilities.maintenance ||
+                      !!(me.roomId || room)
                     }
-                  >
-                    点灯开桌
-                  </button>
+                    onStart={startMatch}
+                    onCancel={cancelMatch}
+                  />
                   <div className="join-line">
                     <input
                       aria-label="房间邀请码"
@@ -822,6 +919,15 @@ function App() {
               </div>
             </div>
           </section>
+          {me && (
+            <PublicTables
+              lobby={lobby}
+              disabled={
+                busy || !network || !!matching?.queued || !!(me.roomId || room)
+              }
+              onJoin={joinPublic}
+            />
+          )}
           <div className="lounge-bottom">
             <div className="lounge-note">
               <h2>把夜晚留给牌局</h2>
@@ -908,6 +1014,26 @@ function App() {
                   </label>
                 ) : (
                   <span>{formatName(room.config.format)}</span>
+                )}
+                {room.hostUserId === me?.userId && room.status === "WAITING" ? (
+                  <label className="visibility-toggle">
+                    <input
+                      type="checkbox"
+                      checked={room.visibility === "PUBLIC"}
+                      disabled={busy}
+                      onChange={(e) =>
+                        roomAction("/visibility", "PUT", {
+                          visibility: e.target.checked ? "PUBLIC" : "PRIVATE",
+                          expectedRoomVersion: room.roomVersion,
+                        })
+                      }
+                    />
+                    公开到大厅
+                  </label>
+                ) : (
+                  room.visibility === "PUBLIC" && (
+                    <span>公开牌桌，谁都能坐下</span>
+                  )
                 )}
                 <span>起始 25,000 点，有赤宝牌与食断</span>
                 <span>出牌 15 秒，应答 8 秒</span>
@@ -1309,7 +1435,8 @@ function Replay({
           <h1>牌谱</h1>
           <p className="page-sub">
             {data
-              ? formatName(data.format ?? "EAST_ONLY") + "，灯下再看一遍那时的选择"
+              ? formatName(data.format ?? "EAST_ONLY") +
+                "，灯下再看一遍那时的选择"
               : "灯下再看一遍那时的选择"}
           </p>
         </div>

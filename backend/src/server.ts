@@ -64,6 +64,10 @@ import {
   type Seat,
   type Room,
   type Member,
+  type MatchQueueStatus,
+  type PublicLobby,
+  type PublicRoomSummary,
+  type RoomVisibility,
   type Frame,
   type Receipt,
   type Action,
@@ -423,6 +427,11 @@ async function save(g: GameState | null, r: Room | null, extra: Write[] = []) {
   if (r) writes.push({ kind: "room", id: r.roomId, data: r });
   const effect = () => {
     if (r) {
+      if (
+        r.visibility === "PUBLIC" ||
+        rooms.get(r.roomId)?.visibility === "PUBLIC"
+      )
+        publicRoomsChanged();
       rooms.set(r.roomId, r);
       if (typeof social !== "undefined") social.roomPresenceChanged(r);
       for (const connection of ns.sockets.values())
@@ -501,6 +510,11 @@ const social = new SocialService(store, auth, {
   serialize: enqueue,
   connected: (id) => bindings.has(id),
   roomChanged: (r) => {
+    if (
+      r.visibility === "PUBLIC" ||
+      rooms.get(r.roomId)?.visibility === "PUBLIC"
+    )
+      publicRoomsChanged();
     rooms.set(r.roomId, r);
     for (const socket of ns.sockets.values())
       if (
@@ -841,47 +855,97 @@ route("post", "/rooms", async (req, res) =>
           format: z.enum(["EAST_ONLY", "HANCHAN"]),
           rulesetId: z.literal(RULESET),
           timePresetId: z.literal("standard-v1"),
+          visibility: z.enum(["PRIVATE", "PUBLIC"]).optional(),
         })
         .strict(),
       req.body,
     );
     const active = current(u.userId);
     if (active) return active;
-    let inviteCode: string;
-    do {
-      inviteCode = randomBytes(4).toString("hex").slice(0, 6).toUpperCase();
-    } while ([...rooms.values()].some((r) => r.inviteCode === inviteCode));
-    const member: Member = {
-      memberId: uid(),
-      userId: u.userId,
-      displayName: u.displayName,
-      avatarId: await avatarFor(u.userId),
-      participantKind: "HUMAN",
-      ready: false,
-      connected: bindings.has(u.userId),
-      botLevel: null,
-    };
-    const r: Room = {
-      roomId: uid(),
-      lobbyGeneration: 1,
-      previousMatchIds: [],
-      isRematchLobby: false,
-      memberJoinOrder: [member.memberId],
-      offlineSince: {},
-      inviteCode,
-      status: "WAITING",
-      roomVersion: 1,
-      presenceVersion: 1,
-      roomViewSeq: 1,
-      hostUserId: u.userId,
-      config: req.body,
-      slots: [member, null, null, null],
-      matchId: null,
-    };
+    leaveQueue(u.userId);
+    const { visibility = "PRIVATE", ...config } = req.body;
+    const r = newRoom(u.userId, config, visibility, [
+      {
+        memberId: uid(),
+        userId: u.userId,
+        displayName: u.displayName,
+        avatarId: await avatarFor(u.userId),
+        participantKind: "HUMAN",
+        ready: false,
+        connected: bindings.has(u.userId),
+        botLevel: null,
+      },
+      null,
+      null,
+      null,
+    ]);
     await save(null, r);
     return r;
   }),
 );
+function newRoom(
+  hostUserId: string,
+  config: Room["config"],
+  visibility: RoomVisibility,
+  slots: Room["slots"],
+): Room {
+  let inviteCode: string;
+  do {
+    inviteCode = randomBytes(4).toString("hex").slice(0, 6).toUpperCase();
+  } while ([...rooms.values()].some((r) => r.inviteCode === inviteCode));
+  return {
+    roomId: uid(),
+    lobbyGeneration: 1,
+    previousMatchIds: [],
+    isRematchLobby: false,
+    memberJoinOrder: slots
+      .filter((m) => m?.participantKind === "HUMAN")
+      .map((m) => m!.memberId),
+    offlineSince: {},
+    inviteCode,
+    visibility,
+    status: "WAITING",
+    roomVersion: 1,
+    presenceVersion: 1,
+    roomViewSeq: 1,
+    hostUserId,
+    config,
+    slots,
+    matchId: null,
+  };
+}
+/** Seat `u` at `old`; a public table lets a bot give up its seat when no chair is empty. */
+async function seatInto(u: Session, old: Room, takeBotSeat: boolean) {
+  const active = current(u.userId);
+  if (active) {
+    if (active.roomId === old.roomId) return active;
+    fail("ALREADY_IN_ROOM", "你还在另一张牌桌上，请先回去或离开");
+  }
+  if (old.status !== "WAITING") fail("ROOM_STARTED", "这一桌已经开局或散了");
+  const r = structuredClone(old);
+  let slot = r.slots.indexOf(null);
+  if (slot < 0 && takeBotSeat)
+    slot = r.slots.findIndex((m) => m?.participantKind === "BOT");
+  if (slot < 0) fail("ROOM_FULL", "房间已满");
+  leaveQueue(u.userId);
+  r.slots[slot] = {
+    memberId: uid(),
+    userId: u.userId,
+    displayName: u.displayName,
+    avatarId: await avatarFor(u.userId),
+    participantKind: "HUMAN",
+    ready: false,
+    connected: bindings.has(u.userId),
+    botLevel: null,
+  };
+  r.memberJoinOrder.push(r.slots[slot]!.memberId);
+  if (r.isRematchLobby && !r.slots[slot]!.connected)
+    r.offlineSince[u.userId] = Date.now();
+  clearReady(r);
+  roomChanged(r);
+  await save(null, r);
+  return r;
+}
 route("post", "/rooms/join", async (req, res) =>
   mutation(req, res, async (u) => {
     const { inviteCode } = parse(
@@ -899,34 +963,246 @@ route("post", "/rooms/join", async (req, res) =>
     const old =
       [...rooms.values()].find((r) => r.inviteCode === inviteCode) ??
       fail("NOT_FOUND", "邀请码无效", 404);
-    const active = current(u.userId);
-    if (active) {
-      if (active.roomId === old.roomId) return active;
-      fail("ALREADY_IN_ROOM", "你还在另一张牌桌上，请先回去或离开");
-    }
-    if (old.status !== "WAITING") fail("ROOM_STARTED", "这一桌已经开局或散了");
-    const r = structuredClone(old);
-    const slot = r.slots.indexOf(null);
-    if (slot < 0) fail("ROOM_FULL", "房间已满");
-    r.slots[slot] = {
-      memberId: uid(),
-      userId: u.userId,
-      displayName: u.displayName,
-      avatarId: await avatarFor(u.userId),
-      participantKind: "HUMAN",
-      ready: false,
-      connected: bindings.has(u.userId),
-      botLevel: null,
-    };
-    r.memberJoinOrder.push(r.slots[slot]!.memberId);
-    if (r.isRematchLobby && !r.slots[slot]!.connected)
-      r.offlineSince[u.userId] = Date.now();
-    clearReady(r);
+    return seatInto(u, old, false);
+  }),
+);
+// ---- Public rooms: listed for every online player, anyone may sit down. ----
+function onlineCount() {
+  const ids = new Set<string>();
+  for (const s of ns.sockets.values())
+    if (s.data.user?.userId) ids.add(s.data.user.userId);
+  return ids.size;
+}
+function publicLobby(): PublicLobby {
+  const list: PublicRoomSummary[] = [];
+  for (const r of rooms.values()) {
+    if (r.status !== "WAITING" || r.visibility !== "PUBLIC") continue;
+    const openSeats = r.slots.filter(
+      (m) => !m || m.participantKind === "BOT",
+    ).length;
+    if (!openSeats) continue;
+    list.push({
+      roomId: r.roomId,
+      format: r.config.format,
+      openSeats,
+      seats: r.slots.map((m) =>
+        m
+          ? {
+              displayName: m.displayName,
+              avatarId: m.avatarId,
+              participantKind: m.participantKind,
+              botLevel: m.botLevel,
+              host: m.userId === r.hostUserId,
+            }
+          : null,
+      ) as PublicRoomSummary["seats"],
+    });
+  }
+  // Tables with the most people first: they are the closest to a real game.
+  const humans = (x: PublicRoomSummary) =>
+    x.seats.filter((m) => m?.participantKind === "HUMAN").length;
+  list.sort((a, b) => humans(b) - humans(a) || a.openSeats - b.openSeats);
+  return { rooms: list.slice(0, 50), online: onlineCount() };
+}
+let publicTimer: NodeJS.Timeout | null = null;
+function publicRoomsChanged() {
+  if (publicTimer) return;
+  publicTimer = setTimeout(() => {
+    publicTimer = null;
+    const data = publicLobby();
+    for (const s of ns.sockets.values())
+      if (s.data.watchingLobby && auth.resolveHash(s.data.sessionHash))
+        s.emit("lobby:rooms", data);
+  }, 300);
+  publicTimer.unref();
+}
+route("get", "/rooms/public", async (req, res) => {
+  user(req);
+  res.json({ data: publicLobby() });
+});
+route("post", "/rooms/:roomId/join", async (req, res) =>
+  mutation(req, res, async (u) => {
+    const old = rooms.get(String(req.params.roomId));
+    if (!old || old.visibility !== "PUBLIC")
+      fail("NOT_FOUND", "这一桌已经不在大厅里了", 404);
+    return seatInto(u, old!, true);
+  }),
+);
+route("put", "/rooms/:roomId/visibility", async (req, res) =>
+  mutation(req, res, async (u) => {
+    const { visibility } = parse(
+      z
+        .object({
+          visibility: z.enum(["PRIVATE", "PUBLIC"]),
+          expectedRoomVersion: z.number().int(),
+          lobbyGeneration: z.number().int().positive(),
+        })
+        .strict(),
+      req.body,
+    );
+    const r = waiting(req, u, true);
+    r.visibility = visibility;
     roomChanged(r);
     await save(null, r);
     return r;
   }),
 );
+// ---- Random matchmaking: in-memory queue per format. ----
+const MATCH_BOT_FILL_MS = Number(process.env.MATCH_BOT_FILL_MS ?? 30000);
+const queue = new Map<string, { format: MatchFormat; since: number }>();
+function queueStatus(userId: string): MatchQueueStatus {
+  const q = queue.get(userId);
+  if (!q)
+    return {
+      queued: false,
+      format: null,
+      since: null,
+      waiting: 0,
+      botFillAt: null,
+    };
+  const same = [...queue.values()].filter((x) => x.format === q.format);
+  const oldest = Math.min(...same.map((x) => x.since));
+  return {
+    queued: true,
+    format: q.format,
+    since: q.since,
+    waiting: same.length,
+    botFillAt: same.length >= 2 ? oldest + MATCH_BOT_FILL_MS : null,
+  };
+}
+function emitTo(userId: string, event: string, data: unknown) {
+  for (const s of ns.sockets.values())
+    if (
+      s.data.user?.userId === userId &&
+      auth.resolveHash(s.data.sessionHash)
+    )
+      s.emit(event, data);
+}
+function queueChanged(format: MatchFormat) {
+  for (const [id, q] of queue)
+    if (q.format === format) emitTo(id, "match:status", queueStatus(id));
+}
+function leaveQueue(userId: string) {
+  const q = queue.get(userId);
+  if (!q) return;
+  queue.delete(userId);
+  emitTo(userId, "match:status", queueStatus(userId));
+  queueChanged(q.format);
+}
+route("get", "/match/queue", async (req, res) => {
+  res.json({ data: queueStatus(user(req).userId) });
+});
+route("post", "/match/queue", async (req, res) => {
+  const u = user(req);
+  const { format } = parse(
+    z.object({ format: z.enum(["EAST_ONLY", "HANCHAN"]) }).strict(),
+    req.body,
+  );
+  const data = await enqueue(async () => {
+    if (current(u.userId))
+      fail("ALREADY_IN_ROOM", "你还在一张牌桌上，请先回去或离开");
+    if (maintenance()) fail("MAINTENANCE", "维护中，暂不开新桌", 503);
+    const old = queue.get(u.userId);
+    if (old?.format !== format) {
+      queue.delete(u.userId);
+      if (old) queueChanged(old.format);
+      queue.set(u.userId, { format, since: Date.now() });
+      queueChanged(format);
+    }
+    return queueStatus(u.userId);
+  });
+  res.json({ data });
+});
+route("delete", "/match/queue", async (req, res) => {
+  const u = user(req);
+  await enqueue(async () => leaveQueue(u.userId));
+  res.json({ data: queueStatus(u.userId) });
+});
+async function matchmake(now = Date.now()) {
+  const online = new Set<string>();
+  for (const s of ns.sockets.values())
+    if (s.data.user?.userId && auth.resolveHash(s.data.sessionHash))
+      online.add(s.data.user.userId);
+  for (const [id, q] of [...queue])
+    if (!online.has(id) || current(id)) {
+      queue.delete(id);
+      queueChanged(q.format);
+    }
+  for (const format of ["EAST_ONLY", "HANCHAN"] as MatchFormat[]) {
+    const waiting = [...queue]
+      .filter(([, q]) => q.format === format)
+      .sort((a, b) => a[1].since - b[1].since);
+    while (
+      waiting.length >= 4 ||
+      (waiting.length >= 2 && now - waiting[0][1].since >= MATCH_BOT_FILL_MS)
+    ) {
+      if (maintenance()) return;
+      const group = waiting.splice(0, 4).map(([id]) => id);
+      await startMatched(group, format);
+    }
+  }
+}
+async function startMatched(userIds: string[], format: MatchFormat) {
+  for (const id of userIds) queue.delete(id);
+  const slots: Member[] = [];
+  for (const id of userIds) {
+    const identity = [...ns.sockets.values()].find(
+      (s) => s.data.user?.userId === id,
+    )?.data.user as Session | undefined;
+    slots.push({
+      memberId: uid(),
+      userId: id,
+      displayName: identity?.displayName ?? "牌友",
+      avatarId: await avatarFor(id),
+      participantKind: "HUMAN",
+      ready: true,
+      connected: bindings.has(id),
+      botLevel: null,
+    });
+  }
+  while (slots.length < 4)
+    slots.push({
+      memberId: uid(),
+      userId: null,
+      displayName: ["松风", "竹影", "白露", "秋山"][slots.length],
+      participantKind: "BOT",
+      ready: true,
+      connected: true,
+      botLevel: "STANDARD",
+      botPolicyVersion: BOT_POLICY_VERSION,
+    });
+  const r = newRoom(
+    userIds[0],
+    { format, rulesetId: RULESET, timePresetId: "standard-v1" },
+    "PRIVATE",
+    [...slots] as Room["slots"],
+  );
+  for (let i = 3; i > 0; i--) {
+    const j = randomInt(i + 1);
+    [slots[i], slots[j]] = [slots[j], slots[i]];
+  }
+  const g = createGame(
+    r.roomId,
+    slots as [Member, Member, Member, Member],
+    undefined,
+    Date.now(),
+    null,
+    format,
+  );
+  r.matchId = g.matchId;
+  r.status = "PLAYING";
+  await save(g, r);
+  for (const id of userIds)
+    emitTo(id, "match:found", { roomId: r.roomId, matchId: g.matchId });
+  queueChanged(format);
+}
+const matchTimer = setInterval(() => {
+  if (!queue.size) return;
+  enqueue(() => matchmake()).catch((e) =>
+    console.error(JSON.stringify({ event: "MATCH_ERROR", message: e.message })),
+  );
+}, 1000);
+matchTimer.unref();
 route("get", "/rooms/:roomId", async (req, res) => {
   res.json({ data: roomFor(String(req.params.roomId), user(req).userId) });
 });
@@ -1446,6 +1722,7 @@ ns.on("connection", (socket) => {
     });
   const u = socketUser(socket);
   social.connect(socket.id, u);
+  publicRoomsChanged();
   socket.emit("server:hello", {
     protocolVersion: PROTOCOL,
     connectionId: socket.id,
@@ -1491,6 +1768,10 @@ ns.on("connection", (socket) => {
         return { bindingId: binding.bindingId };
       }),
   );
+  on(socket, "lobby:watch", z.object({ watch: z.boolean() }).strict(), async (p) => {
+    socket.data.watchingLobby = p.watch;
+    return p.watch ? publicLobby() : null;
+  });
   on(socket, "room:watch", z.object({ roomId: id }).strict(), async (p) =>
     enqueue(async () => {
       const r = roomFor(p.roomId, u.userId);
@@ -1596,6 +1877,7 @@ ns.on("connection", (socket) => {
   );
   socket.on("disconnect", () => {
     social.disconnect(socket.id);
+    publicRoomsChanged();
     scheduleGame(async () => {
       const b = bindings.get(u.userId);
       if (b?.socketId !== socket.id) return;

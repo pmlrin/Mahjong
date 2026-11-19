@@ -78,9 +78,43 @@ export interface Member {
   botLevel: BotLevel | null;
   botPolicyVersion?: string | null;
 }
+export type RoomVisibility = "PRIVATE" | "PUBLIC";
+export interface PublicRoomSeat {
+  displayName: string;
+  avatarId?: string;
+  participantKind: "HUMAN" | "BOT";
+  botLevel: BotLevel | null;
+  host: boolean;
+}
+export interface PublicRoomSummary {
+  roomId: string;
+  format: MatchFormat;
+  seats: Quad<PublicRoomSeat | null>;
+  /** Empty seats plus seats a bot will give up to a newcomer. */
+  openSeats: number;
+}
+export interface PublicLobby {
+  rooms: PublicRoomSummary[];
+  online: number;
+}
+export interface MatchQueueStatus {
+  queued: boolean;
+  format: MatchFormat | null;
+  since: number | null;
+  /** Players (including you) waiting for the same format. */
+  waiting: number;
+  /** When bots will fill the table if at least two people are waiting. */
+  botFillAt: number | null;
+}
+export interface MatchFound {
+  roomId: string;
+  matchId: string;
+}
 export interface Room {
   roomId: string;
   inviteCode: string;
+  /** PUBLIC rooms are listed in the lobby for every online player to join. */
+  visibility: RoomVisibility;
   status: "WAITING" | "PLAYING" | "FINISHED" | "ABORTED" | "CLOSED";
   lobbyGeneration: number;
   previousMatchIds: string[];

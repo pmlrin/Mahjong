@@ -129,6 +129,7 @@ export async function fixture(databaseURL?: string) {
     const r: Room = {
       roomId: randomUUID(),
       inviteCode: "ABC123",
+      visibility: "PRIVATE",
       status: "WAITING",
       lobbyGeneration: 1,
       previousMatchIds: [],

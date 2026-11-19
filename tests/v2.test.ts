@@ -80,6 +80,7 @@ function room() {
   return normalizeRoom({
     roomId: "room",
     inviteCode: "ABC123",
+    visibility: "PRIVATE",
     hostUserId: "user0",
     status: "FINISHED",
     matchId: "first",

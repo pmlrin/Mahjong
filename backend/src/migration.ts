@@ -10,6 +10,7 @@ export function normalizeRoom(r: Room): Room {
     .filter((m) => m?.participantKind === "HUMAN")
     .map((m) => m!.memberId);
   r.offlineSince ??= {};
+  r.visibility ??= "PRIVATE";
   return r;
 }
 export function normalizeGame(g: GameState): GameState {

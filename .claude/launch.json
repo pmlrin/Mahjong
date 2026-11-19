@@ -37,14 +37,57 @@
     {
       "name": "mahjong-ui-3d",
       "runtimeExecutable": "/usr/bin/env",
-      "runtimeArgs": ["MJ_API_PORT=3013", "node", "node_modules/vite/bin/vite.js", "--config", "frontend/vite.config.ts"],
+      "runtimeArgs": [
+        "MJ_API_PORT=3013",
+        "node",
+        "node_modules/vite/bin/vite.js",
+        "--config",
+        "frontend/vite.config.ts"
+      ],
       "port": 5173
     },
     {
       "name": "mahjong-ui-preview",
       "runtimeExecutable": "/usr/bin/env",
-      "runtimeArgs": ["node", "node_modules/vite/bin/vite.js", "--config", "frontend/vite.config.ts"],
+      "runtimeArgs": [
+        "node",
+        "node_modules/vite/bin/vite.js",
+        "--config",
+        "frontend/vite.config.ts"
+      ],
       "port": 5173
+    },
+    {
+      "name": "mahjong-backend-lobby",
+      "runtimeExecutable": "/usr/bin/env",
+      "runtimeArgs": [
+        "NODE_ENV=development",
+        "DATABASE_URL=",
+        "SQLITE_PATH=data/lobby-preview/mahjong.sqlite",
+        "SESSION_COOKIE_NAME=mj_lobby_preview_session",
+        "PUBLIC_ORIGIN=http://127.0.0.1:5181",
+        "PORT=3021",
+        "MATCH_BOT_FILL_MS=8000",
+        "node",
+        "--import",
+        "tsx",
+        "backend/src/server.ts"
+      ],
+      "port": 3021
+    },
+    {
+      "name": "mahjong-ui-lobby",
+      "runtimeExecutable": "/usr/bin/env",
+      "runtimeArgs": [
+        "MJ_API_PORT=3021",
+        "node",
+        "node_modules/vite/bin/vite.js",
+        "--config",
+        "frontend/vite.config.ts",
+        "--port",
+        "5181"
+      ],
+      "port": 5181
     }
   ]
 }
