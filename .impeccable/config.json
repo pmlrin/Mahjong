@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "frontend/src/style.css"
+        ],
+        "createdAt": "2026-11-19T07:23:15.468Z",
+        "reason": "agent judgment: .tile border-bottom is the mahjong tile's 3D side edge (commit 55b5cdd, 2026-11-12), intentional, not an accent stripe"
+      }
+    ]
+  }
+}
