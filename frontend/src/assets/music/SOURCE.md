@@ -1,4 +1,20 @@
-# 牌桌音乐底噪来源
+# 牌桌音乐素材来源
+
+## 曲子「灯下」：`table-theme.m4a`
+
+本项目自作，由 `scripts/compose-table-music.ts` 按固定乐谱和固定随机种子合成，不含外部采样。按文案方向“雪夜灯下的小魔术”写成：F 大调，72 拍，32 小节，约 107 秒；旋律只用五声音（F G A C D），毛毡钢琴弹旋律和分解和弦，下垫暖色长音；第三段八音盒叠高八度，每段末尾八音盒点一串亮音。
+
+重新生成：
+
+```
+node --import tsx scripts/compose-table-music.ts table-theme.wav
+afconvert -f m4af -d aac -b 160000 table-theme.wav frontend/src/assets/music/table-theme.m4a
+```
+
+脚本把整首连续渲染三遍、取中间一遍，所以结尾的余音和混响正好接进开头，循环没有接缝。实测：4,704,000 帧，在 Chrome 中解码后长度不变；首尾相接处的跳变 0.013，与平常相邻采样的变化（0.008）同一量级，修正前为 0.37；无削波，峰值 −1 dBFS。只附 AAC，不附 Ogg：本机没有 Vorbis 编码器，主流浏览器都能解 AAC。
+
+## 雨声底噪：`ambient.ogg`／`ambient.m4a`
+
 
 `ambient.ogg` 是 OpenGameArt 上 Ylmir 发布的 [Rain (loopable)](https://opengameart.org/content/rain-loopable)（2016-03-28 发布）中 `Rain OGG.zip` 里的 `3.ogg`，2026-11-18 下载，改了文件名，内容未动。zip 的 SHA-256 为 `e68f3e1c77493cf43bec84cebff5043bff6be9ce16d59b24caa988cd460aa75b`，本文件的 SHA-256 为 `73a0f5ef19ed9f64599c0425b1fb52d857acfc42c0fd5eab85c4577ace18f0ed`。
 
@@ -8,4 +24,4 @@
 
 同名 `.m4a` 是给不能解码 Vorbis 的浏览器用的 AAC 版本，做法同牌声：先用 Chrome 的 `decodeAudioData` 把 `.ogg` 解成 44.1 kHz 立体声 16 位 WAV，再用 macOS `afconvert -f m4af -d aac -b 128000` 编码。转出后 1,984,500 帧有效（另有 2112 帧编码延迟，由文件记录、解码时去掉），解码长度与 `.ogg` 完全一致，左声道波形相关系数 0.97。雨声是宽频噪声，有损编码造成的差异比牌声大，但听不出差别；内容未做其他改动。
 
-用途（`frontend/src/music.ts`）：牌桌音乐开启时循环播放，按平均响度（RMS）统一到 0.012。载入前或载入失败时，用同样响度的合成雨声代替，两者交叉淡入淡出。
+用途（`frontend/src/music.ts`）：牌桌音乐开启时与曲子一起循环播放，按平均响度（RMS）统一到 0.006，曲子为 0.022。

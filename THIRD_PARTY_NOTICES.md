@@ -5,7 +5,7 @@
 - React、Express、Socket.IO、pg、Zod、Nodemailer、TypeScript、Vite 等依赖的许可证保留在发行包的依赖目录中，精确依赖版本见 `pnpm-lock.yaml`。
 - 牌面为本项目 SVG／文字绘制，牌背、桌面和首页插画使用 CSS；无外部照片、商标或收费素材。
 - 出牌、翻宝牌和配牌的牌声取自 [Open Tabletop](https://github.com/optimuspryne/open-tabletop) 的 ceramic-tile 系列（CC0 1.0，作者程序合成，非实录），另附本项目转出的 AAC 版本；来源提交与转换方式见 `frontend/src/assets/sounds/SOURCE.md`。鸣牌、立直、立直棒、和牌与流局仍为本项目 Web Audio 合成。音效默认关闭。
-- 牌桌音乐的雨声底噪取自 OpenGameArt 上 Ylmir 的 [Rain (loopable)](https://opengameart.org/content/rain-loopable)（CC0，窗边实录）第 3 段，另附本项目转出的 AAC 版本；来源与转换方式见 `frontend/src/assets/music/SOURCE.md`。旋律、和弦与低音为本项目 Web Audio 实时生成。音乐默认关闭。
+- 牌桌音乐的雨声底噪取自 OpenGameArt 上 Ylmir 的 [Rain (loopable)](https://opengameart.org/content/rain-loopable)（CC0，窗边实录）第 3 段，另附本项目转出的 AAC 版本；来源与转换方式见 `frontend/src/assets/music/SOURCE.md`。曲子「灯下」为本项目自作，由 `scripts/compose-table-music.ts` 合成，不含外部采样。音乐默认关闭。
 - 字体使用设备已有的系统字体，不分发第三方字体文件。
 - 大师级 AI 的放铳率、听牌概率与放铳代价表（`backend/src/bot-learned-data.ts`）由本项目脚本 `scripts/learn-tenhou.ts` 从[天鳳](https://tenhou.net/)鳳凰卓公开牌谱统计得出，只含汇总数字。牌谱本身不入库、不分发（天鳳条款不允许转载），来源与方法见 `docs/AI档位设计与自对局对比.md` 第 6 节。
 

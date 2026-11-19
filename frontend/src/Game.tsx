@@ -25,7 +25,7 @@ import { useReducedMotion } from "./motion";
 import { CallStamps, type PlayStep } from "./CallStamps";
 import { playEvents, playSound } from "./sounds";
 import { duckMusic, setMusicMood, startMusic, stopMusic } from "./music";
-import { musicMood } from "./music-score";
+import { musicMood } from "./music-mood";
 import { DISCARD_LANDS_AFTER, RESULT_HOLD } from "./table3d/timing";
 import { CallChoices, ResponseSource } from "./turn-feedback";
 import { responseTarget } from "../../shared/game-feedback";
