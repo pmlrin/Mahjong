@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-19T03:20:45.113Z",
+  "at": "2026-11-19T06:23:21.863Z",
   "transport": "Local TLS SMTP server with test CA",
   "tls": true,
   "certificateValidation": true,

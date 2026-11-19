@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-19T03:21:37.937Z",
+  "at": "2026-11-19T06:24:18.649Z",
   "passed": true,
   "version": "0.4.2",
   "protocol": "2.0",
@@ -16,12 +16,12 @@
   ],
   "restart": "SIGKILL",
   "aiDiscardGapsMs": [
-    3202,
-    3202
+    2000,
+    2001
   ],
   "serverLog": [
-    "{\"event\":\"DIAGNOSTIC\",\"diagnosticId\":\"ba489096-c53e-4f05-807a-72d8fafff825\",\"appVersion\":\"0.4.2\",\"protocolVersion\":\"2.0\",\"rulesetId\":\"riichi-4p-v1.0\",\"roomId\":\"6c6b4c11-45bc-465c-9233-955b2a0254b2\",\"matchId\":\"50f12a13-dc81-4ba8-94fe-2fae597aa9e1\",\"handId\":\"9aa1659c-4037-4af7-9470-fd7420289524\",\"phase\":\"MATCH_RESULT\",\"viewSeq\":456,\"serverEpoch\":1,\"serverTime\":1795058469262}",
-    "{\"event\":\"DIAGNOSTIC\",\"diagnosticId\":\"46e0eeb6-8d1f-4070-9f04-32223e7553f6\",\"appVersion\":\"0.4.2\",\"protocolVersion\":\"2.0\",\"rulesetId\":\"riichi-4p-v1.0\",\"roomId\":\"6c6b4c11-45bc-465c-9233-955b2a0254b2\",\"matchId\":\"b4e801c8-2548-4adb-bf66-c7b3efd30fa7\",\"handId\":\"8068704e-4e48-49d0-a530-b36c2a8689f4\",\"phase\":\"MATCH_RESULT\",\"viewSeq\":685,\"serverEpoch\":1,\"serverTime\":1795058473468}",
+    "{\"event\":\"DIAGNOSTIC\",\"diagnosticId\":\"4dc777f3-2f5a-45ac-a6a0-6b243eff7cbe\",\"appVersion\":\"0.4.2\",\"protocolVersion\":\"2.0\",\"rulesetId\":\"riichi-4p-v1.0\",\"roomId\":\"ebc3bac7-c3a7-41e7-918e-9d733bf8bc95\",\"matchId\":\"b44e04a0-f60c-4e71-abbb-6ba8d66993fb\",\"handId\":\"22bc278c-5792-45a3-b9a9-cf2da3a757f5\",\"phase\":\"MATCH_RESULT\",\"viewSeq\":1036,\"serverEpoch\":1,\"serverTime\":1795069432940}",
+    "{\"event\":\"DIAGNOSTIC\",\"diagnosticId\":\"e5e64254-b499-4c1a-9d17-4b6d9b15ccf2\",\"appVersion\":\"0.4.2\",\"protocolVersion\":\"2.0\",\"rulesetId\":\"riichi-4p-v1.0\",\"roomId\":\"ebc3bac7-c3a7-41e7-918e-9d733bf8bc95\",\"matchId\":\"b48514df-2f81-4c9d-8036-5e0ca05bbcb1\",\"handId\":\"197849f2-04c0-4580-aac4-0b2794bbc389\",\"phase\":\"MATCH_RESULT\",\"viewSeq\":590,\"serverEpoch\":1,\"serverTime\":1795069436606}",
     "{\"event\":\"SERVER_BUILD\",\"version\":\"0.4.2\",\"protocol\":\"2.0\",\"sourceSha256\":\"development\"}",
     "{\"event\":\"HISTORY_BACKFILL\",\"indexed\":0,\"issues\":0,\"alreadyApplied\":true}",
     "{\"event\":\"AUTH_MIGRATION\",\"alreadyApplied\":true,\"users\":0,\"sessions\":0,\"conflicts\":0}",
@@ -29,7 +29,7 @@
     "{\"event\":\"SERVER_BUILD\",\"version\":\"0.4.2\",\"protocol\":\"2.0\",\"sourceSha256\":\"development\"}",
     "{\"event\":\"HISTORY_BACKFILL\",\"indexed\":0,\"issues\":0,\"alreadyApplied\":true}",
     "{\"event\":\"AUTH_MIGRATION\",\"alreadyApplied\":true,\"users\":0,\"sessions\":0,\"conflicts\":0}",
-    "{\"event\":\"MATCH_ABORTED\",\"matchId\":\"59f3cc15-4a1c-4cc2-b0fb-152773e71426\",\"reason\":\"TILE_CONSERVATION 137/136\"}",
+    "{\"event\":\"MATCH_ABORTED\",\"matchId\":\"8fe5631f-8aa7-4c2d-8a04-d5dba1117960\",\"reason\":\"TILE_CONSERVATION 137/136\"}",
     "Mahjong server http://127.0.0.1:3101",
     "{\"event\":\"SERVER_BUILD\",\"version\":\"0.4.2\",\"protocol\":\"2.0\",\"sourceSha256\":\"development\"}",
     "{\"event\":\"HISTORY_BACKFILL\",\"indexed\":0,\"issues\":0,\"alreadyApplied\":true}",
