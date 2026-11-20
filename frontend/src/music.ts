@@ -1,20 +1,18 @@
-// Table music: the recorded piece 「灯下」 (assets/music/table-theme.m4a,
-// written by scripts/compose-table-music.ts), looped, over a recorded rain
-// bed (assets/music/ambient.*; see SOURCE.md there). The piece is rendered
-// so its end runs into its start, so a plain loop has no seam. Nothing here
-// throws. Off by default, like the table sounds.
+// Table music: 「雪夜灯下的小魔术」 (assets/music/table-theme.m4a; see
+// SOURCE.md there), looped. The file is cut so its closing ring-out already
+// lies over its opening, so a plain loop has no seam. Nothing here throws.
+// Off by default, like the table sounds.
 import type { MusicMood } from "./music-mood";
 import { context } from "./sounds";
 
-const FILES = import.meta.glob<string>("./assets/music/*.{ogg,m4a}", {
+const FILES = import.meta.glob<string>("./assets/music/*.m4a", {
   eager: true,
   query: "?url",
   import: "default",
 });
 
-/** Average loudness (RMS) of the piece and of the rain under it. */
+/** Average loudness (RMS) the piece is played at. */
 const THEME_RMS = 0.022;
-const BED_RMS = 0.006;
 /** How far the music steps back while a result is on show. */
 const REST_LEVEL = 0.55;
 
@@ -32,7 +30,7 @@ let mood: MusicMood = "play";
 let playing = false;
 let generation = 0;
 let voices: AudioBufferSourceNode[] = [];
-const loads: Record<string, Promise<AudioBuffer | null> | undefined> = {};
+let loading: Promise<AudioBuffer | null> | undefined;
 
 function build(ctx: AudioContext): Graph {
   const master = ctx.createGain(),
@@ -51,24 +49,18 @@ function fade(param: AudioParam, to: number, seconds: number) {
   param.linearRampToValueAtTime(to, now + seconds);
 }
 
-/** Decode `name`, trying Vorbis first where the browser has it. */
-function load(ctx: AudioContext, name: string) {
-  return (loads[name] ??= (async () => {
-    let vorbis = false;
+/** Fetch and decode the piece once. */
+function load(ctx: AudioContext) {
+  return (loading ??= (async () => {
+    const url = FILES["./assets/music/table-theme.m4a"];
     try {
-      vorbis = !!new Audio().canPlayType('audio/ogg; codecs="vorbis"');
-    } catch {}
-    for (const ext of vorbis ? ["ogg", "m4a"] : ["m4a", "ogg"]) {
-      const url = FILES[`./assets/music/${name}.${ext}`];
-      if (!url) continue;
-      try {
+      if (url)
         return await ctx.decodeAudioData(
           await (await fetch(url)).arrayBuffer(),
         );
-      } catch {}
-    }
+    } catch {}
     // Nothing decoded (offline, say): try again next time.
-    loads[name] = undefined;
+    loading = undefined;
     return null;
   })());
 }
@@ -121,14 +113,11 @@ export function startMusic() {
       gen = ++generation;
     playing = true;
     stopVoices();
-    void Promise.all([load(ctx, "table-theme"), load(ctx, "ambient")]).then(
-      ([theme, bed]) => {
-        if (!playing || gen !== generation) return;
-        if (theme) loop(g, theme, THEME_RMS);
-        if (bed) loop(g, bed, BED_RMS);
-        if (!document.hidden) fade(g.master.gain, 1, 2.5);
-      },
-    );
+    void load(ctx).then((theme) => {
+      if (!playing || gen !== generation || !theme) return;
+      loop(g, theme, THEME_RMS);
+      if (!document.hidden) fade(g.master.gain, 1, 2.5);
+    });
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("pointerdown", onGesture);
     window.addEventListener("keydown", onGesture);
